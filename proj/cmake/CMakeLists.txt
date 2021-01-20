@@ -31,6 +31,7 @@ set( BLOCKSLIST
 	OSC
 	TUIO
     Base
+	poScene
 )
 
 ci_make_app(

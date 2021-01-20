@@ -24,6 +24,7 @@ public:
 	void update() override;
 	void draw() override;
 
+	void activatePenPressure();
 private:
 
 	ci::vec2 mousePos;
@@ -55,12 +56,12 @@ void FramedApp::setup()
 
 void FramedApp::setupLogging() {
 	// LOGGING to screen (notifications) and disk
-	//std::string const logFolder = ci::getDocumentsDirectory().string() + "/logs";
-	//if (!ci::fs::exists(logFolder)) {
-	//	ci::fs::create_directory(logFolder);
-	//}
+	std::string const logFolder = ci::getDocumentsDirectory().string() + "/logs";
+	if (!ci::fs::exists(logFolder)) {
+		ci::fs::create_directory(logFolder);
+	}
 
-	//ci::log::makeLogger<ci::log::LoggerFileRotating>(logFolder, appName + ".%Y.%m.%d.log", true);
+	ci::log::makeLogger<ci::log::LoggerFileRotating>(logFolder, appName + ".%Y.%m.%d.log", true);
 }
 
 
@@ -95,6 +96,11 @@ void FramedApp::mouseDrag(MouseEvent event)
 
 void FramedApp::mouseUp(MouseEvent event)
 {
+	activatePenPressure();
+}
+
+void FramedApp::activatePenPressure() {
+
 	if (!g_bTriedToCreateRTSHandler) {
 		if (ci::app::getElapsedFrames() > 1) {
 			HWND hw = (HWND)ci::app::getWindow()->getNative();
@@ -106,6 +112,7 @@ void FramedApp::mouseUp(MouseEvent event)
 			}
 		}
 	}
+
 }
 
 void FramedApp::update()
