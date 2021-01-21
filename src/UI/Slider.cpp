@@ -30,9 +30,9 @@ void Slider::setup() {
     mLineImage->setFillColor(ci::Color(151/255.0,151/255.0,151/255.0));
 
     mBlackRect = ShapeView::createRect(30,30);
-    mBlackRect->setFillColor(ci::Color(0,0,0));
-    addSubview(mBlackRect);
-    mBlackRect->setAlignment(po::scene::Alignment::CENTER_CENTER);
+//    mBlackRect->setFillColor(ci::Color(0,0,0));
+//    addSubview(mBlackRect);
+//    mBlackRect->setAlignment(po::scene::Alignment::CENTER_CENTER);
 
     text = CACHE()->getTextureByAssetPath("UI/sliderDot.png");
     mDot = po::scene::ImageView::create(text);
@@ -137,7 +137,7 @@ void Slider::setShowProgressActive(bool value) {
         mProgressLine->setScale(mSliderValue * mControlWidth,1);
         mProgressLine->setAlignment(po::scene::Alignment::CENTER_LEFT);
 
-        moveSubviewToFront(mBlackRect);
+//        moveSubviewToFront(mBlackRect);
         moveSubviewToFront(mDot);
     }
 }

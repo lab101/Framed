@@ -14,6 +14,7 @@
 #include "poScene/Scene.h"
 #include "UI/TouchUI.h"
 #include "Helpers/LineManager.h"
+#include "Helpers/FrameManager.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -38,7 +39,7 @@ public:
 
 private:
 
-	ci::vec2 mousePos;
+    vec3 lastPenPosition;
     bool mTouchDown = false;
 
 	std::vector<pointVec> mTest;
@@ -46,11 +47,22 @@ private:
     po::scene::SceneRef     mScene;
     TouchUIRef mTouchUI;
     LineManager mLineManger;
+    FrameManager mFrameManager;
+
+    // zoom related
+    ci::mat4 screenMatrix;
+    ci::vec3 localCoordinate;
+    ci::vec2 zoomAnchor;
+    void convertPointToLocalSpace(ci::vec3& point);
+    vec3 getLocalPoint(vec3& screenPoint);
+    int zoomDirection = 0;
+    vec2 zoomCenterPoint;
 
 	float mFps;
 	void drawDebug();
 	void drawInfo();
 
+    void drawCursor(float scale, vec2 position) const;
 };
 
 std::string appName = "Framed";
@@ -75,19 +87,12 @@ void FramedApp::setup()
     mTest.reserve(100);
 
     mLineManger.onNewPoints.connect([=] (pointVec points){
-
-        mTest.push_back(points);
-
-
-        for(auto& point: points){
-
-           // vec2 p1 = vec2(point[i].x,point[i].y);
-            std::cout << point << std::endl;
-            gl::drawSolidCircle(point,2);
-        //    i++;
-        }
+        mFrameManager.drawPoints(points,Color::white());
     });
 
+    mFrameManager.setup(4,getWindowSize());
+    zoomCenterPoint.x = 200;
+    zoomCenterPoint.y = 200;
 }
 
 
@@ -101,6 +106,24 @@ void FramedApp::setupLogging() {
 	ci::log::makeLogger<ci::log::LoggerFileRotating>(logFolder, appName + ".%Y.%m.%d.log", true);
 }
 
+
+// some parts based on http://discourse.libcinder.org/t/screen-to-world-coordinates/1014/2
+vec3 FramedApp::getLocalPoint(vec3& screenPoint){
+
+    int w =  ci::app::getWindowWidth();
+    int h =  ci::app::getWindowHeight();
+
+    vec3 l = screenPoint;
+    l.x *=  1200.0 /ci::app::getWindowWidth();
+    l.y *=  1000.0 / ci::app::getWindowHeight() ;
+
+    vec4 viewport = vec4( 0, h, w, -h ); // vertical flip is required
+
+    vec3 localPoint = glm::unProject( l, mat4(), screenMatrix, viewport );
+    localPoint.z = screenPoint.z;
+
+    return localPoint;
+}
 
 void FramedApp::keyDown(KeyEvent event)
 {
@@ -118,32 +141,41 @@ void FramedApp::keyDown(KeyEvent event)
 
 void FramedApp::mouseDown(MouseEvent event)
 {
-	mousePos = event.getPos();
-	vec3 p(mousePos.x,mousePos.y,getPressure());
-	mLineManger.newLine(p);
+    lastPenPosition = vec3(event.getPos(),10);
+    localCoordinate = getLocalPoint(lastPenPosition);
+
+	mLineManger.newLine(localCoordinate);
 
     mTouchDown = true;
 }
 
 void FramedApp::mouseMove(MouseEvent event)
 {
-	mousePos = event.getPos();
+    lastPenPosition = vec3(event.getPos().x,event.getPos().y,10);
+
 
 	if(mTouchDown){
-        vec3 p(mousePos.x,mousePos.y,getPressure());
-        mLineManger.lineTo(p,ci::Color::white());
+        localCoordinate = getLocalPoint(lastPenPosition);
+
+        mLineManger.lineTo(localCoordinate,ci::Color::white());
     }
 }
 
 void FramedApp::mouseDrag(MouseEvent event)
 {
-	mousePos = event.getPos();
-    vec3 p(mousePos.x,mousePos.y,getPressure());
-    mLineManger.lineTo(p,ci::Color::white());
+    if(mTouchDown){
+        lastPenPosition = vec3(event.getPos(),10);
+        localCoordinate = getLocalPoint(lastPenPosition);
+
+        mLineManger.lineTo(localCoordinate,ci::Color::white());
+    }
 }
 
 void FramedApp::mouseUp(MouseEvent event)
 {
+
+    lastPenPosition = vec3(event.getPos(),10);
+
     if(mTouchDown){
         activatePenPressure();
         mLineManger.endLine();
@@ -189,53 +221,69 @@ void FramedApp::update()
 		drawDebug();
 		drawInfo();
 	}
-
 }
+
+
 
 void FramedApp::draw()
 {
-	gl::clear();
+	gl::clear(Color::white());
 	if (GS()->debugMode.value()) {
 	}
 
-	float scale = 1.0f ;//+ g_Pressure * 9.0f;
-
+	float pressure = 1.0f ;//+ g_Pressure * 9.0f;
 
     const float margin = 20;
     Rectf activeArea(margin,margin,getWindow()->getWidth() - margin*2,getWindow()->getHeight() - margin*2);
-    if(activeArea.contains(mousePos)){
-        hideCursor();
+    if(activeArea.contains(lastPenPosition)){
+     //   hideCursor();
     }else{
         showCursor();
     }
 
+    ci::gl::color(1,1,1);
+
+
+    ivec2 size = mFrameManager.getSize();
+
+    // Drawing "the paper" at zoomlevel with offset.
+    ci::gl::pushMatrices();
+
+    ci::gl::translate(zoomCenterPoint.x, zoomCenterPoint.y, 0);
+
+    ci::gl::scale(GS()->zoomLevel.value(), GS()->zoomLevel.value());
+    ci::gl::translate(-size.x  * zoomAnchor.x , -size.y * zoomAnchor.y , 0);
+    mFrameManager.draw();
+
+    // get the screenmatrix when all the transformations on the "paper" (fbo) or done.
+    screenMatrix = ci::gl::getModelViewProjection();
+
+
+    ci::gl::popMatrices();
+
+
+
+
+
+    mFrameManager.drawLoop();
+    mFrameManager.drawGUI();
+
     mScene->draw();
+    gl::color(0.8, 0.8, 0.8);
+    drawCursor(pressure,lastPenPosition);
 
-    ci::gl::color(0.8,0.8,0.8);
+
+    gl::color(0.8, 0.8, 0);
+
+    drawCursor(pressure,localCoordinate);
+
+}
+
+void FramedApp::drawCursor(float scale, vec2 position) const {
     float size = scale* 10;
-    ci::gl::drawLine(mousePos - ci::vec2(size,0),mousePos + ci::vec2(size,0));
-    ci::gl::drawLine(mousePos + ci::vec2(0,-size),mousePos + ci::vec2(0,+size));
-
-    vec2 mSize = ci::app::getWindowSize();
-    mSize.x = 1;
-    mSize.y = 1;
-
-    for(auto pointVec: mTest){
-        int i = 0;
-        for(auto point: pointVec){
-
-            //    vec2 p1 = vec2(point[i].x,point[i].y);
-          //  std::cout << p1 << std::endl;
-            ci::gl::color(0.8,0.8,0.8 ,0.6);
-
-            gl::drawSolidCircle(point,2);
-            i++;
-        }
-
-    }
-
-
-
+    vec2 pointv2 = vec2 (position.x,position.y);
+    ci::gl::drawLine(pointv2 - ci::vec2(size, 0), pointv2 + ci::vec2(size, 0));
+    ci::gl::drawLine(pointv2 + ci::vec2(0, -size), pointv2 + ci::vec2(0, +size));
 }
 
 void FramedApp::drawDebug()
@@ -261,4 +309,4 @@ void FramedApp::drawInfo()
 
 CINDER_APP(FramedApp, RendererGl(RendererGl::Options().msaa(0)), [](App::Settings* settings) {
 	settings->setWindowSize(1200, 1000);
-	})
+})

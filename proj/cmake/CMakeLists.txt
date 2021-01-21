@@ -18,15 +18,17 @@ include( "${CINDER_PATH}/proj/cmake/modules/cinderMakeApp.cmake" )
 
 
 set( SRC_FILES
-	${APP_PATH}/src/FramedApp.cpp
-    ${APP_PATH}/src/Helpers/GlobalSettings.cpp
-    ${APP_PATH}/src/Helpers/GlobalSettings.h
+		${APP_PATH}/src/FramedApp.cpp
+    	${APP_PATH}/src/Helpers/GlobalSettings.cpp
+    	${APP_PATH}/src/Helpers/GlobalSettings.h
 		${APP_PATH}/src/UI/Slider.cpp
 		${APP_PATH}/src/UI/ColorSlider.cpp
 		${APP_PATH}/src/UI/TouchButton.cpp
 		${APP_PATH}/src/UI/TouchUI.cpp
 		${APP_PATH}/src/Helpers/LineManager.cpp
-
+		${APP_PATH}/src/Helpers/BrushManager.cpp
+		${APP_PATH}/src/Helpers/FrameManager.cpp
+		${APP_PATH}/src/Helpers/Frame.cpp
 		)
 
 

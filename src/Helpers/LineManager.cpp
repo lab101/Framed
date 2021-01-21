@@ -87,8 +87,8 @@ void LineManager::calculatePath(ci::Path2d& path,ci::Path2d& depths, bool emmitT
         newDrawPosition = (lastDrawDistance + minDistance);
 
         // save them normalised later to a file.
-   //     newPoint.x /= mSize.x;
-     //   newPoint.y /= mSize.y;
+        newPoint.x /= mSize.x;
+        newPoint.y /= mSize.y;
 
         pointsToDrawNormalised.push_back(newPoint);
       //  strokes.back().push_back(newPoint);

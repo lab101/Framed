@@ -54,7 +54,11 @@ public:
 	Setting<float>  maxVelocity;
 	Setting<float>  test1;
 	Setting<float>  test2;
-	Setting<float>  test3;
+	Setting<float>  zoomLevel;
+
+
+
+    ci::ColorA fboBackground;
 
 	void loadSettingSet1();
 	float getRadiusScaleByPriority(int& priority);

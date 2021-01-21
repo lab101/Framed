@@ -94,9 +94,11 @@ void GlobalSettings::setup(std::string appName) {
 	test2 = Setting<float>("test2", 0.1f);
 	mSettingManager.addSetting(&test2);
 
-	test3 = Setting<float>("test3", 0.1f);
-	mSettingManager.addSetting(&test3);
+    zoomLevel = Setting<float>("zoomLevel", .5f);
+	mSettingManager.addSetting(&zoomLevel);
 
+
+	fboBackground = ColorA(0.0,0.0,0.0,1.0);
 
 }
 
