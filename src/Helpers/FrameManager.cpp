@@ -19,6 +19,7 @@ void FrameManager::setup(int nrOfFrames, ci::vec2 size) {
 	}
 
 	mActiveFrameIndex = nrOfFrames - 1;
+    mFrameSpeed = 0.5;
 }
 
 
@@ -37,6 +38,14 @@ void FrameManager::draw() {
 	mFrames[mActiveFrameIndex].draw();
 }
 
+void FrameManager::drawAtIndex(int index) {
+    
+    index =  mActiveFrameIndex - 1;
+    index = index % (mFrames.size() - 1);
+    mFrames[index].draw();
+}
+
+
 void FrameManager::drawLoop() {
 	int index = (int)(ci::app::getElapsedSeconds() * mFrameSpeed) % (int)mFrames.size();
 	auto text = mFrames[index].getTexture();
@@ -50,7 +59,7 @@ void FrameManager::drawPoints(std::vector<ci::vec3>& points, ci::Color color) {
 void FrameManager::drawGUI() {
 	ImGui::Begin("FrameManager");
 	ImGui::SliderInt("index: ", &mActiveFrameIndex, 0, mFrames.size() - 1);
-	ImGui::SliderFloat("speed: ", &mFrameSpeed, 0.f, 10.0f);
+	ImGui::SliderFloat("speed: ", &mFrameSpeed, 2.f, 20.0f);
 
 	ImGui::End();
 

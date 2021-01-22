@@ -8,7 +8,11 @@
 #include "Helpers/GlobalSettings.h"
 
 #if defined( CINDER_MSW_DESKTOP )
-#include "CRTEventHandler.h"
+#include "Pen/Windows/CRTEventHandler.h"
+#endif
+
+#if defined( CINDER_COCOA )
+#include "Pen/OSX/ofxTablet.h"
 #endif
 
 #include "poScene/Scene.h"
@@ -31,6 +35,7 @@ public:
 	void mouseMove(MouseEvent event) override;
 	void update() override;
 	void draw() override;
+    void onWacomData(TabletData& data);
 
 
 	float getPressure();
@@ -91,9 +96,37 @@ void FramedApp::setup()
 		});
 
 	mFrameManager.setup(4, getWindowSize());
-	zoomCenterPoint.x = 200;
+	zoomCenterPoint.x = 420;
 	zoomCenterPoint.y = 200;
+    
+    
+    CI_LOG_I("START ofxTablet");
+      ofxTablet::start();
+      ofxTablet::onData.connect(bind(&FramedApp::onWacomData,this,std::placeholders::_1));
+      CI_LOG_I("finished ofxTablet");
 }
+
+
+void FramedApp::onWacomData(TabletData& data){
+        //    std::cout << " --- " << std::endl;
+        //    std::cout << data.pressure << std::endl;
+        //    std::cout << data.pointerType << std::endl;
+        //    std::cout << data.buttonMask << std::endl;
+
+        CI_LOG_I("wacomdata");
+
+
+//        lastDataPoint = data;
+//
+//        isPenClose = data.in_proximity;
+//        BrushManagerSingleton::Instance()->isEraserOn = data.buttonMask >= 2;
+//
+//        float pressure = data.pressure * data.pressure;
+//        vec3 point(data.abs_screen[0] * getWindowWidth(), getWindowHeight() - data.abs_screen[1]*getWindowHeight(), pressure * BrushManagerSingleton::Instance()->brushScale);
+//        lastWacomPoint = point;
+            
+}
+
 
 
 void FramedApp::setupLogging() {
@@ -204,7 +237,7 @@ float FramedApp::getPressure() {
 	return g_Pressure * 20.0;
 #endif
 
-	return g_Pressure;
+	return 10;
 }
 
 void FramedApp::update()
@@ -259,7 +292,11 @@ void FramedApp::draw()
 	float zoomLevel = 0.5 + mTouchUI->getScale();
 	ci::gl::scale(zoomLevel, zoomLevel);
 	ci::gl::translate(-size.x * zoomAnchor.x, -size.y * zoomAnchor.y, 0);
-	mFrameManager.draw();
+    mFrameManager.draw();
+    
+    gl::color(1,1,1,0.2);
+
+    mFrameManager.drawAtIndex(-1);
 
 	gl::color(0.8, 0.8, 0);
 	drawCursor(pressure, localCoordinate);
@@ -271,6 +308,7 @@ void FramedApp::draw()
 	screenMatrix = ci::gl::getModelViewProjection();
 
 	ci::gl::popMatrices();
+    ci::gl::color(1, 1, 1);
 
 	mFrameManager.drawLoop();
 	mFrameManager.drawGUI();

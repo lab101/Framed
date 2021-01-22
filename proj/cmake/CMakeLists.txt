@@ -28,7 +28,10 @@ set( SRC_FILES
 		${APP_PATH}/src/Helpers/LineManager.cpp
 		${APP_PATH}/src/Helpers/BrushManager.cpp
 		${APP_PATH}/src/Helpers/FrameManager.cpp
-		${APP_PATH}/src/Helpers/Frame.cpp
+        ${APP_PATH}/src/Helpers/Frame.cpp
+        ${APP_PATH}/src/Pen/OSX/ofxTablet.cpp
+        ${APP_PATH}/src/Pen/OSX/tabletCocoa.mm
+
 		)
 
 

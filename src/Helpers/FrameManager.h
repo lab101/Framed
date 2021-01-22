@@ -17,6 +17,9 @@ public:
 
 	void setup(int nrOfFrames, ci::vec2 size);
 	void draw();
+    void drawAtIndex(int index);
+
+    
 	void drawLoop();
 	void drawPoints(std::vector<ci::vec3>& points, ci::Color color);
 	void setFrameIndexNormalised(float value);

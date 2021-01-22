@@ -5,7 +5,7 @@
 #include "ColorSlider.h"
 #include "poScene/ShapeView.h"
 #include "mathHelper.h"
-#include "AssetLoader\AssetsCache.h"
+#include "AssetLoader/AssetsCache.h"
 
 using namespace po::scene;
 using namespace ci;

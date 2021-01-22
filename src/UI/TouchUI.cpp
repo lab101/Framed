@@ -41,7 +41,6 @@ ci::Color TouchUI::getColor() {
 
 void TouchUI::setup() {
 
-
 	colorSlider1 = ColorSlider::create();
 	colorSlider1->setup();
 	getView()->addSubview(colorSlider1);
@@ -52,12 +51,15 @@ void TouchUI::setup() {
 	zoomSlider->setup();
 	getView()->addSubview(zoomSlider);
 	zoomSlider->setPosition(600, 140);
+    zoomSlider->setShowProgressActive(true);
 
 
 	frameSlider = Slider::create();
 	frameSlider->setup();
 	getView()->addSubview(frameSlider);
 	frameSlider->setPosition(1200, 80);
+    frameSlider->setSliderPosition(0);
+    frameSlider->setShowProgressActive(true);
 
 
 	//    mStartButton = TouchButton::create();
