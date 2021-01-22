@@ -87,7 +87,7 @@ void FramedApp::setup()
     mTest.reserve(100);
 
     mLineManger.onNewPoints.connect([=] (pointVec points){
-        mFrameManager.drawPoints(points,Color::white());
+        mFrameManager.drawPoints(points,mTouchUI->getColor());
     });
 
     mFrameManager.setup(4,getWindowSize());
@@ -113,13 +113,8 @@ vec3 FramedApp::getLocalPoint(vec3& screenPoint){
     int w =  ci::app::getWindowWidth();
     int h =  ci::app::getWindowHeight();
 
-    vec3 l = screenPoint;
-    l.x *=  1200.0 /ci::app::getWindowWidth();
-    l.y *=  1000.0 / ci::app::getWindowHeight() ;
-
     vec4 viewport = vec4( 0, h, w, -h ); // vertical flip is required
-
-    vec3 localPoint = glm::unProject( l, mat4(), screenMatrix, viewport );
+    vec3 localPoint = glm::unProject( screenPoint, mat4(), screenMatrix, viewport );
     localPoint.z = screenPoint.z;
 
     return localPoint;
@@ -136,6 +131,12 @@ void FramedApp::keyDown(KeyEvent event)
 	else if (event.getCode() == event.KEY_s) {
 		GS()->mSettingManager.writeSettings();
 	}
+    else if (event.getCode() == event.KEY_LEFT) {
+       zoomAnchor.x -= 0.1;
+    }
+    if (event.getCode() == event.KEY_RIGHT) {
+        zoomAnchor.x += 0.1;
+    }
 
 }
 
@@ -153,10 +154,8 @@ void FramedApp::mouseMove(MouseEvent event)
 {
     lastPenPosition = vec3(event.getPos().x,event.getPos().y,10);
 
-
 	if(mTouchDown){
         localCoordinate = getLocalPoint(lastPenPosition);
-
         mLineManger.lineTo(localCoordinate,ci::Color::white());
     }
 }
@@ -227,7 +226,7 @@ void FramedApp::update()
 
 void FramedApp::draw()
 {
-	gl::clear(Color::white());
+	gl::clear(Color(0.2,0.2,0.2));
 	if (GS()->debugMode.value()) {
 	}
 
@@ -242,40 +241,40 @@ void FramedApp::draw()
     }
 
     ci::gl::color(1,1,1);
-
-
     ivec2 size = mFrameManager.getSize();
+
+
+
 
     // Drawing "the paper" at zoomlevel with offset.
     ci::gl::pushMatrices();
-
+    gl::ScopedViewport fbVP (getWindowSize());
+    gl::setMatricesWindow( getWindowSize() );
     ci::gl::translate(zoomCenterPoint.x, zoomCenterPoint.y, 0);
 
-    ci::gl::scale(GS()->zoomLevel.value(), GS()->zoomLevel.value());
+    float zoomLevel = 0.5 + mTouchUI->getScale();
+    ci::gl::scale(zoomLevel,zoomLevel);
     ci::gl::translate(-size.x  * zoomAnchor.x , -size.y * zoomAnchor.y , 0);
     mFrameManager.draw();
+
+    gl::color(0.8, 0.8, 0);
+    drawCursor(pressure,localCoordinate);
+
+   // if(mTouchDown)  std::cout << "cursor " << localCoordinate.x << std::endl;
+
 
     // get the screenmatrix when all the transformations on the "paper" (fbo) or done.
     screenMatrix = ci::gl::getModelViewProjection();
 
-
     ci::gl::popMatrices();
-
-
-
-
 
     mFrameManager.drawLoop();
     mFrameManager.drawGUI();
 
     mScene->draw();
     gl::color(0.8, 0.8, 0.8);
-    drawCursor(pressure,lastPenPosition);
+  //  drawCursor(pressure,lastPenPosition);
 
-
-    gl::color(0.8, 0.8, 0);
-
-    drawCursor(pressure,localCoordinate);
 
 }
 
@@ -307,6 +306,6 @@ void FramedApp::drawInfo()
 	ImGui::End();
 }
 
-CINDER_APP(FramedApp, RendererGl(RendererGl::Options().msaa(0)), [](App::Settings* settings) {
-	settings->setWindowSize(1200, 1000);
+CINDER_APP(FramedApp, RendererGl(RendererGl::Options().msaa(8)), [](App::Settings* settings) {
+	settings->setWindowSize(1600, 1200);
 })

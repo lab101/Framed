@@ -15,7 +15,7 @@ void LineManager::newLine(ci::vec3 pressurePoint){
 
     mPath.moveTo(vec2(pressurePoint.x   ,pressurePoint.y));
     mDepths.moveTo(vec2(pressurePoint.x ,pressurePoint.z));
-    std::cout << pressurePoint.x << " - " << pressurePoint.y << std::endl;
+   // std::cout << pressurePoint.x << " - " << pressurePoint.y << std::endl;
 
 }
 
@@ -87,8 +87,8 @@ void LineManager::calculatePath(ci::Path2d& path,ci::Path2d& depths, bool emmitT
         newDrawPosition = (lastDrawDistance + minDistance);
 
         // save them normalised later to a file.
-        newPoint.x /= mSize.x;
-        newPoint.y /= mSize.y;
+//        newPoint.x /= mSize.x;
+//        newPoint.y /= mSize.y;
 
         pointsToDrawNormalised.push_back(newPoint);
       //  strokes.back().push_back(newPoint);

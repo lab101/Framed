@@ -55,14 +55,7 @@ void Frame::drawPoints(std::vector<ci::vec3>& points,ci::Color color){
 
         gl::color(1, 1, 1, 1);
 
-        for(auto& p : points){
-            p.x *= mActiveFbo->getWidth();
-            p.y *= mActiveFbo->getHeight();
-        }
-
-
         BrushManagerSingleton::Instance()->drawBrush(points, 0.98,color);
-
         gl::setMatricesWindow( ci::app::getWindowSize() );
     }
 }

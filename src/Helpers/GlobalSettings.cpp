@@ -94,7 +94,7 @@ void GlobalSettings::setup(std::string appName) {
 	test2 = Setting<float>("test2", 0.1f);
 	mSettingManager.addSetting(&test2);
 
-    zoomLevel = Setting<float>("zoomLevel", .5f);
+    zoomLevel = Setting<float>("zoomLevel", .8f);
 	mSettingManager.addSetting(&zoomLevel);
 
 
