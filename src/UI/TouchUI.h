@@ -16,21 +16,24 @@ class TouchUI : public po::scene::ViewController {
 
 private:
 
-    ColorSliderRef colorSlider1;
-    SliderRef zoomSlider;
+	ColorSliderRef colorSlider1;
+	SliderRef zoomSlider;
+	SliderRef frameSlider;
 
-    TouchButtonRef mStartButton;
 
-    float mScale;
+	TouchButtonRef mStartButton;
+
+	float mScale;
 
 public:
-    void setup();
-    void update();
+	void setup();
+	void update();
 
-    static TouchUIRef create();
+	static TouchUIRef create();
 
-    ci::Color getColor();
-    float getScale();
+	ci::Color getColor();
+	float getScale();
+	float getFrameScale();
 
 };
 

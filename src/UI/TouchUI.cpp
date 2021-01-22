@@ -15,21 +15,26 @@ using namespace po::scene;
 
 TouchUIRef TouchUI::create()
 {
-    TouchUIRef ref = std::make_shared<TouchUI>();
-    return ref;
+	TouchUIRef ref = std::make_shared<TouchUI>();
+	return ref;
 }
 
 
 float TouchUI::getScale() {
 
-    return zoomSlider->getSliderValue();
+	return zoomSlider->getSliderValue();
+}
+
+float TouchUI::getFrameScale() {
+
+	return frameSlider->getSliderValue();
 }
 
 ci::Color TouchUI::getColor() {
 
-    float hue = colorSlider1->getSliderValue();
-    auto color = Color(CM_HSV, vec3(hue, 0.8, 0.8));
-    return color;
+	float hue = colorSlider1->getSliderValue();
+	auto color = Color(CM_HSV, vec3(hue, 0.8, 0.8));
+	return color;
 }
 
 
@@ -37,23 +42,29 @@ ci::Color TouchUI::getColor() {
 void TouchUI::setup() {
 
 
-    colorSlider1 = ColorSlider::create();
-    colorSlider1->setup();
-    getView()->addSubview(colorSlider1);
-    colorSlider1->setPosition(200,80);
+	colorSlider1 = ColorSlider::create();
+	colorSlider1->setup();
+	getView()->addSubview(colorSlider1);
+	colorSlider1->setPosition(600, 80);
 
 
-    zoomSlider = Slider::create();
-    zoomSlider->setup();
-    getView()->addSubview(zoomSlider);
-    zoomSlider->setPosition(200,140);
+	zoomSlider = Slider::create();
+	zoomSlider->setup();
+	getView()->addSubview(zoomSlider);
+	zoomSlider->setPosition(600, 140);
 
 
-//    mStartButton = TouchButton::create();
-//    auto text = CACHE()->getTextureByAssetPath("images/kidsparade/like.png");
-//    mStartButton->setImage(text);
-//    getView()->addSubview(mStartButton);
-//    mStartButton->setPosition(350,1350);
+	frameSlider = Slider::create();
+	frameSlider->setup();
+	getView()->addSubview(frameSlider);
+	frameSlider->setPosition(1200, 80);
+
+
+	//    mStartButton = TouchButton::create();
+	//    auto text = CACHE()->getTextureByAssetPath("images/kidsparade/like.png");
+	//    mStartButton->setImage(text);
+	//    getView()->addSubview(mStartButton);
+	//    mStartButton->setPosition(350,1350);
 
 
 
@@ -62,6 +73,6 @@ void TouchUI::setup() {
 
 void TouchUI::update() {
 
-    ci::Color color = Color(CM_HSV, vec3(colorSlider1->getSliderValue(), 1, 1));
+	ci::Color color = Color(CM_HSV, vec3(colorSlider1->getSliderValue(), 1, 1));
 
 }

@@ -8,20 +8,21 @@
 
 class FrameManager {
 
-    std::vector<Frame> mFrames;
-    int mActiveFrameIndex;
-    float mFrameSpeed =0.5;
-    ci::ivec2 mSize;
+	std::vector<Frame> mFrames;
+	int mActiveFrameIndex;
+	float mFrameSpeed = 0.5;
+	ci::ivec2 mSize;
 
 public:
 
-    void setup(int nrOfFrames, ci::vec2 size);
-    void draw();
-    void drawLoop();
-    void drawPoints(std::vector<ci::vec3>& points, ci::Color color);
+	void setup(int nrOfFrames, ci::vec2 size);
+	void draw();
+	void drawLoop();
+	void drawPoints(std::vector<ci::vec3>& points, ci::Color color);
+	void setFrameIndexNormalised(float value);
 
-    ci::ivec2 getSize();
-    void drawGUI();
+	ci::ivec2 getSize();
+	void drawGUI();
 
 };
 
