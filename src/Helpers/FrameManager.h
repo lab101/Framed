@@ -19,13 +19,20 @@ public:
 	void draw();
     void drawAtIndex(int index);
 
-    
+    void clearAll();
+    void saveAll();
 	void drawLoop();
 	void drawPoints(std::vector<ci::vec3>& points, ci::Color color);
 	void setFrameIndexNormalised(float value);
+    void setActiveFrame(int id);
 
 	ci::ivec2 getSize();
 	void drawGUI();
+    
+    
+    std::vector<ci::gl::TextureRef> getTextures();
+
+    
 
 };
 

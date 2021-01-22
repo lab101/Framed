@@ -52,14 +52,17 @@ void TouchUI::setup() {
 	getView()->addSubview(zoomSlider);
 	zoomSlider->setPosition(600, 140);
     zoomSlider->setShowProgressActive(true);
+    zoomSlider->setSliderPosition(0.4);
 
 
 	frameSlider = Slider::create();
 	frameSlider->setup();
-	getView()->addSubview(frameSlider);
+//	getView()->addSubview(frameSlider);
 	frameSlider->setPosition(1200, 80);
     frameSlider->setSliderPosition(0);
     frameSlider->setShowProgressActive(true);
+    frameSlider->setControlWidth(200);
+    frameSlider->setTintColor(Color(0,0,1));
 
 
 	//    mStartButton = TouchButton::create();
@@ -69,6 +72,39 @@ void TouchUI::setup() {
 	//    mStartButton->setPosition(350,1350);
 
 
+
+}
+
+
+void TouchUI::addThumbs(std::vector<gl::TextureRef> textures){
+    for(int i=0; i < textures.size(); i++){
+        po::scene::ImageViewRef img = ImageView::create(textures[i]);
+        getView()->addSubview(img);
+        img->setScale(0.1);
+        const float margin = 6;
+        img->setPosition(1200 + ((img->getScaledWidth()  + margin) * i), 60);
+        mThumbs.push_back(img);
+        
+        img->getSignal(po::scene::MouseEvent::DOWN_INSIDE).connect([=](po::scene::MouseEvent& event){
+            onFrameSlected.emit(i);
+            
+            for(auto thumb : mThumbs){
+                thumb->setAlpha(0.18);
+            }
+            img->setAlpha(1);
+            
+            
+            
+        });
+
+    }
+}
+
+
+void TouchUI::updateThumbs(std::vector<gl::TextureRef> textures){
+    for(int i=0; i < textures.size(); i++){
+        mThumbs[i]->setTexture(textures[i]);
+    }
 
 }
 

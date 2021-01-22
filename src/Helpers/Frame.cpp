@@ -33,6 +33,22 @@ void Frame::clearFbo(){
     gl::clear( GS()->fboBackground );
 }
 
+void Frame::writeBuffer(std::string path){
+    auto source = mActiveFbo->getColorTexture()->createSource();
+    
+    std::thread threadObj([=]{
+           
+           try{
+               writeImage(path, source);
+           }catch(...){
+               CI_LOG_E("error writing PNG file: " + path);
+           }
+           
+       });
+       
+       threadObj.detach();
+
+}
 
 void Frame::draw(){
     gl::draw(mActiveFbo->getColorTexture());

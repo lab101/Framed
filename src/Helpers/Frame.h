@@ -18,5 +18,6 @@ public:
 
     void clearFbo();
     void setFbo(ci::gl::FboRef& fbo,ci::ivec2 size,float windowScale);
+    void writeBuffer(std::string path);
 
 };

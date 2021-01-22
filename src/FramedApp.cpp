@@ -85,8 +85,11 @@ void FramedApp::setup()
 	cfg.SizePixels = 13 * SCALE;
 	ImGui::GetIO().Fonts->AddFontDefault(&cfg)->DisplayOffset.y = SCALE;
 
+    mFrameManager.setup(4, getWindowSize());
+
 	mTouchUI = TouchUI::create();
 	mTouchUI->setup();
+    mTouchUI->addThumbs(mFrameManager.getTextures());
 	mScene = po::scene::Scene::create(mTouchUI);
 
 	mTest.reserve(100);
@@ -95,7 +98,6 @@ void FramedApp::setup()
 		mFrameManager.drawPoints(points, mTouchUI->getColor());
 		});
 
-	mFrameManager.setup(4, getWindowSize());
 	zoomCenterPoint.x = 420;
 	zoomCenterPoint.y = 200;
     
@@ -170,6 +172,10 @@ void FramedApp::keyDown(KeyEvent event)
 	if (event.getCode() == event.KEY_RIGHT) {
 		zoomAnchor.x += 0.1;
 	}
+    if(event.getCode() == event.KEY_SPACE){
+        mFrameManager.saveAll();
+        mFrameManager.clearAll();
+    }
 
 }
 
@@ -256,6 +262,11 @@ void FramedApp::update()
 
 
 	mFrameManager.setFrameIndexNormalised(mTouchUI->getFrameScale());
+    mTouchUI->updateThumbs(mFrameManager.getTextures());
+    mTouchUI->onFrameSlected.connect([=] (int id){
+        mFrameManager.setActiveFrame(id);
+        std::cout <<  id << std::endl;
+    });
 }
 
 

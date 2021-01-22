@@ -5,8 +5,10 @@
 #pragma once
 
 #include "poScene/ViewController.h"
+#include "poScene/ImageView.h"
 #include "ColorSlider.h"
 #include "TouchButton.h"
+#include "cinder/Signals.h"
 
 
 class TouchUI;
@@ -25,7 +27,13 @@ private:
 
 	float mScale;
 
+    std::vector<po::scene::ImageViewRef> mThumbs;
+    
+    
 public:
+    
+    ci::signals::Signal<void( int )> onFrameSlected;
+    
 	void setup();
 	void update();
 
@@ -34,6 +42,10 @@ public:
 	ci::Color getColor();
 	float getScale();
 	float getFrameScale();
+    
+    void addThumbs(std::vector<ci::gl::TextureRef> textures);
+    void updateThumbs(std::vector<ci::gl::TextureRef> textures);
+
 
 };
 
