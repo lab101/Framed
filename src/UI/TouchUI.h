@@ -45,6 +45,7 @@ public:
     
     void addThumbs(std::vector<ci::gl::TextureRef> textures);
     void updateThumbs(std::vector<ci::gl::TextureRef> textures);
+    void setActiveFrame(int index);
 
 
 };

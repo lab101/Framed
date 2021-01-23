@@ -90,6 +90,8 @@ void FramedApp::setup()
 	mTouchUI = TouchUI::create();
 	mTouchUI->setup();
     mTouchUI->addThumbs(mFrameManager.getTextures());
+    mTouchUI->setActiveFrame(0);
+    
 	mScene = po::scene::Scene::create(mTouchUI);
 
 	mTest.reserve(100);

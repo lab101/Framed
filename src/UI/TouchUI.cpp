@@ -39,6 +39,8 @@ ci::Color TouchUI::getColor() {
 
 
 
+
+
 void TouchUI::setup() {
 
 	colorSlider1 = ColorSlider::create();
@@ -76,6 +78,17 @@ void TouchUI::setup() {
 }
 
 
+void TouchUI::setActiveFrame(int index){
+            onFrameSlected.emit(index);
+               
+               for(auto thumb : mThumbs){
+                   thumb->setAlpha(0.18);
+               }
+               mThumbs[index]->setAlpha(1);
+               
+}
+
+
 void TouchUI::addThumbs(std::vector<gl::TextureRef> textures){
     for(int i=0; i < textures.size(); i++){
         po::scene::ImageViewRef img = ImageView::create(textures[i]);
@@ -86,14 +99,7 @@ void TouchUI::addThumbs(std::vector<gl::TextureRef> textures){
         mThumbs.push_back(img);
         
         img->getSignal(po::scene::MouseEvent::DOWN_INSIDE).connect([=](po::scene::MouseEvent& event){
-            onFrameSlected.emit(i);
-            
-            for(auto thumb : mThumbs){
-                thumb->setAlpha(0.18);
-            }
-            img->setAlpha(1);
-            
-            
+            setActiveFrame(i);            
             
         });
 
