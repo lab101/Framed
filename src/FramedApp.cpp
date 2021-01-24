@@ -45,6 +45,7 @@ public:
 private:
 
 	vec3 lastPenPosition;
+    float mPenPressure = 10;
 	bool mTouchDown = false;
 
 	std::vector<pointVec> mTest;
@@ -117,7 +118,10 @@ void FramedApp::onWacomData(TabletData& data){
         //    std::cout << data.pointerType << std::endl;
         //    std::cout << data.buttonMask << std::endl;
 
-        CI_LOG_I("wacomdata");
+       // CI_LOG_I("wacomdata");
+            
+    
+    mPenPressure = data.pressure * 20;
 
 
 //        lastDataPoint = data;
@@ -177,6 +181,7 @@ void FramedApp::keyDown(KeyEvent event)
     if(event.getCode() == event.KEY_SPACE){
         mFrameManager.saveAll();
         mFrameManager.clearAll();
+        mTouchUI->setActiveFrame(0);
     }
 
 }
@@ -245,7 +250,7 @@ float FramedApp::getPressure() {
 	return g_Pressure * 20.0;
 #endif
 
-	return 10;
+	return mPenPressure;
 }
 
 void FramedApp::update()
@@ -361,6 +366,6 @@ void FramedApp::drawInfo()
 	ImGui::End();
 }
 
-CINDER_APP(FramedApp, RendererGl(RendererGl::Options().msaa(8)), [](App::Settings* settings) {
+CINDER_APP(FramedApp, RendererGl(RendererGl::Options().msaa(0)), [](App::Settings* settings) {
 	settings->setWindowSize(1600, 1200);
 	})
