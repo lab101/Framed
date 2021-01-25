@@ -112,7 +112,6 @@ void FramedApp::setup()
 #if defined( CINDER_COCOA )
 	CI_LOG_I("START ofxTablet");
 	ofxTablet::start();
-	ofxTablet::onData.connect(bind(&FramedApp::onWacomData, this, std::placeholders::_1));
 	ofxTablet::onData.connect([=] (TabletData& data) {
 	    mPenPressure = data.pressure * 20;
 	});
@@ -122,7 +121,7 @@ void FramedApp::setup()
 
 void FramedApp::setupNetwork() {
 
-    mNetworkManager.setup();
+  //  mNetworkManager.setup();
 
     // NETWORK SETUP
     if(mNetworkManager.setup()) {
@@ -130,7 +129,7 @@ void FramedApp::setupNetwork() {
         mNetworkManager.onReceivePoints.connect([=](PointsPackage package) {
             //bool currentEraser = BrushManagerSingleton::Instance()->isEraserOn;
             //BrushManagerSingleton::Instance()->isEraserOn = package.isEraserOn;
-
+            std::cout << "incoming" << std::endl;
             for (auto &p : package.points) {
                // convertPointToLocalSpace(p);
             }

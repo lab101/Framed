@@ -10,6 +10,7 @@
 
 #include <stdio.h>
 #include "cinder/Vector.h"
+#include <vector>
 
 class PointsPackage{
     
