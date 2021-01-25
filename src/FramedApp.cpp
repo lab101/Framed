@@ -101,7 +101,8 @@ void FramedApp::setup()
 
 	mLineManger.onNewPoints.connect([=](pointVec points) {
 		mFrameManager.drawPoints(points, mTouchUI->getColor());
-		});
+		mNetworkManager.sendPoints(points,false,"");
+	});
 
 	zoomCenterPoint.x = 420;
 	zoomCenterPoint.y = 200;
