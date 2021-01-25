@@ -29,13 +29,15 @@ set( SRC_FILES
 		${APP_PATH}/src/Helpers/BrushManager.cpp
 		${APP_PATH}/src/Helpers/FrameManager.cpp
         ${APP_PATH}/src/Helpers/Frame.cpp
-        ${APP_PATH}/src/Pen/OSX/ofxTablet.cpp
-        ${APP_PATH}/src/Pen/OSX/tabletCocoa.mm
-
+		${APP_PATH}/src/Pen/OSX/ofxTablet.cpp
+        
 		)
 
 
-#source_group(Helpers FILES ${APP_PATH}/src/Helpers/GlobalSettings.cpp  ${APP_PATH}/src/Helpers/GlobalSettings.h)
+if(APPLE)
+  list(APPEND SRC_FILES ${APP_PATH}/src/Pen/OSX/ofxTablet.cpp)
+  list(APPEND SRC_FILES ${APP_PATH}/src/Pen/OSX/tabletCocoa.mm)
+endif()
 
 
 set( BLOCKSLIST

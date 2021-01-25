@@ -35,8 +35,10 @@ public:
 	void mouseMove(MouseEvent event) override;
 	void update() override;
 	void draw() override;
-    void onWacomData(TabletData& data);
 
+#if defined( CINDER_COCOA )
+	void onWacomData(TabletData& data);
+#endif
 
 	float getPressure();
 	void activatePenPressure();
@@ -45,7 +47,7 @@ public:
 private:
 
 	vec3 lastPenPosition;
-    float mPenPressure = 10;
+	float mPenPressure = 10;
 	bool mTouchDown = false;
 
 	std::vector<pointVec> mTest;
@@ -86,13 +88,13 @@ void FramedApp::setup()
 	cfg.SizePixels = 13 * SCALE;
 	ImGui::GetIO().Fonts->AddFontDefault(&cfg)->DisplayOffset.y = SCALE;
 
-    mFrameManager.setup(4, getWindowSize());
+	mFrameManager.setup(4, getWindowSize());
 
 	mTouchUI = TouchUI::create();
 	mTouchUI->setup();
-    mTouchUI->addThumbs(mFrameManager.getTextures());
-    mTouchUI->setActiveFrame(0);
-    
+	mTouchUI->addThumbs(mFrameManager.getTextures());
+	mTouchUI->setActiveFrame(0);
+
 	mScene = po::scene::Scene::create(mTouchUI);
 
 	mTest.reserve(100);
@@ -103,37 +105,26 @@ void FramedApp::setup()
 
 	zoomCenterPoint.x = 420;
 	zoomCenterPoint.y = 200;
-    
-    
-    CI_LOG_I("START ofxTablet");
-      ofxTablet::start();
-      ofxTablet::onData.connect(bind(&FramedApp::onWacomData,this,std::placeholders::_1));
-      CI_LOG_I("finished ofxTablet");
+
+#if defined( CINDER_COCOA )
+	CI_LOG_I("START ofxTablet");
+	ofxTablet::start();
+	ofxTablet::onData.connect(bind(&FramedApp::onWacomData, this, std::placeholders::_1));
+	CI_LOG_I("finished ofxTablet");
+#endif
 }
 
 
-void FramedApp::onWacomData(TabletData& data){
-        //    std::cout << " --- " << std::endl;
-        //    std::cout << data.pressure << std::endl;
-        //    std::cout << data.pointerType << std::endl;
-        //    std::cout << data.buttonMask << std::endl;
+#if defined( CINDER_COCOA )
+void FramedApp::onWacomData(TabletData& data) {
+	//    std::cout << " --- " << std::endl;
+	//    std::cout << data.pressure << std::endl;
+	//    std::cout << data.pointerType << std::endl;
+	//    std::cout << data.buttonMask << std::endl;
 
-       // CI_LOG_I("wacomdata");
-            
-    
-    mPenPressure = data.pressure * 20;
-
-
-//        lastDataPoint = data;
-//
-//        isPenClose = data.in_proximity;
-//        BrushManagerSingleton::Instance()->isEraserOn = data.buttonMask >= 2;
-//
-//        float pressure = data.pressure * data.pressure;
-//        vec3 point(data.abs_screen[0] * getWindowWidth(), getWindowHeight() - data.abs_screen[1]*getWindowHeight(), pressure * BrushManagerSingleton::Instance()->brushScale);
-//        lastWacomPoint = point;
-            
+	mPenPressure = data.pressure * 20;
 }
+#endif
 
 
 
@@ -178,11 +169,11 @@ void FramedApp::keyDown(KeyEvent event)
 	if (event.getCode() == event.KEY_RIGHT) {
 		zoomAnchor.x += 0.1;
 	}
-    if(event.getCode() == event.KEY_SPACE){
-        mFrameManager.saveAll();
-        mFrameManager.clearAll();
-        mTouchUI->setActiveFrame(0);
-    }
+	if (event.getCode() == event.KEY_SPACE) {
+		mFrameManager.saveAll();
+		mFrameManager.clearAll();
+		mTouchUI->setActiveFrame(0);
+	}
 
 }
 
@@ -269,11 +260,11 @@ void FramedApp::update()
 
 
 	mFrameManager.setFrameIndexNormalised(mTouchUI->getFrameScale());
-    mTouchUI->updateThumbs(mFrameManager.getTextures());
-    mTouchUI->onFrameSlected.connect([=] (int id){
-        mFrameManager.setActiveFrame(id);
-        std::cout <<  id << std::endl;
-    });
+	mTouchUI->updateThumbs(mFrameManager.getTextures());
+	mTouchUI->onFrameSlected.connect([=](int id) {
+		mFrameManager.setActiveFrame(id);
+		std::cout << id << std::endl;
+		});
 }
 
 
@@ -310,11 +301,11 @@ void FramedApp::draw()
 	float zoomLevel = 0.5 + mTouchUI->getScale();
 	ci::gl::scale(zoomLevel, zoomLevel);
 	ci::gl::translate(-size.x * zoomAnchor.x, -size.y * zoomAnchor.y, 0);
-    mFrameManager.draw();
-    
-    gl::color(1,1,1,0.2);
+	mFrameManager.draw();
 
-    mFrameManager.drawAtIndex(-1);
+	gl::color(1, 1, 1, 0.2);
+
+	mFrameManager.drawAtIndex(-1);
 
 	gl::color(0.8, 0.8, 0);
 	drawCursor(pressure, localCoordinate);
@@ -326,7 +317,7 @@ void FramedApp::draw()
 	screenMatrix = ci::gl::getModelViewProjection();
 
 	ci::gl::popMatrices();
-    ci::gl::color(1, 1, 1);
+	ci::gl::color(1, 1, 1);
 
 	mFrameManager.drawLoop();
 	mFrameManager.drawGUI();
