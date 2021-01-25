@@ -98,7 +98,11 @@ void GlobalSettings::setup(std::string appName) {
 	mSettingManager.addSetting(&zoomLevel);
 
 
-	fboBackground = ColorA(0.0,0.0,0.0,1.0);
+    Setting<float> performanceDownScale;
+    Setting<int> maxGroups;
+
+
+    fboBackground = ColorA(0.0,0.0,0.0,1.0);
 
 }
 

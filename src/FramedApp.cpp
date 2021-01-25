@@ -4,6 +4,7 @@
 #include "cinder/CinderImGui.h"
 #include "cinder/Log.h"
 #include "cinder/Filesystem.h"
+#include "Helpers/NetworkManager.h"
 
 #include "Helpers/GlobalSettings.h"
 
@@ -36,10 +37,6 @@ public:
 	void update() override;
 	void draw() override;
 
-#if defined( CINDER_COCOA )
-	void onWacomData(TabletData& data);
-#endif
-
 	float getPressure();
 	void activatePenPressure();
 
@@ -56,6 +53,7 @@ private:
 	TouchUIRef mTouchUI;
 	LineManager mLineManger;
 	FrameManager mFrameManager;
+	NetworkManager mNetworkManager;
 
 	// zoom related
 	ci::mat4 screenMatrix;
@@ -71,6 +69,8 @@ private:
 	void drawInfo();
 
 	void drawCursor(float scale, vec2 position) const;
+
+    void setupNetwork();
 };
 
 std::string appName = "Framed";
@@ -106,26 +106,38 @@ void FramedApp::setup()
 	zoomCenterPoint.x = 420;
 	zoomCenterPoint.y = 200;
 
+    setupNetwork();
+
+
 #if defined( CINDER_COCOA )
 	CI_LOG_I("START ofxTablet");
 	ofxTablet::start();
 	ofxTablet::onData.connect(bind(&FramedApp::onWacomData, this, std::placeholders::_1));
+	ofxTablet::onData.connect([=] (TabletData& data) {
+	    mPenPressure = data.pressure * 20;
+	});
 	CI_LOG_I("finished ofxTablet");
 #endif
 }
 
+void FramedApp::setupNetwork() {
 
-#if defined( CINDER_COCOA )
-void FramedApp::onWacomData(TabletData& data) {
-	//    std::cout << " --- " << std::endl;
-	//    std::cout << data.pressure << std::endl;
-	//    std::cout << data.pointerType << std::endl;
-	//    std::cout << data.buttonMask << std::endl;
+    mNetworkManager.setup();
 
-	mPenPressure = data.pressure * 20;
+    // NETWORK SETUP
+    if(mNetworkManager.setup()) {
+        // points
+        mNetworkManager.onReceivePoints.connect([=](PointsPackage package) {
+            //bool currentEraser = BrushManagerSingleton::Instance()->isEraserOn;
+            //BrushManagerSingleton::Instance()->isEraserOn = package.isEraserOn;
+
+            for (auto &p : package.points) {
+               // convertPointToLocalSpace(p);
+            }
+//          s
+        });
+    }
 }
-#endif
-
 
 
 void FramedApp::setupLogging() {
@@ -247,7 +259,9 @@ float FramedApp::getPressure() {
 void FramedApp::update()
 {
 
-	mScene->update();
+    mNetworkManager.update();
+
+    mScene->update();
 
 	if (GS()->debugMode.value() && getElapsedFrames()) {
 		//gl::enableAlphaBlending();

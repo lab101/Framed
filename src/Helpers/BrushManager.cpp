@@ -6,7 +6,7 @@
 //
 //
 
-#include "BrushManager.hpp"
+#include "BrushManager.h"
 #include "cinder/app/App.h"
 #include "cinder/ImageIo.h"
 #include "cinder/Log.h"

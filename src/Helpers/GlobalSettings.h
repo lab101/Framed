@@ -26,7 +26,12 @@ public:
 	Setting<int> resetScreenTime;
 	Setting<float> screenScale;
 
-	void setup(std::string appName);
+
+    Setting<float> performanceDownScale;
+    Setting<int> maxGroups;
+
+
+    void setup(std::string appName);
 
 	ci::vec2 getScreenSize();
 	ci::vec2 getScreenCenter();

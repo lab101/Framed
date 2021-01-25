@@ -4,7 +4,7 @@
 
 #include "Frame.h"
 #include "GlobalSettings.h"
-#include "BrushManager.hpp"
+#include "BrushManager.h"
 
 using namespace  ci;
 
