@@ -13,7 +13,7 @@ void GlobalSettings::setup(std::string appName) {
 	mSettingManager.setAppName(appName);
 	mSettingManager.readSettings();
 
-	debugMode = Setting<bool>("debug", true);
+	debugMode = Setting<bool>("debug", false);
 	mSettingManager.addSetting(&debugMode);
 
 	isMouseOn = Setting<bool>("isMouseOn", true);

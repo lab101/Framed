@@ -129,9 +129,12 @@ void FramedApp::setupNetwork() {
         mNetworkManager.onReceivePoints.connect([=](PointsPackage package) {
             //bool currentEraser = BrushManagerSingleton::Instance()->isEraserOn;
             //BrushManagerSingleton::Instance()->isEraserOn = package.isEraserOn;
-            std::cout << "incoming" << std::endl;
+            mFrameManager.drawPoints(package.points, package.color, package.frameId);
+
             for (auto &p : package.points) {
                // convertPointToLocalSpace(p);
+                std::cout << "incoming"  <<  package.color << std::endl;
+
             }
 //          s
         });
@@ -333,7 +336,6 @@ void FramedApp::draw()
 	ci::gl::color(1, 1, 1);
 
 	mFrameManager.drawLoop();
-	mFrameManager.drawGUI();
 
 	mScene->draw();
 	gl::color(0.8, 0.8, 0.8);
@@ -351,23 +353,28 @@ void FramedApp::drawCursor(float scale, vec2 position) const {
 
 void FramedApp::drawDebug()
 {
+    mFrameManager.drawGUI();
+
+    
+    mFps = getAverageFps();
+
+    ImGui::Begin("Settings");
+    ImGui::Text("framerate: %f", mFps);
+    ImGui::Checkbox("show debug", &GS()->debugMode.value());
+    if (ImGui::Button("load setttingset 1")) {
+        GS()->loadSettingSet1();
+    }
+    ImGui::Separator();
+    if (ImGui::Button("sav setttings")) {
+        GS()->mSettingManager.writeSettings();
+    }
+    ImGui::End();
 }
 
 void FramedApp::drawInfo()
 {
-	mFps = getAverageFps();
+    
 
-	ImGui::Begin("Settings");
-	ImGui::Text("framerate: %f", mFps);
-	ImGui::Checkbox("show debug", &GS()->debugMode.value());
-	if (ImGui::Button("load setttingset 1")) {
-		GS()->loadSettingSet1();
-	}
-	ImGui::Separator();
-	if (ImGui::Button("sav setttings")) {
-		GS()->mSettingManager.writeSettings();
-	}
-	ImGui::End();
 }
 
 CINDER_APP(FramedApp, RendererGl(RendererGl::Options().msaa(0)), [](App::Settings* settings) {

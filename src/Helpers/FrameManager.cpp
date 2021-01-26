@@ -113,8 +113,9 @@ void FrameManager::drawLoop() {
 	ci::gl::draw(text, ci::Rectf(10, 10, 1600 * 0.25, 1200 * 0.25));
 }
 
-void FrameManager::drawPoints(std::vector<ci::vec3>& points, ci::Color color) {
-	mFrames[mActiveFrameIndex].drawPoints(points, color);
+void FrameManager::drawPoints(std::vector<ci::vec3>& points, ci::Color color, int frameId) {
+    if(frameId == -1) frameId = mActiveFrameIndex;
+	mFrames[frameId].drawPoints(points, color);
 }
 
 void FrameManager::drawGUI() {

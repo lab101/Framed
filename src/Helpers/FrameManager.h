@@ -22,7 +22,7 @@ public:
     void clearAll();
     void saveAll();
 	void drawLoop();
-	void drawPoints(std::vector<ci::vec3>& points, ci::Color color);
+	void drawPoints(std::vector<ci::vec3>& points, ci::Color color,int frameId= -1);
 	void setFrameIndexNormalised(float value);
     void setActiveFrame(int id);
 
