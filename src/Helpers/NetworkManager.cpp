@@ -42,19 +42,29 @@ bool NetworkManager::setup() {
 
     mReceiver.setListener("/points",
                           [&](const osc::Message &msg) {
-                              if (isMessageAllowed(msg)) {
+                              if(isMessageAllowed(msg)){
 
                                   int totals = msg.getNumArgs();
 
-                                  bool isEraserOn = msg.getArgBool(1);
-                                  std::string color = msg.getArgString(2);
+                                  int frameId = msg.getArgInt32(1);
+                                  bool isEraserOn = msg.getArgBool(2);
+
+                                  std::cout << frameId << std::endl;
+
+                                  ci::Color color;
+                                  color.r = msg.getArgFloat(3);
+                                  color.g = msg.getArgFloat(4);
+                                  color.b = msg.getArgFloat(5);
+
+
                                   std::vector<ci::vec3> points;
-                                  for (int i = 3; i < totals; i += 3) {
+                                  for (int i = 6; i < totals; i += 3){
                                       points.push_back(ci::vec3(msg[i].flt(), msg[i + 1].flt(), msg[i + 2].flt()));
                                   }
                                   PointsPackage newPackage;
                                   newPackage.setup(points, color);
                                   newPackage.setEraser(isEraserOn);
+                                  newPackage.frameId = frameId;
 
                                   mPointsQueueLock.lock();
                                   pointsQueue.push(newPackage);
@@ -68,20 +78,21 @@ bool NetworkManager::setup() {
 
                               if (isMessageAllowed(msg)) {
 
-                                  int totals = msg.getNumArgs();
 
-                                  std::string shape = msg.getArgString(1);
-                                  std::string color = msg.getArgString(2);
-                                  std::vector<ci::vec3> points;
-                                  for (int i = 3; i < totals; i += 3) {
-                                      points.push_back(ci::vec3(msg[i].flt(), msg[i + 1].flt(), msg[i + 2].flt()));
-                                  }
-                                  PointsPackage newPackage;
-                                  newPackage.setup(points, color);
-                                  newPackage.setShape(shape);
-                                  mShapesQueueLock.lock();
-                                  shapesQueue.push(newPackage);
-                                  mShapesQueueLock.unlock();
+//                                  int totals = msg.getNumArgs();
+//                                  
+//                                  std::string shape = msg.getArgString(1);
+//                                  std::string color = msg.getArgString(2);
+//                                  std::vector<ci::vec3> points;
+//                                  for (int i = 3; i < totals; i += 3){
+//                                      points.push_back(ci::vec3(msg[i].flt(), msg[i + 1].flt(), msg[i + 2].flt()));
+//                                  }
+//                                  PointsPackage newPackage;
+//                                  newPackage.setup(points, color);
+//                                  newPackage.setShape(shape);
+//                                  mShapesQueueLock.lock();
+//                                  shapesQueue.push(newPackage);
+//                                  mShapesQueueLock.unlock();
                               }
 
                           });

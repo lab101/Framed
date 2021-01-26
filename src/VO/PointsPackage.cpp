@@ -7,12 +7,12 @@
 
 #include "PointsPackage.h"
 
-
-void PointsPackage::setup(std::vector<ci::vec3> _points, std::string _color){
+void PointsPackage::setup(std::vector<ci::vec3> _points, ci::Color _color){
     points = _points;
     color = _color;
     shape = "";
     isEraserOn = false;
+    frameId = 0;
 };
 
 void PointsPackage::setShape(std::string _shape){
