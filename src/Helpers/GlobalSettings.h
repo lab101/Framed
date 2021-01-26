@@ -17,7 +17,8 @@ public:
 
 	Setting<bool>   debugMode;
 	Setting<bool>   isFullscreen;
-	Setting<bool>   isMouseOn;
+    Setting<bool>   isMouseOn;
+    Setting<bool>   projectorMode;
 
 	GlobalSettings();
 

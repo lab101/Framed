@@ -9,6 +9,9 @@
 #include "Lab101Utils.h"
 
 
+using namespace ci;
+using namespace ci::app;
+
 void FrameManager::setup(int nrOfFrames, ci::vec2 size) {
 
 	mSize = size;
@@ -21,7 +24,7 @@ void FrameManager::setup(int nrOfFrames, ci::vec2 size) {
 	}
 
     mActiveFrameIndex = 0;
-    mFrameSpeed = 0.5;
+    mFrameSpeed = 4;
 }
 
 
@@ -98,8 +101,15 @@ void FrameManager::setFrameIndexNormalised(float value) {
 }
 
 
-void FrameManager::draw() {
-	mFrames[mActiveFrameIndex].draw();
+void FrameManager::draw(bool isFullscreen) {
+
+    if(isFullscreen){
+        auto text = mFrames[mActiveFrameIndex].getTexture();
+        ci::gl::draw(text,ci::Rectf(0,0,app::getWindowWidth(),app::getWindowHeight()));
+    }else{
+        mFrames[mActiveFrameIndex].draw();
+    }
+
 }
 
 void FrameManager::drawAtIndex(int index) {
@@ -110,10 +120,13 @@ void FrameManager::drawAtIndex(int index) {
 }
 
 
-void FrameManager::drawLoop() {
+void FrameManager::drawLoop(bool isFullscreen) {
 	int index = (int)(ci::app::getElapsedSeconds() * mFrameSpeed) % (int)mFrames.size();
 	auto text = mFrames[index].getTexture();
-	ci::gl::draw(text, ci::Rectf(10, 10, 1600 * 0.25, 1200 * 0.25));
+
+    auto rect = ci::Rectf(10, 10, 1600 * 0.25, 1200 * 0.25);
+    if(isFullscreen) rect.set(0,0,app::getWindowWidth(),app::getWindowHeight());
+	ci::gl::draw(text, rect);
 }
 
 void FrameManager::drawPoints(std::vector<ci::vec3>& points, ci::Color color, int frameId) {

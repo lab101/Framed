@@ -16,12 +16,12 @@ class FrameManager {
 public:
 
 	void setup(int nrOfFrames, ci::vec2 size);
-	void draw();
+	void draw(bool isFullscreen = false);
     void drawAtIndex(int index);
 
     void clearAll();
     void saveAll();
-	void drawLoop();
+	void drawLoop(bool isFullscreen = false);
 	void drawPoints(std::vector<ci::vec3>& points, ci::Color color,int frameId= -1);
 	void setFrameIndexNormalised(float value);
     void setActiveFrame(int id);

@@ -175,6 +175,9 @@ void FramedApp::keyDown(KeyEvent event)
 	else if (event.getCode() == event.KEY_s) {
 		GS()->mSettingManager.writeSettings();
 	}
+    else if (event.getCode() == event.KEY_p) {
+        GS()->projectorMode.setValue(!GS()->projectorMode.value());
+    }
 	else if (event.getCode() == event.KEY_LEFT) {
 		zoomAnchor.x -= 0.1;
 	}
@@ -263,22 +266,13 @@ void FramedApp::update()
 
     mScene->update();
 
-	if (GS()->debugMode.value() && getElapsedFrames()) {
-		//gl::enableAlphaBlending();
-		//gl::enableAlphaBlendingPremult();
-		//gl::color(Color::white());
-
-		drawDebug();
-		drawInfo();
-	}
 
 
 	mFrameManager.setFrameIndexNormalised(mTouchUI->getFrameScale());
 	mTouchUI->updateThumbs(mFrameManager.getTextures());
 	mTouchUI->onFrameSlected.connect([=](int id) {
 		mFrameManager.setActiveFrame(id);
-		std::cout << id << std::endl;
-		});
+	});
 }
 
 
@@ -286,8 +280,10 @@ void FramedApp::update()
 void FramedApp::draw()
 {
 	gl::clear(Color(0.2, 0.2, 0.2));
-	if (GS()->debugMode.value()) {
-	}
+	if (GS()->projectorMode.value()) {
+        mFrameManager.drawLoop(true);
+        return;
+    }
 
 	float pressure = 1.0f;//+ g_Pressure * 9.0f;
 
@@ -321,10 +317,7 @@ void FramedApp::draw()
 
 	mFrameManager.drawAtIndex(-1);
 
-	gl::color(0.8, 0.8, 0);
 	drawCursor(pressure, localCoordinate);
-
-	// if(mTouchDown)  std::cout << "cursor " << localCoordinate.x << std::endl;
 
 
 	 // get the screenmatrix when all the transformations on the "paper" (fbo) or done.
@@ -336,14 +329,23 @@ void FramedApp::draw()
 	mFrameManager.drawLoop();
 
 	mScene->draw();
-	gl::color(0.8, 0.8, 0.8);
 	//  drawCursor(pressure,lastPenPosition);
+
+
+
+    if (GS()->debugMode.value() && getElapsedFrames()) {
+        drawDebug();
+    }
+
 
 
 }
 
 void FramedApp::drawCursor(float scale, vec2 position) const {
-	float size = scale * 10;
+
+    gl::color(0.8, 0.8, 0.8);
+
+    float size = scale * 10;
 	vec2 pointv2 = vec2(position.x, position.y);
 	ci::gl::drawLine(pointv2 - ci::vec2(size, 0), pointv2 + ci::vec2(size, 0));
 	ci::gl::drawLine(pointv2 + ci::vec2(0, -size), pointv2 + ci::vec2(0, +size));
