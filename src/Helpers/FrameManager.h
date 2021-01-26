@@ -25,6 +25,7 @@ public:
 	void drawPoints(std::vector<ci::vec3>& points, ci::Color color);
 	void setFrameIndexNormalised(float value);
     void setActiveFrame(int id);
+    int getActiveFrame();
 
 	ci::ivec2 getSize();
 	void drawGUI();

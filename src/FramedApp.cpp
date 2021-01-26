@@ -47,8 +47,6 @@ private:
 	float mPenPressure = 10;
 	bool mTouchDown = false;
 
-	std::vector<pointVec> mTest;
-
 	po::scene::SceneRef     mScene;
 	TouchUIRef mTouchUI;
 	LineManager mLineManger;
@@ -97,11 +95,10 @@ void FramedApp::setup()
 
 	mScene = po::scene::Scene::create(mTouchUI);
 
-	mTest.reserve(100);
 
 	mLineManger.onNewPoints.connect([=](pointVec points) {
 		mFrameManager.drawPoints(points, mTouchUI->getColor());
-		mNetworkManager.sendPoints(points,false,"");
+        mNetworkManager.sendPoints(points, false, mTouchUI->getColor(), mFrameManager.getActiveFrame());
 	});
 
 	zoomCenterPoint.x = 420;

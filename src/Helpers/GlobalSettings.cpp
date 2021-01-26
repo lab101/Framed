@@ -167,6 +167,7 @@ void GlobalSettings::loadSettingSet1() {
 
 
 GlobalSettings::GlobalSettings() {
+    performanceDownScale.value() = 1.0;
 }
 
 ci::vec2 GlobalSettings::getScreenSize() {

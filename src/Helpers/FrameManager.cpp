@@ -87,6 +87,9 @@ void FrameManager::saveAll(){
     
 }
 
+int FrameManager::getActiveFrame(){
+    return mActiveFrameIndex;
+}
 
 
 void FrameManager::setFrameIndexNormalised(float value) {

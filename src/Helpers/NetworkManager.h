@@ -75,7 +75,7 @@ public:
     bool isMessageAllowed(const ci::osc::Message &msg);
 
     void sendOscMessage(std::string command,ci::vec3 point);
-    void sendPoints(std::vector<ci::vec3>& points,bool isEraserOn,std::string color);
+    void sendPoints(std::vector<ci::vec3> &points, bool isEraserOn, ci::Color color, int frameId);
     void sendTwoPointShape(cinder::vec3& point1,cinder::vec3& point2, std::string shape,std::string color);
     void cleanup() ;
     
