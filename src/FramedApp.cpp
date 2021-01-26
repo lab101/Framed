@@ -102,7 +102,7 @@ void FramedApp::setup()
 	});
 
 	zoomCenterPoint.x = 420;
-	zoomCenterPoint.y = 200;
+	zoomCenterPoint.y = 10;
 
     setupNetwork();
 
@@ -279,7 +279,7 @@ void FramedApp::update()
 
 void FramedApp::draw()
 {
-	gl::clear(Color(0.2, 0.2, 0.2));
+	gl::clear(Color(0.42, 0.4, 0.4));
 	if (GS()->projectorMode.value()) {
         mFrameManager.drawLoop(true);
         return;
@@ -328,7 +328,9 @@ void FramedApp::draw()
 
 	mFrameManager.drawLoop();
 
-	mScene->draw();
+    ci::gl::color(1, 1, 1);
+
+    mScene->draw();
 	//  drawCursor(pressure,lastPenPosition);
 
 

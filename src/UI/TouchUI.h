@@ -9,6 +9,7 @@
 #include "ColorSlider.h"
 #include "TouchButton.h"
 #include "cinder/Signals.h"
+#include "ColorPicker.h"
 
 
 class TouchUI;
@@ -18,9 +19,10 @@ class TouchUI : public po::scene::ViewController {
 
 private:
 
-	ColorSliderRef colorSlider1;
+//	ColorSliderRef colorSlider1;
 	SliderRef zoomSlider;
 	SliderRef frameSlider;
+    ColorPickerRef colorPicker;
 
 
 	TouchButtonRef mStartButton;

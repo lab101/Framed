@@ -2,8 +2,7 @@
 // Created by lab101 on 28/12/2020.
 //
 
-#ifndef KIDSPARADE_SLIDER_H
-#define KIDSPARADE_SLIDER_H
+#pragma once
 
 #include <poScene/ImageView.h>
 #include "poScene/View.h"
@@ -50,6 +49,3 @@ public:
 
 
     };
-
-
-#endif //KIDSPARADE_SLIDER_H

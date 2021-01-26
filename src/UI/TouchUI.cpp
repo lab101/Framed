@@ -32,9 +32,9 @@ float TouchUI::getFrameScale() {
 
 ci::Color TouchUI::getColor() {
 
-	float hue = colorSlider1->getSliderValue();
-	auto color = Color(CM_HSV, vec3(hue, 0.8, 0.8));
-	return color;
+//	float hue = colorSlider1->getSliderValue();
+//	auto color = Color(CM_HSV, vec3(hue, 0.8, 0.8));
+    return colorPicker->getSelectedColor();
 }
 
 
@@ -43,16 +43,22 @@ ci::Color TouchUI::getColor() {
 
 void TouchUI::setup() {
 
-	colorSlider1 = ColorSlider::create();
-	colorSlider1->setup();
-	getView()->addSubview(colorSlider1);
-	colorSlider1->setPosition(600, 80);
+//	colorSlider1 = ColorSlider::create();
+//	colorSlider1->setup();
+//	getView()->addSubview(colorSlider1);
+//	colorSlider1->setPosition(600, 80);
+    
+    
+    colorPicker = ColorPicker::create();
+    colorPicker->setup();
+    getView()->addSubview(colorPicker);
+    colorPicker->setPosition(10, 320);
 
 
 	zoomSlider = Slider::create();
 	zoomSlider->setup();
 	getView()->addSubview(zoomSlider);
-	zoomSlider->setPosition(600, 140);
+	zoomSlider->setPosition(10, 1140);
     zoomSlider->setShowProgressActive(true);
     zoomSlider->setSliderPosition(0.4);
 
@@ -95,7 +101,7 @@ void TouchUI::addThumbs(std::vector<gl::TextureRef> textures){
         getView()->addSubview(img);
         img->setScale(0.1);
         const float margin = 6;
-        img->setPosition(1200 + ((img->getScaledWidth()  + margin) * i), 60);
+        img->setPosition(10, 520 + ((img->getScaledHeight()  + margin) * i));
         mThumbs.push_back(img);
         
         img->getSignal(po::scene::MouseEvent::DOWN_INSIDE).connect([=](po::scene::MouseEvent& event){
@@ -117,6 +123,6 @@ void TouchUI::updateThumbs(std::vector<gl::TextureRef> textures){
 
 void TouchUI::update() {
 
-	ci::Color color = Color(CM_HSV, vec3(colorSlider1->getSliderValue(), 1, 1));
+//	ci::Color color = Color(CM_HSV, vec3(colorSlider1->getSliderValue(), 1, 1));
 
 }
