@@ -279,6 +279,14 @@ void NetworkManager::sendAlive() {
     mSender.send(message);
 }
 
+void NetworkManager::sendErase() {
+    osc::Message message;
+    message.setAddress("/erase");
+    message.append(groupId);
+    mSender.send(message);
+}
+
+
 void NetworkManager::sendPoints(std::vector<ci::vec3> &points, bool isEraserOn, ci::Color color, int frameId) {
     osc::Message message;
     message.setAddress("/points");

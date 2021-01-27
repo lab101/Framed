@@ -6,6 +6,8 @@
 #include "Singleton.h"
 #include "Settings/SettingManager.h"
 #include "Settings/SettingString.h"
+#include "cinder/Text.h"
+#include "cinder/gl/TextureFont.h"
 
 class GlobalSettings {
 
@@ -62,6 +64,9 @@ public:
 	Setting<float>  test2;
 	Setting<float>  zoomLevel;
 
+
+    ci::Font				mFont;
+    ci::gl::TextureFontRef	mTextureFont;
 
 
     ci::ColorA fboBackground;

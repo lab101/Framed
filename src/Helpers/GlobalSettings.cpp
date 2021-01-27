@@ -104,6 +104,20 @@ void GlobalSettings::setup(std::string appName) {
 
     fboBackground = ColorA(0.0,0.0,0.0,1.0);
 
+    // fonts
+#if defined( CINDER_COCOA_TOUCH )
+    mFont = Font( "Cochin-Italic", 24 );
+#elif defined( CINDER_COCOA )
+    mFont = Font( "BigCaslon-Medium", 24 );
+#elif defined( CINDER_LINUX )
+    mFont = Font( "Times New Roman", 24 );
+#else
+    mFont = Font( "Times New Roman", 48 );f
+#endif
+
+mFont = Font(ci::app::loadAsset("fonts/PTSans-Regular.ttf") , 12);
+
+    mTextureFont = gl::TextureFont::create( mFont );
 }
 
 

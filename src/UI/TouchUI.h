@@ -38,6 +38,7 @@ public:
     
 	void setup();
 	void update();
+	void draw();
 
 	static TouchUIRef create();
 

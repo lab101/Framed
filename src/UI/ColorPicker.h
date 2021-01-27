@@ -18,8 +18,9 @@ class ColorPicker : public po::scene::View
     float mCurrentAbsolutePosition;
     ci::gl::GlslProgRef mGlsl;
     ci::gl::FboRef  mFbo;
-
     ci::ColorA mSelectedColor;
+
+    bool mRenderFbo = true;
 protected:
 
     float mColorPickerValue;
@@ -41,5 +42,6 @@ public:
     void update() override;
 
 
-    };
+    void setColorPosition(ci::vec2 position);
+};
 

@@ -333,6 +333,8 @@ void FramedApp::draw()
     mScene->draw();
 	//  drawCursor(pressure,lastPenPosition);
 
+	mTouchUI->draw();
+
 
 
     if (GS()->debugMode.value() && getElapsedFrames()) {

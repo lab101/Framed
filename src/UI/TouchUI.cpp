@@ -126,3 +126,16 @@ void TouchUI::update() {
 //	ci::Color color = Color(CM_HSV, vec3(colorSlider1->getSliderValue(), 1, 1));
 
 }
+
+
+void TouchUI::draw(){
+
+    int i =1;
+    for(auto t : mThumbs){
+
+        GS()->mTextureFont->drawString(to_string(i) ,t->getPosition() + vec2(10,20 + 12));
+        i++;
+    }
+
+    //mTextureFont->drawStringWrapped( str, boundsRect + offset);
+}

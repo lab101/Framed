@@ -6,8 +6,8 @@
 #include "poScene/ShapeView.h"
 #include "mathHelper.h"
 #include "AssetLoader/AssetsCache.h"
-#include "cinder/App/App.h"
-#include "cinder/gl/Scoped.h"
+#include "cinder/app/App.h"
+#include "cinder/gl/scoped.h"
 
 using namespace po::scene;
 using namespace ci;
@@ -47,23 +47,16 @@ void ColorPicker::setup() {
     // touch events
     getSignal(MouseEvent::DOWN_INSIDE).connect([=] (po::scene::MouseEvent& event){
         mIsPressed = true;
-  
+
         auto pos =  event.getLocalPos();
-        Area area(pos.x,pos.y,pos.x+1,pos.y+1);
-        Surface mySurface = mFbo->readPixels8u(area);
-        mSelectedColor = mySurface.getPixel(vec2(0,0));
-
-        
-        mDotBorder->setPosition(pos);
-
-        mDot->setPosition(pos);
-        mDot->setFillColor(mSelectedColor);
-
+        setColorPosition(pos);
     });
 
     getSignal(MouseEvent::DRAG_INSIDE).connect([=] (po::scene::MouseEvent& event){
         if(mIsPressed)
         {
+            auto pos =  event.getLocalPos();
+            setColorPosition(pos);
         }
     });
 
@@ -71,22 +64,50 @@ void ColorPicker::setup() {
     getSignal(MouseEvent::DRAG).connect([=] (po::scene::MouseEvent& event){
         if(mIsPressed)
         {
+            auto pos =  event.getLocalPos();
+            setColorPosition(pos);
         }
     });
     getSignal(MouseEvent::MOVE).connect([=] (po::scene::MouseEvent& event){
 
         if(mIsPressed)
         {
+            auto pos =  event.getLocalPos();
+            setColorPosition(pos);
         }
     });
 
+
+    getSignal(MouseEvent::UP).connect([=] (po::scene::MouseEvent& event){
+        mIsPressed = false;
+    });
     
     
      mGlsl = gl::GlslProg::create( ci::app::loadAsset( "passthrough.vert" ), ci::app::loadAsset( "color.frag" ) );
 
     setSize(mFbo->getSize());
 
+    // update to fill the fbo for the initial color set.
+    update();
+    setColorPosition(vec2(50,50));
 
+
+}
+
+void ColorPicker::setColorPosition(ci::vec2 pos) {
+
+    pos.x = clamp<float>(pos.x,0,mFbo->getWidth()-1);
+    pos.y = clamp<float>(pos.y,0,mFbo->getHeight()-1);
+
+    Area area(pos.x,pos.y,pos.x+1,pos.y+1);
+    Surface mySurface = mFbo->readPixels8u(area);
+    mSelectedColor = mySurface.getPixel(vec2(0, 0));
+
+
+    mDotBorder->setPosition(pos);
+
+    mDot->setPosition(pos);
+    mDot->setFillColor(mSelectedColor);
 }
 
 
@@ -98,8 +119,10 @@ ColorA ColorPicker::getSelectedColor(){
 
 
 void ColorPicker::update(){
+
+    if(mRenderFbo)
     {
-           
+        mRenderFbo = false;
            gl::ScopedFramebuffer fbScp( mFbo );
            gl::ScopedViewport fbVP (mFbo->getSize());
            gl::setMatricesWindow( mFbo->getSize() );
@@ -120,7 +143,18 @@ void ColorPicker::update(){
         }else{
             mHueImage->setTexture(mFbo->getColorTexture());
         }
-        
+
+
+       }
+
+
+       if(mIsPressed){
+           mDot->setScale(1.2);
+           mDotBorder->setScale(1.5);
+       }else{
+           mDot->setScale(0.7);
+           mDotBorder->setScale(1);
+
        }
 }
 
