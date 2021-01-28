@@ -44,10 +44,11 @@ class NetworkManager{
     std::mutex mShapesQueueLock;
     
     void sendAlive();
-    void sendErase();
 
 public:
     
+    void sendErase();
+
     NetworkManager();
     
     //threaded OSC server

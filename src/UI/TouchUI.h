@@ -25,7 +25,7 @@ private:
     ColorPickerRef colorPicker;
 
 
-	TouchButtonRef mStartButton;
+	TouchButtonRef mEraseButton;
 
 	float mScale;
 
@@ -35,7 +35,8 @@ private:
 public:
     
     ci::signals::Signal<void( int )> onFrameSlected;
-    
+    ci::signals::Signal<void()> onErase;
+
 	void setup();
 	void update();
 	void draw();

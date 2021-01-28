@@ -73,11 +73,19 @@ void TouchUI::setup() {
     frameSlider->setTintColor(Color(0,0,1));
 
 
-	//    mStartButton = TouchButton::create();
-	//    auto text = CACHE()->getTextureByAssetPath("images/kidsparade/like.png");
-	//    mStartButton->setImage(text);
-	//    getView()->addSubview(mStartButton);
-	//    mStartButton->setPosition(350,1350);
+	    mEraseButton = TouchButton::create();
+	    auto text = CACHE()->getTextureByAssetPath("UI/sliderDot.png");
+	    mEraseButton->setImage(text);
+	    getView()->addSubview(mEraseButton);
+	    mEraseButton->setPosition(350,400);
+
+//    mEraseButton->mSignalPressed.connect([=](){
+//
+//    });
+    
+    mEraseButton->getSignalPressed().connect([=] (TouchButtonRef ref) {
+        onErase.emit();
+    });
 
 
 

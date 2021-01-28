@@ -92,6 +92,10 @@ void FramedApp::setup()
 	mTouchUI->setup();
 	mTouchUI->addThumbs(mFrameManager.getTextures());
 	mTouchUI->setActiveFrame(0);
+    
+    mTouchUI->onErase.connect([=]{
+        mNetworkManager.sendErase();
+    });
 
 	mScene = po::scene::Scene::create(mTouchUI);
 
