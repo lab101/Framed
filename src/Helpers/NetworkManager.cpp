@@ -40,6 +40,10 @@ bool NetworkManager::setup() {
     });
 
 
+    mReceiver.setListener("/erase", [&](const osc::Message &msg) {
+        queueClear = true;
+    });
+
     mReceiver.setListener("/points",
                           [&](const osc::Message &msg) {
                               if(isMessageAllowed(msg)){
@@ -163,6 +167,10 @@ void NetworkManager::update() {
         lastBroadcast = app::getElapsedSeconds();
     }
 
+    if(queueClear){
+        onErase.emit();
+        queueClear = false;
+    }
 
     mPointsQueueLock.lock();
 

@@ -31,7 +31,8 @@ class NetworkManager{
     std::string mLastIpNr;
     int groupId = 0;
     float lastBroadcast;
-    
+    bool queueClear= false;
+
     void setupOSCSender();
 
     
@@ -64,7 +65,8 @@ public:
     ci::signals::Signal<void(PointsPackage pointPackage)>   onReceivePoints;
     ci::signals::Signal<void(PointsPackage pointPackage)> onReceiveShapes;
 //    ci::signals::Signal<void(std::string&)>   onNewConnection;
-//    ci::signals::Signal<void(std::string&)>   onAlivePing;
+    //ci::signals::Signal<void(std::string&)>   onAlivePing;
+    ci::signals::Signal<void()>   onErase;
 
     std::map<std::string,float> mAliveIps;
 

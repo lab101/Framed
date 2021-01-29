@@ -105,6 +105,13 @@ void FramedApp::setup()
         mNetworkManager.sendPoints(points, false, mTouchUI->getColor(), mFrameManager.getActiveFrame());
 	});
 
+
+	mNetworkManager.onErase.connect([=](){
+	   mFrameManager.clearAll();
+
+	});
+
+
 	zoomCenterPoint.x = 420;
 	zoomCenterPoint.y = 10;
 
