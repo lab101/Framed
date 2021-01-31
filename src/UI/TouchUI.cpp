@@ -82,10 +82,10 @@ void TouchUI::setup() {
 
 
 	    mEraseButton = TouchButton::create();
-	    auto text = CACHE()->getTextureByAssetPath("UI/sliderDot.png");
+	    auto text = CACHE()->getTextureByAssetPath("UI/erase.png");
 	    mEraseButton->setImage(text);
 	    getView()->addSubview(mEraseButton);
-	    mEraseButton->setPosition(350,400);
+	    mEraseButton->setPosition(356,310);
 
 //    mEraseButton->mSignalPressed.connect([=](){
 //
