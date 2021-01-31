@@ -47,6 +47,9 @@ private:
 	float mPenPressure = 10;
 	bool mTouchDown = false;
 
+    
+    vec2 frameSize = vec2(1600,1200);
+    
 	po::scene::SceneRef     mScene;
 	TouchUIRef mTouchUI;
 	LineManager mLineManger;
@@ -86,7 +89,7 @@ void FramedApp::setup()
 	cfg.SizePixels = 13 * SCALE;
 	ImGui::GetIO().Fonts->AddFontDefault(&cfg)->DisplayOffset.y = SCALE;
 
-	mFrameManager.setup(4, getWindowSize());
+	mFrameManager.setup(6, frameSize);
 
 	mTouchUI = TouchUI::create();
 	mTouchUI->setup();
@@ -182,6 +185,8 @@ void FramedApp::keyDown(KeyEvent event)
 	}
 	else if (event.getCode() == event.KEY_f) {
 		setFullScreen(!isFullScreen());
+        if(isFullScreen()) hideCursor();
+        else showCursor();
 	}
 	else if (event.getCode() == event.KEY_s) {
 		GS()->mSettingManager.writeSettings();
@@ -298,18 +303,10 @@ void FramedApp::draw()
 
 	float pressure = 1.0f;//+ g_Pressure * 9.0f;
 
-	const float margin = 20;
-	Rectf activeArea(margin, margin, getWindow()->getWidth() - margin * 2, getWindow()->getHeight() - margin * 2);
-	if (activeArea.contains(lastPenPosition)) {
-		//   hideCursor();
-	}
-	else {
-		showCursor();
-	}
+
 
 	ci::gl::color(1, 1, 1);
 	ivec2 size = mFrameManager.getSize();
-
 
 
 
@@ -328,7 +325,7 @@ void FramedApp::draw()
 
 	mFrameManager.drawAtIndex(-1);
 
-	drawCursor(pressure, localCoordinate);
+//	drawCursor(pressure, localCoordinate);
 
 
 	 // get the screenmatrix when all the transformations on the "paper" (fbo) or done.
@@ -342,7 +339,7 @@ void FramedApp::draw()
     ci::gl::color(1, 1, 1);
 
     mScene->draw();
-	//  drawCursor(pressure,lastPenPosition);
+    drawCursor(pressure,lastPenPosition);
 
 	mTouchUI->draw();
 

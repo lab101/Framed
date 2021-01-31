@@ -34,7 +34,7 @@ public:
     ci::signals::Signal<void(float value)> mOnValueChanged;
     static ColorPickerRef create();
     ColorPicker();
-    virtual void setup();
+    void setup() override;
 
     ci::ColorA getSelectedColor();
     

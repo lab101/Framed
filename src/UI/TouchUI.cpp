@@ -27,7 +27,7 @@ float TouchUI::getScale() {
 
 float TouchUI::getFrameScale() {
 
-	return frameSlider->getSliderValue();
+    return 1;// frameSlider->getSliderValue();
 }
 
 ci::Color TouchUI::getColor() {
@@ -50,9 +50,17 @@ void TouchUI::setup() {
     
     
     colorPicker = ColorPicker::create();
-    colorPicker->setup();
-    getView()->addSubview(colorPicker);
-    colorPicker->setPosition(10, 320);
+      colorPicker->setup();
+      getView()->addSubview(colorPicker);
+      colorPicker->setPosition(10, 320);
+
+        scrollBox = ScrollBox::create();
+      scrollBox->setup(200,400);
+      getView()->addSubview(scrollBox);
+      scrollBox->setPosition(10, 520);
+    scrollBox->mOnValueChanged.connect([=](int value){
+        onFrameSlected.emit(value);
+    });
 
 
 	zoomSlider = Slider::create();
@@ -63,14 +71,14 @@ void TouchUI::setup() {
     zoomSlider->setSliderPosition(0.4);
 
 
-	frameSlider = Slider::create();
-	frameSlider->setup();
-//	getView()->addSubview(frameSlider);
-	frameSlider->setPosition(1200, 80);
-    frameSlider->setSliderPosition(0);
-    frameSlider->setShowProgressActive(true);
-    frameSlider->setControlWidth(200);
-    frameSlider->setTintColor(Color(0,0,1));
+//	frameSlider = Slider::create();
+//	frameSlider->setup();
+////	getView()->addSubview(frameSlider);
+//	frameSlider->setPosition(1200, 80);
+//    frameSlider->setSliderPosition(0);
+//    frameSlider->setShowProgressActive(true);
+//    frameSlider->setControlWidth(200);
+//    frameSlider->setTintColor(Color(0,0,1));
 
 
 	    mEraseButton = TouchButton::create();
@@ -104,9 +112,12 @@ void TouchUI::setActiveFrame(int index){
 
 
 void TouchUI::addThumbs(std::vector<gl::TextureRef> textures){
+    
+   // return;
+    
     for(int i=0; i < textures.size(); i++){
         po::scene::ImageViewRef img = ImageView::create(textures[i]);
-        getView()->addSubview(img);
+     //   getView()->addSubview(img);
         img->setScale(0.1);
         const float margin = 6;
         img->setPosition(10, 520 + ((img->getScaledHeight()  + margin) * i));
@@ -122,9 +133,11 @@ void TouchUI::addThumbs(std::vector<gl::TextureRef> textures){
 
 
 void TouchUI::updateThumbs(std::vector<gl::TextureRef> textures){
-    for(int i=0; i < textures.size(); i++){
-        mThumbs[i]->setTexture(textures[i]);
-    }
+//    for(int i=0; i < textures.size(); i++){
+//        mThumbs[i]->setTexture(textures[i]);
+//    }
+    
+    scrollBox->setTextures(textures);
 
 }
 
@@ -138,12 +151,12 @@ void TouchUI::update() {
 
 void TouchUI::draw(){
 
-    int i =1;
-    for(auto t : mThumbs){
-
-        GS()->mTextureFont->drawString(to_string(i) ,t->getPosition() + vec2(10,20 + 12));
-        i++;
-    }
+//    int i =1;
+//    for(auto t : mThumbs){
+//
+//        GS()->mTextureFont->drawString(to_string(i) ,t->getPosition() + vec2(10,20 + 12));
+//        i++;
+//    }
 
     //mTextureFont->drawStringWrapped( str, boundsRect + offset);
 }

@@ -32,6 +32,8 @@ set( SRC_FILES
 		${APP_PATH}/src/Helpers/NetworkManager.cpp
         ${APP_PATH}/src/VO/PointsPackage.cpp
         ${APP_PATH}/src/UI/ColorPicker.cpp
+        ${APP_PATH}/src/UI/ScrollBox.cpp
+
 		)
 
 

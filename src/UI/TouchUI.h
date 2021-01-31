@@ -10,6 +10,7 @@
 #include "TouchButton.h"
 #include "cinder/Signals.h"
 #include "ColorPicker.h"
+#include "ScrollBox.h"
 
 
 class TouchUI;
@@ -23,6 +24,7 @@ private:
 	SliderRef zoomSlider;
 	SliderRef frameSlider;
     ColorPickerRef colorPicker;
+    ScrollBoxRef scrollBox;
 
 
 	TouchButtonRef mEraseButton;
