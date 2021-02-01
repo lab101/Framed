@@ -56,6 +56,7 @@ void FrameManager::setActiveFrame(int id){
 void FrameManager::saveAll(){
     
     std::string mOutputFolder = ci::getDocumentsDirectory().string() + "framed/" + getDateString();
+    std::cout << mOutputFolder << std::endl;
     
     if(ci::fs::exists(mOutputFolder)){
         ci::fs::create_directory(mOutputFolder);

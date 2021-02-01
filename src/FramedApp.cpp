@@ -110,7 +110,8 @@ void FramedApp::setup()
 
 
 	mNetworkManager.onErase.connect([=](){
-	   mFrameManager.clearAll();
+        mFrameManager.saveAll();
+        mFrameManager.clearAll();
 
 	});
 

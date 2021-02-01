@@ -164,7 +164,12 @@ void ScrollBox::update(){
             auto s = mTextures[index];
             auto drawFrame = Rectf(0,0,mScaledFrameSize.x,mScaledFrameSize.y-1);
             ci::gl::draw(s,drawFrame);
-                        
+            if(index == 0){
+                gl::color(0, 1, 0);
+                gl::drawLine(vec2(0,0),vec2(mScaledFrameSize.x,0));
+            }
+            ci::gl::color(1, 1, 1, 1);
+
             GS()->mTextureFont->drawString(std::to_string(index+1) ,vec2(14,18));
 
             ci::gl::popMatrices();
