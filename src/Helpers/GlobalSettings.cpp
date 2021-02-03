@@ -22,14 +22,10 @@ void GlobalSettings::setup(std::string appName) {
 	isFullscreen = Setting<bool>("isFullscreen", false);
 	mSettingManager.addSetting(&isFullscreen);
 
-
 	screenScale = Setting<float>("screenScale", 1.0).setSteps(0.001f);
 	screenScale.setMax(2.0f);
 	screenScale.setMin(.1f);
 	mSettingManager.addSetting(&screenScale);
-
-	backendUrl = SettingString("backendUrl", "http://amazone.lab101.be:4000");
-	mSettingManager.addSetting(&backendUrl);
 
 	screenWidth = Setting<int>("screenwidth", 1080);
 	mSettingManager.addSetting(&screenWidth);
@@ -37,82 +33,26 @@ void GlobalSettings::setup(std::string appName) {
 	screenHeight = Setting<int>("screenHeight", 1080);
 	mSettingManager.addSetting(&screenHeight);
 
-	resetScreenTime = Setting<int>("resetScreenTime", 60);
-	mSettingManager.addSetting(&resetScreenTime);
-
-	//DATA
-	maxItemBuffer = Setting<int>("maxItemBuffer", 100);
-	mSettingManager.addSetting(&maxItemBuffer);
-
-	maxRequestQueue = Setting<int>("maxRequestQueue", 1);
-	mSettingManager.addSetting(&maxRequestQueue);
-
-	maxSceneItems = Setting<int>("maxSceneItems", 50);
-	mSettingManager.addSetting(&maxSceneItems);
-
-	makeBoxSize = Setting<int>("makeBoxSize", 50);
-	mSettingManager.addSetting(&makeBoxSize);
-
-
-	// noise
-
-	flowGravity = Setting<float>("flowGravity", 4);
-	mSettingManager.addSetting(&flowGravity);
-
-
-	flowItemScale = Setting<float>("flowItemScale", 0.1f);
-	mSettingManager.addSetting(&flowItemScale);
-
-	flowNoiseScale = Setting<float>("flowNoiseScale", 0.1f);
-	mSettingManager.addSetting(&flowNoiseScale);
-
-	flowNoiseSpeed = Setting<float>("flowNoiseSpeed", 0.1f);
-	mSettingManager.addSetting(&flowNoiseSpeed);
-
-	flowNoiseSize = Setting<float>("flowNoiseSize", 200);
-	mSettingManager.addSetting(&flowNoiseSize);
-
-	flowNoiseAttractionForce = Setting<float>("flowNoiseAttractionForce", 1);
-	mSettingManager.addSetting(&flowNoiseAttractionForce);
-
-	flowNoiseAttractionForceLerp = Setting<float>("flowNoiseAttractionForceLerp", 1);
-	mSettingManager.addSetting(&flowNoiseAttractionForceLerp);
-
-	// bubble
-	repulsionRadius = Setting<float>("repulsionRadius", 400);
-	mSettingManager.addSetting(&repulsionRadius);
-
-	maxVelocity = Setting<float>("maxVelocity", 100);
-	mSettingManager.addSetting(&maxVelocity);
-
-	repulsionForce = Setting<float>("repulsionForce", 2);
-	mSettingManager.addSetting(&repulsionForce);
-
-	test1 = Setting<float>("test1", 0.1f);
-	mSettingManager.addSetting(&test1);
-
-	test2 = Setting<float>("test2", 0.1f);
-	mSettingManager.addSetting(&test2);
-
     zoomLevel = Setting<float>("zoomLevel", .8f);
 	mSettingManager.addSetting(&zoomLevel);
-
-
-    Setting<float> performanceDownScale;
-    Setting<int> maxGroups;
+    
+    groupId = Setting<int>("groupId",0);
+    mSettingManager.addSetting(&groupId);
+    
+    
+    projectorMode = Setting<bool>("projectorMode", false);
+    mSettingManager.addSetting(&projectorMode);
 
 
     fboBackground = ColorA(0.0,0.0,0.0,1.0);
 
     // fonts
-#if defined( CINDER_COCOA_TOUCH )
-    mFont = Font( "Cochin-Italic", 24 );
-#elif defined( CINDER_COCOA )
+#if defined( CINDER_COCOA )
     mFont = Font( "BigCaslon-Medium", 24 );
 #elif defined( CINDER_LINUX )
     mFont = Font( "Times New Roman", 24 );
 #else
-    mFont = Font( "Times New Roman", 48 );f
+    mFont = Font( "Times New Roman", 48 );
 #endif
 
 mFont = Font(ci::app::loadAsset("fonts/PTSans-Regular.ttf") , 12);
@@ -120,64 +60,6 @@ mFont = Font(ci::app::loadAsset("fonts/PTSans-Regular.ttf") , 12);
     mTextureFont = gl::TextureFont::create( mFont );
 }
 
-
-float GlobalSettings::getRadiusScaleByPriority(int& priority) {
-
-	float radiusScale = 1;
-
-	switch (priority)
-	{
-		// 0  spotlight
-	case 0:
-		radiusScale = 2;
-		break;
-		// 1  very high
-	case 1:
-		radiusScale = 1.8;
-		break;
-		// 2  high
-	case 2:
-		radiusScale = 1.6;
-		break;
-		// 3  medium
-	case 3:
-		radiusScale = 1.0;
-		break;
-		// 4  low
-	case 4:
-		radiusScale = 0.8;
-		break;
-		// 5  very low
-	case 5:
-		radiusScale = 0.6;
-		break;
-	default:
-		break;
-	}
-
-	return radiusScale;
-}
-
-
-void GlobalSettings::loadSettingSet1() {
-	maxSceneItems.setValue(406);
-	maxItemBuffer.setValue(318);
-	maxRequestQueue.setValue(1);
-	flowItemScale.setValue(0.1);
-
-	flowNoiseScale.setValue(-0.399);
-	flowNoiseSpeed.setValue(0.112);
-	flowNoiseSize.setValue(1127);
-	flowNoiseAttractionForce.setValue(-0.24);
-	flowNoiseAttractionForceLerp.setValue(8.25);
-	makeBoxSize.setValue(210);
-
-	repulsionRadius.setValue(318);
-	maxVelocity.setValue(95);
-	repulsionForce.setValue(35);
-	test1.setValue(6.613);
-	test2.setValue(8);
-}
 
 
 GlobalSettings::GlobalSettings() {

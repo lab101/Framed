@@ -68,6 +68,7 @@ private:
 	float mFps;
 	void drawDebug();
 	void drawInfo();
+    void drawInterface();
 
 	void drawCursor(float scale, vec2 position) const;
 
@@ -86,7 +87,7 @@ void FramedApp::setup()
 	ImGui::StyleColorsClassic();
 	float SCALE = 1.0f;
 	ImFontConfig cfg;
-	cfg.SizePixels = 13 * SCALE;
+	cfg.SizePixels = 20 * SCALE;
 	ImGui::GetIO().Fonts->AddFontDefault(&cfg)->DisplayOffset.y = SCALE;
 
 	mFrameManager.setup(6, frameSize);
@@ -121,6 +122,9 @@ void FramedApp::setup()
 
     setupNetwork();
 
+    if(GS()->projectorMode.value()){
+        hideCursor();
+    }
 
 #if defined( CINDER_COCOA )
 	CI_LOG_I("START ofxTablet");
@@ -183,6 +187,11 @@ void FramedApp::keyDown(KeyEvent event)
 {
 	if (event.getChar() == 'd') {
 		GS()->debugMode.setValue(!GS()->debugMode.value());
+        if(GS()->debugMode.value()){
+            showCursor();
+        }else{
+            hideCursor();
+        }
 	}
 	else if (event.getCode() == event.KEY_f) {
 		setFullScreen(!isFullScreen());
@@ -299,58 +308,50 @@ void FramedApp::draw()
 	gl::clear(Color(0.42, 0.4, 0.4));
 	if (GS()->projectorMode.value()) {
         mFrameManager.drawLoop(true);
-        return;
+    }else{
+        drawInterface();
     }
 
-	float pressure = 1.0f;//+ g_Pressure * 9.0f;
 
-
-
-	ci::gl::color(1, 1, 1);
-	ivec2 size = mFrameManager.getSize();
-
-
-
-	// Drawing "the paper" at zoomlevel with offset.
-	ci::gl::pushMatrices();
-	gl::ScopedViewport fbVP(getWindowSize());
-	gl::setMatricesWindow(getWindowSize());
-	ci::gl::translate(zoomCenterPoint.x, zoomCenterPoint.y, 0);
-
-	float zoomLevel = 0.5 + mTouchUI->getScale();
-	ci::gl::scale(zoomLevel, zoomLevel);
-	ci::gl::translate(-size.x * zoomAnchor.x, -size.y * zoomAnchor.y, 0);
-	mFrameManager.draw();
-
-	gl::color(1, 1, 1, 0.2);
-
-	mFrameManager.drawAtIndex(-1);
-
-//	drawCursor(pressure, localCoordinate);
-
-
-	 // get the screenmatrix when all the transformations on the "paper" (fbo) or done.
-	screenMatrix = ci::gl::getModelViewProjection();
-
-	ci::gl::popMatrices();
-	ci::gl::color(1, 1, 1);
-
-	mFrameManager.drawLoop();
-
-    ci::gl::color(1, 1, 1);
-
-    mScene->draw();
-    drawCursor(pressure,lastPenPosition);
-
-	mTouchUI->draw();
-
-
-
-    if (GS()->debugMode.value() && getElapsedFrames()) {
+    if (GS()->debugMode.value()) {
         drawDebug();
     }
+}
 
 
+void FramedApp::drawInterface(){
+        ci::gl::color(1, 1, 1);
+        ivec2 size = mFrameManager.getSize();
+
+        // Drawing "the paper" at zoomlevel with offset.
+        ci::gl::pushMatrices();
+        gl::ScopedViewport fbVP(getWindowSize());
+        gl::setMatricesWindow(getWindowSize());
+        ci::gl::translate(zoomCenterPoint.x, zoomCenterPoint.y, 0);
+
+        float zoomLevel = 0.5 + mTouchUI->getScale();
+        ci::gl::scale(zoomLevel, zoomLevel);
+        ci::gl::translate(-size.x * zoomAnchor.x, -size.y * zoomAnchor.y, 0);
+        mFrameManager.draw();
+
+        gl::color(1, 1, 1, 0.2);
+
+        mFrameManager.drawAtIndex(-1);
+
+         // get the screenmatrix when all the transformations on the "paper" (fbo) or done.
+        screenMatrix = ci::gl::getModelViewProjection();
+
+        ci::gl::popMatrices();
+        ci::gl::color(1, 1, 1);
+
+        mFrameManager.drawLoop();
+
+        ci::gl::color(1, 1, 1);
+
+        mScene->draw();
+        drawCursor(getPressure(),lastPenPosition);
+
+        mTouchUI->draw();
 
 }
 
@@ -358,7 +359,7 @@ void FramedApp::drawCursor(float scale, vec2 position) const {
 
     gl::color(0.8, 0.8, 0.8);
 
-    float size = scale * 10;
+    float size = scale * 2;
 	vec2 pointv2 = vec2(position.x, position.y);
 	ci::gl::drawLine(pointv2 - ci::vec2(size, 0), pointv2 + ci::vec2(size, 0));
 	ci::gl::drawLine(pointv2 + ci::vec2(0, -size), pointv2 + ci::vec2(0, +size));
@@ -374,11 +375,12 @@ void FramedApp::drawDebug()
     ImGui::Begin("Settings");
     ImGui::Text("framerate: %f", mFps);
     ImGui::Checkbox("show debug", &GS()->debugMode.value());
-    if (ImGui::Button("load setttingset 1")) {
-        GS()->loadSettingSet1();
-    }
     ImGui::Separator();
-    if (ImGui::Button("sav setttings")) {
+    ImGui::Checkbox("projector mode", &GS()->projectorMode.value());
+    ImGui::Checkbox("fullscreen", &GS()->isFullscreen.value());
+    ImGui::SliderInt("group id", &GS()->groupId.value(),1,4);
+    
+    if (ImGui::Button("save setttings")) {
         GS()->mSettingManager.writeSettings();
     }
     ImGui::End();
