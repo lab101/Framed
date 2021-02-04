@@ -1,7 +1,7 @@
 # Framed
 Work in progress. Collaborative (network) drawing application.  
 Build using c++ & libcinder. Runs on OSX, Windows & Linux.  
-Pen pressure support on OSX & Windows tested on Wacom Hardware but should run with other pen-based devices.
+Pen pressure support on OSX & Windows tested on Wacom & Huion hardware but should run with other pen-based devices.
 
 # Installation
 Download latest binary from the **[Releases](https://https://github.com/lab101/Framed/releases )** for your platform.  
