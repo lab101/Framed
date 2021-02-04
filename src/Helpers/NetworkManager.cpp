@@ -254,6 +254,10 @@ std::string const NetworkManager::getLastMyIpNr() {
     return mLastIpNr;
 }
 
+std::string NetworkManager::getIPadress(){
+    return mOwnIpAdress;
+}
+
 int const NetworkManager::getGroupId() {
     // add one makes it nicer for non programmers
     return groupId + 1;

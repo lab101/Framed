@@ -369,7 +369,8 @@ void FramedApp::drawDebug()
 	ImGui::Checkbox("fullscreen", &GS()->isFullscreen.value());
 
 	string pressureString = toString(mPenPressure);
-	ImGui::LabelText("pen pressure", pressureString.c_str());
+    ImGui::LabelText("pen pressure", pressureString.c_str());
+    ImGui::LabelText("ip", mNetworkManager.getIPadress().c_str());
 
 	if (ImGui::SliderInt("group id", &GS()->groupId.value(), 1, 4)) {
 		mNetworkManager.setGroupId(GS()->groupId.value());

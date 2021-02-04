@@ -75,6 +75,8 @@ public:
     void setNextGroup();
     void setGroupId(int id);
     std::string const getLastMyIpNr();
+    std::string getIPadress();
+
     int const getGroupId();
     bool isMessageAllowed(const ci::osc::Message &msg);
 
