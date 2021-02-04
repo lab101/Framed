@@ -160,6 +160,9 @@ void NetworkManager::setNextGroup() {
     if (++groupId > GS()->maxGroups.value() - 1) groupId = 0;
 }
 
+void NetworkManager::setGroupId(int id){
+     groupId = id;
+}
 
 void NetworkManager::update() {
     if (ci::app::getElapsedSeconds() - lastBroadcast > 6) {

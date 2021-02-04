@@ -40,7 +40,7 @@ void GlobalSettings::setup(std::string appName) {
     zoomLevel = Setting<float>("zoomLevel", .8f);
 	mSettingManager.addSetting(&zoomLevel);
     
-    groupId = Setting<int>("groupId",0);
+    groupId = Setting<int>("groupId", 1);
     mSettingManager.addSetting(&groupId);
 
     projectorMode = Setting<bool>("projectorMode", false);

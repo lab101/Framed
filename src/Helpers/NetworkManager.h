@@ -73,7 +73,7 @@ public:
     bool setup();
     void update();
     void setNextGroup();
-
+    void setGroupId(int id);
     std::string const getLastMyIpNr();
     int const getGroupId();
     bool isMessageAllowed(const ci::osc::Message &msg);

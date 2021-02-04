@@ -369,7 +369,9 @@ void FramedApp::drawDebug()
     ImGui::Separator();
     ImGui::Checkbox("projector mode", &GS()->projectorMode.value());
     ImGui::Checkbox("fullscreen", &GS()->isFullscreen.value());
-    ImGui::SliderInt("group id", &GS()->groupId.value(),1,4);
+    if(ImGui::SliderInt("group id", &GS()->groupId.value(),1,4)){
+        mNetworkManager.setGroupId(GS()->groupId.value());
+    }
     
     if (ImGui::Button("save setttings")) {
         GS()->mSettingManager.writeSettings();
