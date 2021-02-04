@@ -5,8 +5,8 @@
 #include "cinder/Log.h"
 #include "cinder/Filesystem.h"
 #include "Helpers/NetworkManager.h"
-
 #include "Helpers/GlobalSettings.h"
+#include "mathHelper.h"
 
 #if defined( CINDER_MSW_DESKTOP )
 #include "Pen/Windows/CRTEventHandler.h"
@@ -44,20 +44,19 @@ public:
 private:
 
 	ci::vec3 lastPenPosition;
-    ci::vec3 localCoordinate;
+	ci::vec3 localCoordinate;
 
-	float mPenPressure = 10;
+	float mPenPressure = 0.25;
 	bool mTouchDown = false;
 
-    
-    ci::vec2 frameSize = vec2(1600,1200);
-    
+
+	ci::vec2 frameSize = vec2(1600, 1200);
+
 	po::scene::SceneRef     mScene;
 	TouchUIRef mTouchUI;
 	LineManager mLineManger;
 	FrameManager mFrameManager;
 	NetworkManager mNetworkManager;
-
 
 	// zoom related
 	ci::mat4 screenMatrix;
@@ -68,10 +67,11 @@ private:
 
 	float mFps;
 	void drawDebug();
-    void drawInterface();
+	void drawInterface();
 	void drawCursor(float scale, vec2 position) const;
 
-    void setupNetwork();
+	void setupNetwork();
+	void setupImGui();
 };
 
 std::string appName = "Framed";
@@ -82,72 +82,74 @@ void FramedApp::setup()
 
 	GS()->setup(appName);
 
-	ImGui::Initialize();
-	ImGui::StyleColorsClassic();
-	float SCALE = 1.0f;
-	ImFontConfig cfg;
-	cfg.SizePixels = 20 * SCALE;
-	ImGui::GetIO().Fonts->AddFontDefault(&cfg)->DisplayOffset.y = SCALE;
+	setupImGui();
 
-	frameSize = vec2(GS()->frameWidth.value(),GS()->frameHeight.value());
+	frameSize = vec2(GS()->frameWidth.value(), GS()->frameHeight.value());
 	mFrameManager.setup(6, frameSize);
 
 	mTouchUI = TouchUI::create();
-	mTouchUI->setup();
+	mTouchUI->setup(400 * frameSize.y / frameSize.x);
 	mTouchUI->addThumbs(mFrameManager.getTextures());
 	mTouchUI->setActiveFrame(0);
-    
-    mTouchUI->onErase.connect([=]{
-        mNetworkManager.sendErase();
-    });
+
+
+	mTouchUI->onErase.connect([=] {
+		mNetworkManager.sendErase();
+		});
 
 	mScene = po::scene::Scene::create(mTouchUI);
 
 
 	mLineManger.onNewPoints.connect([=](pointVec points) {
 		mFrameManager.drawPoints(points, mTouchUI->getColor());
-        mNetworkManager.sendPoints(points, false, mTouchUI->getColor(), mFrameManager.getActiveFrame());
-	});
+		mNetworkManager.sendPoints(points, false, mTouchUI->getColor(), mFrameManager.getActiveFrame());
+		});
 
 
-	mNetworkManager.onErase.connect([=](){
-        mFrameManager.saveAll();
-        mFrameManager.clearAll();
-	});
+	mNetworkManager.onErase.connect([=]() {
+		mFrameManager.saveAll();
+		mFrameManager.clearAll();
+		});
 
 
 	zoomCenterPoint.x = 410;
 	zoomCenterPoint.y = 10;
 
-    setupNetwork();
+	setupNetwork();
 
-    if(GS()->projectorMode.value()){
-        hideCursor();
-    }
+	if (GS()->projectorMode.value()) {
+		hideCursor();
+	}
 
 #if defined( CINDER_COCOA )
 	CI_LOG_I("START ofxTablet");
 	ofxTablet::start();
-	ofxTablet::onData.connect([=] (TabletData& data) {
-	    mPenPressure = data.pressure * 20;
-	});
+	ofxTablet::onData.connect([=](TabletData& data) {
+		mPenPressure = data.pressure * 20;
+		});
 	CI_LOG_I("finished ofxTablet");
 #endif
 }
 
 void FramedApp::setupNetwork() {
 
-  //  mNetworkManager.setup();
+	if (mNetworkManager.setup()) {
+		// points
+		mNetworkManager.onReceivePoints.connect([=](PointsPackage package) {
+			//bool currentEraser = BrushManagerSingleton::Instance()->isEraserOn;
+			//BrushManagerSingleton::Instance()->isEraserOn = package.isEraserOn;
+			mFrameManager.drawPoints(package.points, package.color, package.frameId);
+			});
+	}
+}
 
-    // NETWORK SETUP
-    if(mNetworkManager.setup()) {
-        // points
-        mNetworkManager.onReceivePoints.connect([=](PointsPackage package) {
-            //bool currentEraser = BrushManagerSingleton::Instance()->isEraserOn;
-            //BrushManagerSingleton::Instance()->isEraserOn = package.isEraserOn;
-            mFrameManager.drawPoints(package.points, package.color, package.frameId);
-        });
-    }
+void FramedApp::setupImGui() {
+	ImGui::Initialize();
+	ImGui::StyleColorsClassic();
+	float SCALE = 1.0f;
+	ImFontConfig cfg;
+	cfg.SizePixels = 20 * SCALE;
+	ImGui::GetIO().Fonts->AddFontDefault(&cfg)->DisplayOffset.y = SCALE;
 }
 
 
@@ -179,23 +181,24 @@ void FramedApp::keyDown(KeyEvent event)
 {
 	if (event.getChar() == 'd') {
 		GS()->debugMode.setValue(!GS()->debugMode.value());
-        if(GS()->debugMode.value()){
-            showCursor();
-        }else{
-            hideCursor();
-        }
+		if (GS()->debugMode.value()) {
+			showCursor();
+		}
+		else {
+			hideCursor();
+		}
 	}
 	else if (event.getCode() == event.KEY_f) {
 		setFullScreen(!isFullScreen());
-        if(isFullScreen()) hideCursor();
-        else showCursor();
+		if (isFullScreen()) hideCursor();
+		else showCursor();
 	}
 	else if (event.getCode() == event.KEY_s) {
 		GS()->mSettingManager.writeSettings();
 	}
-    else if (event.getCode() == event.KEY_p) {
-        GS()->projectorMode.setValue(!GS()->projectorMode.value());
-    }
+	else if (event.getCode() == event.KEY_p) {
+		GS()->projectorMode.setValue(!GS()->projectorMode.value());
+	}
 	else if (event.getCode() == event.KEY_LEFT) {
 		zoomAnchor.x -= 0.1;
 	}
@@ -222,7 +225,6 @@ void FramedApp::mouseDown(MouseEvent event)
 void FramedApp::mouseMove(MouseEvent event)
 {
 	lastPenPosition = vec3(event.getPos().x, event.getPos().y, getPressure());
-
 	if (mTouchDown) {
 		localCoordinate = getLocalPoint(lastPenPosition);
 		mLineManger.lineTo(localCoordinate, ci::Color::white());
@@ -241,8 +243,7 @@ void FramedApp::mouseDrag(MouseEvent event)
 
 void FramedApp::mouseUp(MouseEvent event)
 {
-
-	lastPenPosition = vec3(event.getPos(), 10);
+	lastPenPosition = vec3(event.getPos(), getPressure());
 
 	if (mTouchDown) {
 		activatePenPressure();
@@ -269,24 +270,26 @@ void FramedApp::activatePenPressure() {
 }
 
 float FramedApp::getPressure() {
+
+	const float scale = lab101::ofMap(mTouchUI->getStrokeScale(), 0, 1, 12, 140);
+
 #if defined( CINDER_MSW_DESKTOP )
-	return g_Pressure * 20.0;
+	if (g_Pressure > 0) mPenPressure = g_Pressure;
 #endif
 
-	return mPenPressure;
+	return mPenPressure * scale;
 }
 
 void FramedApp::update()
 {
 
-    mNetworkManager.update();
-    mScene->update();
+	mNetworkManager.update();
+	mScene->update();
 
-	mFrameManager.setFrameIndexNormalised(mTouchUI->getFrameScale());
 	mTouchUI->updateThumbs(mFrameManager.getTextures());
 	mTouchUI->onFrameSlected.connect([=](int id) {
 		mFrameManager.setActiveFrame(id);
-	});
+		});
 }
 
 
@@ -295,63 +298,58 @@ void FramedApp::draw()
 {
 	gl::clear(Color(0.2, 0.2, 0.25));
 	if (GS()->projectorMode.value()) {
-        mFrameManager.drawLoop(true);
-    }else{
-        drawInterface();
-    }
+		mFrameManager.drawLoop(true);
+	}
+	else {
+		drawInterface();
+	}
 
 
-    if (GS()->debugMode.value()) {
-        drawDebug();
-    }
+	if (GS()->debugMode.value()) {
+		drawDebug();
+	}
 }
 
 
-void FramedApp::drawInterface(){
-        ci::gl::color(1, 1, 1);
-        ivec2 size = mFrameManager.getSize();
+void FramedApp::drawInterface() {
+	ci::gl::color(1, 1, 1);
+	ivec2 size = mFrameManager.getSize();
 
-        // Drawing "the paper" at zoomlevel with offset.
-        ci::gl::pushMatrices();
-        gl::ScopedViewport fbVP(getWindowSize());
-        gl::setMatricesWindow(getWindowSize());
-        ci::gl::translate(zoomCenterPoint.x, zoomCenterPoint.y, 0);
+	// Drawing "the paper" at zoomlevel with offset.
+	ci::gl::pushMatrices();
+	gl::ScopedViewport fbVP(getWindowSize());
+	gl::setMatricesWindow(getWindowSize());
+	ci::gl::translate(zoomCenterPoint.x, zoomCenterPoint.y, 0);
 
-        float zoomLevel = 0.5 + mTouchUI->getScale();
+	float zoomLevel = 0.5 + mTouchUI->getScale();
 
-        // make less hardcoded later.
-        float adjustForAvailableSpace = (float) (getWindowWidth() -420) / (float) (size.x) ;
+	// make less hardcoded later.
+	float adjustForAvailableSpace = (float)(getWindowWidth() - 420) / (float)(size.x);
 
-        ci::gl::scale(adjustForAvailableSpace, adjustForAvailableSpace);
-        ci::gl::translate(-size.x * zoomAnchor.x, -size.y * zoomAnchor.y, 0);
-        mFrameManager.draw();
+	ci::gl::scale(adjustForAvailableSpace, adjustForAvailableSpace);
+	ci::gl::translate(-size.x * zoomAnchor.x, -size.y * zoomAnchor.y, 0);
+	mFrameManager.draw();
 
-        gl::color(1, 1, 1, 0.2);
+	gl::color(1, 1, 1, 0.2);
+	mFrameManager.drawAtIndex(-1);
 
-        mFrameManager.drawAtIndex(-1);
+	// get the screen matrix when all the transformations on the "paper" (fbo) or done.
+	screenMatrix = ci::gl::getModelViewProjection();
 
-         // get the screen matrix when all the transformations on the "paper" (fbo) or done.
-        screenMatrix = ci::gl::getModelViewProjection();
+	ci::gl::popMatrices();
+	ci::gl::color(1, 1, 1);
+	mFrameManager.drawLoop();
 
-        ci::gl::popMatrices();
-        ci::gl::color(1, 1, 1);
-
-        mFrameManager.drawLoop();
-
-        ci::gl::color(1, 1, 1);
-
-        mScene->draw();
-        drawCursor(getPressure(),lastPenPosition);
-
-        mTouchUI->draw();
-
+	mScene->draw();
+	drawCursor(getPressure(), lastPenPosition);
 }
 
 void FramedApp::drawCursor(float scale, vec2 position) const {
 
-    gl::color(0.8, 0.8, 0.8);
+	gl::color(0.8, 0.8, 0.8);
 
-    float size = scale * 2;
+	float size = scale * 2;
+	size = fminf(20, size);
 	vec2 pVec2 = vec2(position.x, position.y);
 	ci::gl::drawLine(pVec2 - ci::vec2(size, 0), pVec2 + ci::vec2(size, 0));
 	ci::gl::drawLine(pVec2 + ci::vec2(0, -size), pVec2 + ci::vec2(0, +size));
@@ -359,24 +357,28 @@ void FramedApp::drawCursor(float scale, vec2 position) const {
 
 void FramedApp::drawDebug()
 {
-    mFrameManager.drawGUI();
+	mFrameManager.drawGUI();
 
-    mFps = getAverageFps();
+	mFps = getAverageFps();
 
-    ImGui::Begin("Settings");
-    ImGui::Text("framerate: %f", mFps);
-    ImGui::Checkbox("show debug", &GS()->debugMode.value());
-    ImGui::Separator();
-    ImGui::Checkbox("projector mode", &GS()->projectorMode.value());
-    ImGui::Checkbox("fullscreen", &GS()->isFullscreen.value());
-    if(ImGui::SliderInt("group id", &GS()->groupId.value(),1,4)){
-        mNetworkManager.setGroupId(GS()->groupId.value());
-    }
-    
-    if (ImGui::Button("save setttings")) {
-        GS()->mSettingManager.writeSettings();
-    }
-    ImGui::End();
+	ImGui::Begin("Settings");
+	ImGui::Text("framerate: %f", mFps);
+	ImGui::Checkbox("show debug", &GS()->debugMode.value());
+	ImGui::Separator();
+	ImGui::Checkbox("projector mode", &GS()->projectorMode.value());
+	ImGui::Checkbox("fullscreen", &GS()->isFullscreen.value());
+
+	string pressureString = toString(mPenPressure);
+	ImGui::LabelText("pen pressure", pressureString.c_str());
+
+	if (ImGui::SliderInt("group id", &GS()->groupId.value(), 1, 4)) {
+		mNetworkManager.setGroupId(GS()->groupId.value());
+	}
+
+	if (ImGui::Button("save setttings")) {
+		GS()->mSettingManager.writeSettings();
+	}
+	ImGui::End();
 }
 
 

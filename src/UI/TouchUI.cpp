@@ -25,134 +25,104 @@ float TouchUI::getScale() {
 	return zoomSlider->getSliderValue();
 }
 
-float TouchUI::getFrameScale() {
+float TouchUI::getStrokeScale() {
 
-    return 1;// frameSlider->getSliderValue();
+	return strokeSlider->getSliderValue();
 }
 
 ci::Color TouchUI::getColor() {
 
-//	float hue = colorSlider1->getSliderValue();
-//	auto color = Color(CM_HSV, vec3(hue, 0.8, 0.8));
-    return colorPicker->getSelectedColor();
+	return colorPicker->getSelectedColor();
 }
 
 
 
+void TouchUI::setup(float yOffset) {
+
+	colorPicker = ColorPicker::create();
+	colorPicker->setup();
+	getView()->addSubview(colorPicker);
+	colorPicker->setPosition(10, yOffset + 10);
 
 
-void TouchUI::setup() {
+	strokeSlider = Slider::create();
+	strokeSlider->setup();
+	strokeSlider->setControlWidth(150);
+	getView()->addSubview(strokeSlider);
+	strokeSlider->setPosition(10, colorPicker->getFrame().y2 + 80);
+	strokeSlider->setSliderPosition(0.5);
+	strokeSlider->setShowProgressActive(true);
 
 
-    
-    colorPicker = ColorPicker::create();
-      colorPicker->setup();
-      getView()->addSubview(colorPicker);
-      colorPicker->setPosition(10, 320);
 
-        scrollBox = ScrollBox::create();
-      scrollBox->setup(200,400);
-      getView()->addSubview(scrollBox);
-      scrollBox->setPosition(10, 520);
-    scrollBox->mOnValueChanged.connect([=](int value){
-        onFrameSlected.emit(value);
-    });
+	scrollBox = ScrollBox::create();
+	scrollBox->setup(200, yOffset + 10 + colorPicker->getHeight());
+	getView()->addSubview(scrollBox);
+	scrollBox->setPosition(10, 520);
+	scrollBox->mOnValueChanged.connect([=](int value) {
+		onFrameSlected.emit(value);
+		});
 
 
 	zoomSlider = Slider::create();
 	zoomSlider->setup();
-	getView()->addSubview(zoomSlider);
+	//getView()->addSubview(zoomSlider);
 	zoomSlider->setPosition(10, 1140);
-    zoomSlider->setShowProgressActive(true);
-    zoomSlider->setSliderPosition(0.4);
+	zoomSlider->setShowProgressActive(true);
+	zoomSlider->setSliderPosition(0.4);
 
 
-//	frameSlider = Slider::create();
-//	frameSlider->setup();
-////	getView()->addSubview(frameSlider);
-//	frameSlider->setPosition(1200, 80);
-//    frameSlider->setSliderPosition(0);
-//    frameSlider->setShowProgressActive(true);
-//    frameSlider->setControlWidth(200);
-//    frameSlider->setTintColor(Color(0,0,1));
 
 
-	    mEraseButton = TouchButton::create();
-	    auto text = CACHE()->getTextureByAssetPath("UI/erase.png");
-	    mEraseButton->setImage(text);
-	    getView()->addSubview(mEraseButton);
-	    mEraseButton->setPosition(356,310);
 
-//    mEraseButton->mSignalPressed.connect([=](){
-//
-//    });
-    
-    mEraseButton->getSignalPressed().connect([=] (TouchButtonRef ref) {
-        onErase.emit();
-    });
+	mEraseButton = TouchButton::create();
+	auto text = CACHE()->getTextureByAssetPath("UI/erase.png");
+	mEraseButton->setImage(text);
+	getView()->addSubview(mEraseButton);
+	mEraseButton->setPosition(356, yOffset + 10);
+
+
+	mEraseButton->getSignalPressed().connect([=](TouchButtonRef ref) {
+		onErase.emit();
+		});
 
 
 
 }
 
 
-void TouchUI::setActiveFrame(int index){
-            onFrameSlected.emit(index);
-               
-               for(auto thumb : mThumbs){
-                   thumb->setAlpha(0.18);
-               }
-               mThumbs[index]->setAlpha(1);
-               
+void TouchUI::setActiveFrame(int index) {
+	onFrameSlected.emit(index);
+
+	for (auto thumb : mThumbs) {
+		thumb->setAlpha(0.18);
+	}
+	mThumbs[index]->setAlpha(1);
+
 }
 
 
-void TouchUI::addThumbs(std::vector<gl::TextureRef> textures){
-    
-   // return;
-    
-    for(int i=0; i < textures.size(); i++){
-        po::scene::ImageViewRef img = ImageView::create(textures[i]);
-     //   getView()->addSubview(img);
-        img->setScale(0.1);
-        const float margin = 6;
-        img->setPosition(10, 520 + ((img->getScaledHeight()  + margin) * i));
-        mThumbs.push_back(img);
-        
-        img->getSignal(po::scene::MouseEvent::DOWN_INSIDE).connect([=](po::scene::MouseEvent& event){
-            setActiveFrame(i);            
-            
-        });
+void TouchUI::addThumbs(std::vector<gl::TextureRef> textures) {
 
-    }
+	for (int i = 0; i < textures.size(); i++) {
+		po::scene::ImageViewRef img = ImageView::create(textures[i]);
+		img->setScale(0.1);
+		const float margin = 6;
+		img->setPosition(10, 520 + ((img->getScaledHeight() + margin) * i));
+		mThumbs.push_back(img);
+
+		img->getSignal(po::scene::MouseEvent::DOWN_INSIDE).connect([=](po::scene::MouseEvent& event) {
+			setActiveFrame(i);
+			});
+
+	}
 }
 
 
-void TouchUI::updateThumbs(std::vector<gl::TextureRef> textures){
-//    for(int i=0; i < textures.size(); i++){
-//        mThumbs[i]->setTexture(textures[i]);
-//    }
-    
-    scrollBox->setTextures(textures);
-
+void TouchUI::updateThumbs(std::vector<gl::TextureRef> textures) {
+	scrollBox->setTextures(textures);
 }
 
 
 void TouchUI::update() {
-
-//	ci::Color color = Color(CM_HSV, vec3(colorSlider1->getSliderValue(), 1, 1));
-
-}
-
-
-void TouchUI::draw(){
-
-//    int i =1;
-//    for(auto t : mThumbs){
-//
-//        GS()->mTextureFont->drawString(to_string(i) ,t->getPosition() + vec2(10,20 + 12));
-//        i++;
-//    }
-
-    //mTextureFont->drawStringWrapped( str, boundsRect + offset);
 }

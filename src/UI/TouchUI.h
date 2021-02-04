@@ -20,38 +20,37 @@ class TouchUI : public po::scene::ViewController {
 
 private:
 
-//	ColorSliderRef colorSlider1;
+	//	ColorSliderRef colorSlider1;
 	SliderRef zoomSlider;
-	SliderRef frameSlider;
-    ColorPickerRef colorPicker;
-    ScrollBoxRef scrollBox;
+	SliderRef strokeSlider;
+	ColorPickerRef colorPicker;
+	ScrollBoxRef scrollBox;
 
 
 	TouchButtonRef mEraseButton;
 
 	float mScale;
 
-    std::vector<po::scene::ImageViewRef> mThumbs;
-    
-    
-public:
-    
-    ci::signals::Signal<void( int )> onFrameSlected;
-    ci::signals::Signal<void()> onErase;
+	std::vector<po::scene::ImageViewRef> mThumbs;
 
-	void setup();
+
+public:
+
+	ci::signals::Signal<void(int)> onFrameSlected;
+	ci::signals::Signal<void()> onErase;
+
+	void setup(float yOffset);
 	void update();
-	void draw();
 
 	static TouchUIRef create();
 
 	ci::Color getColor();
 	float getScale();
-	float getFrameScale();
-    
-    void addThumbs(std::vector<ci::gl::TextureRef> textures);
-    void updateThumbs(std::vector<ci::gl::TextureRef> textures);
-    void setActiveFrame(int index);
+	float getStrokeScale();
+
+	void addThumbs(std::vector<ci::gl::TextureRef> textures);
+	void updateThumbs(std::vector<ci::gl::TextureRef> textures);
+	void setActiveFrame(int index);
 
 
 };

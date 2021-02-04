@@ -27,46 +27,46 @@ void GlobalSettings::setup(std::string appName) {
 	screenScale.setMin(.1f);
 	mSettingManager.addSetting(&screenScale);
 
-	frameWidth = Setting<int>("frameWidth", 1600);
+	frameWidth = Setting<int>("frameWidth", 1920);
 	mSettingManager.addSetting(&frameWidth);
 
-	frameHeight = Setting<int>("screenHeight", 1200);
+	frameHeight = Setting<int>("screenHeight", 1080);
 	mSettingManager.addSetting(&frameHeight);
 
-    frameSpeed = Setting<float>("frameSpeed", 4);
-    mSettingManager.addSetting(&frameSpeed);
+	frameSpeed = Setting<float>("frameSpeed", 4);
+	mSettingManager.addSetting(&frameSpeed);
 
 
-    zoomLevel = Setting<float>("zoomLevel", .8f);
+	zoomLevel = Setting<float>("zoomLevel", .8f);
 	mSettingManager.addSetting(&zoomLevel);
-    
-    groupId = Setting<int>("groupId", 1);
-    mSettingManager.addSetting(&groupId);
 
-    projectorMode = Setting<bool>("projectorMode", false);
-    mSettingManager.addSetting(&projectorMode);
+	groupId = Setting<int>("groupId", 1);
+	mSettingManager.addSetting(&groupId);
+
+	projectorMode = Setting<bool>("projectorMode", false);
+	mSettingManager.addSetting(&projectorMode);
 
 
-    fboBackground = ColorA(0.0,0.0,0.0,1.0);
+	fboBackground = ColorA(0.0, 0.0, 0.0, 1.0);
 
-    // fonts
+	// fonts
 #if defined( CINDER_COCOA )
-    mFont = Font( "BigCaslon-Medium", 24 );
+	mFont = Font("BigCaslon-Medium", 24);
 #elif defined( CINDER_LINUX )
-    mFont = Font( "Times New Roman", 24 );
+	mFont = Font("Times New Roman", 24);
 #else
-    mFont = Font( "Times New Roman", 48 );
+	mFont = Font("Times New Roman", 48);
 #endif
 
-mFont = Font(ci::app::loadAsset("fonts/PTSans-Regular.ttf") , 12);
+	mFont = Font(ci::app::loadAsset("fonts/PTSans-Regular.ttf"), 12);
 
-    mTextureFont = gl::TextureFont::create( mFont );
+	mTextureFont = gl::TextureFont::create(mFont);
 }
 
 
 
 GlobalSettings::GlobalSettings() {
-    performanceDownScale.value() = 1.0;
+	performanceDownScale.value() = 1.0;
 }
 
 

@@ -16,50 +16,46 @@
 using namespace ci;
 using namespace ci::app;
 
-void BrushManager::setup(){
-    
-    
-    isEraserOn = false;
-
-    // setup shader
-    try {
-        mShader = gl::GlslProg::create(loadAsset( "shader_es2.vert" ), loadAsset("shader_es2.frag" ));
-
-    }
-    catch( gl::GlslProgCompileExc ex ) {
-        CI_LOG_E("error loading brush shader");
-        CI_LOG_E(ex.what());
-    }
+void BrushManager::setup() {
 
 
-    CI_LOG_I("set GL_PROGRAM_POINT_SIZE");
-    gl::enable(GL_PROGRAM_POINT_SIZE);
-    CI_LOG_I("set GL_VERTEX_PROGRAM_POINT_SIZE");
-    glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
-    
+	isEraserOn = false;
+
+	// setup shader
+	try {
+		mShader = gl::GlslProg::create(loadAsset("shader_es2.vert"), loadAsset("shader_es2.frag"));
+
+	}
+	catch (gl::GlslProgCompileExc ex) {
+		CI_LOG_E("error loading brush shader");
+		CI_LOG_E(ex.what());
+	}
+
+
+	CI_LOG_I("set GL_PROGRAM_POINT_SIZE");
+	gl::enable(GL_PROGRAM_POINT_SIZE);
+	CI_LOG_I("set GL_VERTEX_PROGRAM_POINT_SIZE");
+	glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+
 }
 
 
-void BrushManager::drawBrush(std::vector<vec3>& points,float softness,ci::ColorA color){
+void BrushManager::drawBrush(std::vector<vec3>& points, float softness, ci::ColorA color) {
 
-    if(!isSetup){
-        setup();
-        isSetup = true;
-    }
+	if (!isSetup) {
+		setup();
+		isSetup = true;
+	}
 
-    ci::gl::VertBatchRef mBatch = gl::VertBatch::create();
-    
-    for(vec3& p : points){
-        mBatch->vertex( p );
-        mBatch->color(isEraserOn ? GS()->fboBackground  : color);
-    }
-    
-    
-    
-    gl::ScopedGlslProg glslProg( mShader );
+	ci::gl::VertBatchRef mBatch = gl::VertBatch::create();
 
-    mBatch->draw();
+	for (vec3& p : points) {
+		mBatch->vertex(p);
+		mBatch->color(isEraserOn ? GS()->fboBackground : color);
+	}
 
+	gl::ScopedGlslProg glslProg(mShader);
+	mBatch->draw();
 
 }
 
