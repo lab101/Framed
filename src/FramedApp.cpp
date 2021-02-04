@@ -43,12 +43,14 @@ public:
 
 private:
 
-	vec3 lastPenPosition;
+	ci::vec3 lastPenPosition;
+    ci::vec3 localCoordinate;
+
 	float mPenPressure = 10;
 	bool mTouchDown = false;
 
     
-    vec2 frameSize = vec2(1600,1200);
+    ci::vec2 frameSize = vec2(1600,1200);
     
 	po::scene::SceneRef     mScene;
 	TouchUIRef mTouchUI;
@@ -56,20 +58,17 @@ private:
 	FrameManager mFrameManager;
 	NetworkManager mNetworkManager;
 
+
 	// zoom related
 	ci::mat4 screenMatrix;
-	ci::vec3 localCoordinate;
 	ci::vec2 zoomAnchor;
-	void convertPointToLocalSpace(ci::vec3& point);
 	vec3 getLocalPoint(vec3& screenPoint);
 	int zoomDirection = 0;
 	vec2 zoomCenterPoint;
 
 	float mFps;
 	void drawDebug();
-	void drawInfo();
     void drawInterface();
-
 	void drawCursor(float scale, vec2 position) const;
 
     void setupNetwork();
@@ -90,6 +89,7 @@ void FramedApp::setup()
 	cfg.SizePixels = 20 * SCALE;
 	ImGui::GetIO().Fonts->AddFontDefault(&cfg)->DisplayOffset.y = SCALE;
 
+	frameSize = vec2(GS()->frameWidth.value(),GS()->frameHeight.value());
 	mFrameManager.setup(6, frameSize);
 
 	mTouchUI = TouchUI::create();
@@ -113,11 +113,10 @@ void FramedApp::setup()
 	mNetworkManager.onErase.connect([=](){
         mFrameManager.saveAll();
         mFrameManager.clearAll();
-
 	});
 
 
-	zoomCenterPoint.x = 420;
+	zoomCenterPoint.x = 410;
 	zoomCenterPoint.y = 10;
 
     setupNetwork();
@@ -147,13 +146,6 @@ void FramedApp::setupNetwork() {
             //bool currentEraser = BrushManagerSingleton::Instance()->isEraserOn;
             //BrushManagerSingleton::Instance()->isEraserOn = package.isEraserOn;
             mFrameManager.drawPoints(package.points, package.color, package.frameId);
-
-            for (auto &p : package.points) {
-               // convertPointToLocalSpace(p);
-                std::cout << "incoming"  <<  package.color << std::endl;
-
-            }
-//          s
         });
     }
 }
@@ -224,7 +216,6 @@ void FramedApp::mouseDown(MouseEvent event)
 	localCoordinate = getLocalPoint(lastPenPosition);
 
 	mLineManger.newLine(localCoordinate);
-
 	mTouchDown = true;
 }
 
@@ -289,10 +280,7 @@ void FramedApp::update()
 {
 
     mNetworkManager.update();
-
     mScene->update();
-
-
 
 	mFrameManager.setFrameIndexNormalised(mTouchUI->getFrameScale());
 	mTouchUI->updateThumbs(mFrameManager.getTextures());
@@ -305,7 +293,7 @@ void FramedApp::update()
 
 void FramedApp::draw()
 {
-	gl::clear(Color(0.42, 0.4, 0.4));
+	gl::clear(Color(0.2, 0.2, 0.25));
 	if (GS()->projectorMode.value()) {
         mFrameManager.drawLoop(true);
     }else{
@@ -330,7 +318,11 @@ void FramedApp::drawInterface(){
         ci::gl::translate(zoomCenterPoint.x, zoomCenterPoint.y, 0);
 
         float zoomLevel = 0.5 + mTouchUI->getScale();
-        ci::gl::scale(zoomLevel, zoomLevel);
+
+        // make less hardcoded later.
+        float adjustForAvailableSpace = (float) (getWindowWidth() -420) / (float) (size.x) ;
+
+        ci::gl::scale(adjustForAvailableSpace, adjustForAvailableSpace);
         ci::gl::translate(-size.x * zoomAnchor.x, -size.y * zoomAnchor.y, 0);
         mFrameManager.draw();
 
@@ -338,7 +330,7 @@ void FramedApp::drawInterface(){
 
         mFrameManager.drawAtIndex(-1);
 
-         // get the screenmatrix when all the transformations on the "paper" (fbo) or done.
+         // get the screen matrix when all the transformations on the "paper" (fbo) or done.
         screenMatrix = ci::gl::getModelViewProjection();
 
         ci::gl::popMatrices();
@@ -360,16 +352,15 @@ void FramedApp::drawCursor(float scale, vec2 position) const {
     gl::color(0.8, 0.8, 0.8);
 
     float size = scale * 2;
-	vec2 pointv2 = vec2(position.x, position.y);
-	ci::gl::drawLine(pointv2 - ci::vec2(size, 0), pointv2 + ci::vec2(size, 0));
-	ci::gl::drawLine(pointv2 + ci::vec2(0, -size), pointv2 + ci::vec2(0, +size));
+	vec2 pVec2 = vec2(position.x, position.y);
+	ci::gl::drawLine(pVec2 - ci::vec2(size, 0), pVec2 + ci::vec2(size, 0));
+	ci::gl::drawLine(pVec2 + ci::vec2(0, -size), pVec2 + ci::vec2(0, +size));
 }
 
 void FramedApp::drawDebug()
 {
     mFrameManager.drawGUI();
 
-    
     mFps = getAverageFps();
 
     ImGui::Begin("Settings");
@@ -386,11 +377,6 @@ void FramedApp::drawDebug()
     ImGui::End();
 }
 
-void FramedApp::drawInfo()
-{
-    
-
-}
 
 CINDER_APP(FramedApp, RendererGl(RendererGl::Options().msaa(0)), [](App::Settings* settings) {
 	settings->setWindowSize(1600, 1200);

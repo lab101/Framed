@@ -27,19 +27,22 @@ void GlobalSettings::setup(std::string appName) {
 	screenScale.setMin(.1f);
 	mSettingManager.addSetting(&screenScale);
 
-	screenWidth = Setting<int>("screenwidth", 1080);
-	mSettingManager.addSetting(&screenWidth);
+	frameWidth = Setting<int>("frameWidth", 1600);
+	mSettingManager.addSetting(&frameWidth);
 
-	screenHeight = Setting<int>("screenHeight", 1080);
-	mSettingManager.addSetting(&screenHeight);
+	frameHeight = Setting<int>("screenHeight", 1200);
+	mSettingManager.addSetting(&frameHeight);
+
+    frameSpeed = Setting<float>("frameSpeed", 4);
+    mSettingManager.addSetting(&frameSpeed);
+
 
     zoomLevel = Setting<float>("zoomLevel", .8f);
 	mSettingManager.addSetting(&zoomLevel);
     
     groupId = Setting<int>("groupId",0);
     mSettingManager.addSetting(&groupId);
-    
-    
+
     projectorMode = Setting<bool>("projectorMode", false);
     mSettingManager.addSetting(&projectorMode);
 
@@ -65,16 +68,5 @@ mFont = Font(ci::app::loadAsset("fonts/PTSans-Regular.ttf") , 12);
 GlobalSettings::GlobalSettings() {
     performanceDownScale.value() = 1.0;
 }
-
-ci::vec2 GlobalSettings::getScreenSize() {
-	return ci::vec2(screenWidth.value(), screenHeight.value());
-}
-
-
-ci::vec2 GlobalSettings::getScreenCenter() {
-	return ci::vec2(screenWidth.value() * 0.5f, screenHeight.value() * 0.5f);
-}
-
-
 
 

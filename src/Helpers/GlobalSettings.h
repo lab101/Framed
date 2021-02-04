@@ -26,24 +26,22 @@ public:
 
 	GlobalSettings();
 
-	Setting<int> screenWidth;
-	Setting<int> screenHeight;
+	Setting<int> frameWidth;
+	Setting<int> frameHeight;
 	Setting<int> resetScreenTime;
 	Setting<float> screenScale;
 
 
     Setting<float> performanceDownScale;
     Setting<int> maxGroups;
+    Setting<float> frameSpeed;
+
 
 
     void setup(std::string appName);
 
-	ci::vec2 getScreenSize();
-	ci::vec2 getScreenCenter();
 
 	Setting<float>  zoomLevel;
-
-
     ci::Font				mFont;
     ci::gl::TextureFontRef	mTextureFont;
 

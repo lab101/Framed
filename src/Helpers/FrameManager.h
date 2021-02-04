@@ -10,7 +10,6 @@ class FrameManager {
 
 	std::vector<Frame> mFrames;
 	int mActiveFrameIndex;
-	float mFrameSpeed = 0.5;
 	ci::ivec2 mSize;
 
 public:

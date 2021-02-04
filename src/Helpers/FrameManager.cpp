@@ -7,6 +7,7 @@
 #include "cinder/CinderImGui.h"
 #include "mathHelper.h"
 #include "Lab101Utils.h"
+#include "GlobalSettings.h"
 
 
 using namespace ci;
@@ -24,7 +25,6 @@ void FrameManager::setup(int nrOfFrames, ci::vec2 size) {
 	}
 
     mActiveFrameIndex = 0;
-    mFrameSpeed = 4;
 }
 
 
@@ -122,10 +122,11 @@ void FrameManager::drawAtIndex(int index) {
 
 
 void FrameManager::drawLoop(bool isFullscreen) {
-	int index = (int)(ci::app::getElapsedSeconds() * mFrameSpeed) % (int)mFrames.size();
+    const float frameSpeed = GS()->frameSpeed.value();
+	int index = (int)(ci::app::getElapsedSeconds() * frameSpeed) % (int)mFrames.size();
 	auto text = mFrames[index].getTexture();
 
-    auto rect = ci::Rectf(10, 10, 1600 * 0.25, 1200 * 0.25);
+    auto rect = ci::Rectf(10, 10, mSize.x * 0.25, mSize.y * 0.25);
     if(isFullscreen) rect.set(0,0,app::getWindowWidth(),app::getWindowHeight());
 	ci::gl::draw(text, rect);
 }
@@ -137,8 +138,7 @@ void FrameManager::drawPoints(std::vector<ci::vec3>& points, ci::Color color, in
 
 void FrameManager::drawGUI() {
 	ImGui::Begin("FrameManager");
-	ImGui::SliderInt("index: ", &mActiveFrameIndex, 0, mFrames.size() - 1);
-	ImGui::SliderFloat("speed: ", &mFrameSpeed, 2.f, 20.0f);
+	ImGui::SliderFloat("speed: ", &GS()->frameSpeed.value(), 2.f, 20.0f);
 
 	ImGui::End();
 

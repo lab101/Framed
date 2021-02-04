@@ -5,7 +5,7 @@ uniform sampler2D uTex0;
 in vec4		Color;
 in vec3		Normal;
 in vec2		TexCoord;
-
+uniform float uBrightness;
 out vec4 	oColor;
 
 #define TWO_PI 6.28318530718
@@ -52,7 +52,7 @@ void main( void )
 
     // Map the angle (-PI to PI) to the Hue (from 0 to 1)
     // and the Saturation to the radius
-    color = hsv2rgb(vec3((angle/TWO_PI)+0.5,radius,1.0));
+    color = hsv2rgb(vec3((angle/TWO_PI)+0.5,radius,uBrightness));
 
     oColor = vec4(color.x,color.y,color.z,1.0);
     

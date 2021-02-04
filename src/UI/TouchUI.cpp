@@ -43,11 +43,7 @@ ci::Color TouchUI::getColor() {
 
 void TouchUI::setup() {
 
-//	colorSlider1 = ColorSlider::create();
-//	colorSlider1->setup();
-//	getView()->addSubview(colorSlider1);
-//	colorSlider1->setPosition(600, 80);
-    
+
     
     colorPicker = ColorPicker::create();
       colorPicker->setup();
