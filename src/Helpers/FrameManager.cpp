@@ -7,7 +7,7 @@
 #include "cinder/CinderImGui.h"
 #include "Lab101Utils.h"
 #include "GlobalSettings.h"
-
+#include "mathHelper.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -35,6 +35,9 @@ void FrameManager::clearAll() {
 	for (auto f : mFrames) {
 		f.clearFbo();
 	}
+    
+    mActiveFrameIndex = 0;
+    
 }
 
 std::vector<ci::gl::TextureRef> FrameManager::getTextures() {
@@ -119,20 +122,9 @@ void FrameManager::draw(bool isFullscreen) {
 }
 
 void FrameManager::drawAtIndex(int index) {
-
-
-    index = mActiveFrameIndex - 1;
-    if(index == -1){
-        index = mFrames.size()-1;
-    }
-    else{
-        index = index % (mFrames.size() - 1);
-    }
-
     
-
-
-  	mFrames[index].draw();
+    int rangeIndex = lab101::getInRangeIndex(mActiveFrameIndex +  index, mFrames.size());
+  	mFrames[rangeIndex].draw();
 }
 
 

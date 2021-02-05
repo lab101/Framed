@@ -36,6 +36,7 @@ public:
 	void mouseMove(MouseEvent event) override;
 	void update() override;
 	void draw() override;
+    void eraseAndSave();
 
 	float getPressure();
 	void activatePenPressure();
@@ -93,8 +94,7 @@ void FramedApp::setup()
 
 
 	mTouchUI->onErase.connect([=] {
-		mNetworkManager.sendErase();
-        mFrameManager.clearAll();
+        eraseAndSave();
 		});
 
 	mScene = po::scene::Scene::create(mTouchUI);
@@ -107,8 +107,8 @@ void FramedApp::setup()
 
 
 	mNetworkManager.onErase.connect([=]() {
-		mFrameManager.saveAll();
-		mFrameManager.clearAll();
+        eraseAndSave();
+
 		});
 
 
@@ -129,6 +129,13 @@ void FramedApp::setup()
 		});
 	CI_LOG_I("finished ofxTablet");
 #endif
+}
+
+
+void FramedApp::eraseAndSave(){
+    mFrameManager.saveAll();
+    mFrameManager.clearAll();
+    mTouchUI->setActiveFrame(0);
 }
 
 void FramedApp::setupNetwork() {
@@ -203,11 +210,21 @@ void FramedApp::keyDown(KeyEvent event)
 		mFrameManager.prevFrame();
         mTouchUI->setActiveFrame(mFrameManager.getActiveFrame());
 	}
-	if (event.getCode() == event.KEY_RIGHT) {
+	else if (event.getCode() == event.KEY_RIGHT) {
         mFrameManager.nextFrame();
         mTouchUI->setActiveFrame(mFrameManager.getActiveFrame());
 	}
-	if (event.getCode() == event.KEY_SPACE) {
+    else if (event.getCode() == event.KEY_UP) {
+        mFrameManager.prevFrame();
+        mTouchUI->setActiveFrame(mFrameManager.getActiveFrame());
+    }
+    else if (event.getCode() == event.KEY_DOWN) {
+        mFrameManager.nextFrame();
+        mTouchUI->setActiveFrame(mFrameManager.getActiveFrame());
+    }
+
+    
+    else if (event.getCode() == event.KEY_SPACE) {
 		mFrameManager.saveAll();
 		mFrameManager.clearAll();
 		mTouchUI->setActiveFrame(0);
