@@ -17,18 +17,15 @@ void Frame::setFbo(ci::gl::FboRef& fbo,ci::ivec2 size,float windowScale){
 
     gl::Fbo::Format format;
     format.setColorTextureFormat( gl::Texture2d::Format().internalFormat( GL_RGBA32F ) );
-
-    gl::enableAlphaBlending();
     // format.setSamples( 4 );
     fbo = gl::Fbo::create(size.x, size.y ,format );
 
+   // gl::enableAlphaBlending();
     clearFbo();
 }
 
 void Frame::clearFbo(){
-    // clear the screen;
     if(!mActiveFbo) return;
-
     gl::ScopedFramebuffer fbScp( mActiveFbo );
     gl::clear( GS()->fboBackground );
 }
@@ -37,13 +34,11 @@ void Frame::writeBuffer(std::string path){
     auto source = mActiveFbo->getColorTexture()->createSource();
     
     std::thread threadObj([=]{
-           
            try{
                writeImage(path, source);
            }catch(...){
                CI_LOG_E("error writing PNG file: " + path);
            }
-           
        });
        
        threadObj.detach();
@@ -60,7 +55,6 @@ ci::gl::Texture2dRef Frame::getTexture(){
 
 
 void Frame::drawPoints(std::vector<ci::vec3>& points,ci::Color color){
-
 
     if(points.size() > 0){
 

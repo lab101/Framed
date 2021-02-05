@@ -14,6 +14,7 @@ typedef std::shared_ptr<class ScrollBox> ScrollBoxRef;
 class ScrollBox : public po::scene::View
 {
 
+	float mLastPosition;
 	float mStartPosition;
 	float mCurrentAbsolutePosition;
 	float currentIndex;
@@ -24,7 +25,6 @@ class ScrollBox : public po::scene::View
 	ci::gl::FboRef  mFbo;
 	bool mRenderFbo = true;
 
-	ci::vec2 mStartToouchPos;
 	bool mIsPressed = false;
 	float mThumbScale;
 	ci::vec2 mScaledFrameSize;
@@ -48,6 +48,7 @@ public:
 	ScrollBox();
 	void setup(float x, float y, float thumbScale = 1);
 	void setTextures(std::vector<ci::gl::TextureRef> textures);
+    void setActiveFrame(int index);
 
 	void draw() override;
 	void update() override;

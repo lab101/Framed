@@ -156,7 +156,6 @@ void ColorPicker::update() {
 	else {
 		mDot->setScale(0.7);
 		mDotBorder->setScale(1);
-
 	}
 }
 

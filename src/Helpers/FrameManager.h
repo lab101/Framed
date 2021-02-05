@@ -22,8 +22,10 @@ public:
     void saveAll();
 	void drawLoop(bool isFullscreen = false);
 	void drawPoints(std::vector<ci::vec3>& points, ci::Color color,int frameId= -1);
-	void setFrameIndexNormalised(float value);
     void setActiveFrame(int id);
+    void nextFrame();
+    void prevFrame();
+
     int getActiveFrame();
 
 	ci::ivec2 getSize();

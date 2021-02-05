@@ -33,15 +33,14 @@ void ScrollBox::setup(float width, float height, float thumbScale) {
 	mThumbScale = thumbScale;
 	mMaxThumbWidth = 150;
 
-	//  setDrawBounds(true);
-
 
 	  // touch events
 	getSignal(MouseEvent::DOWN_INSIDE).connect([=](po::scene::MouseEvent& event) {
 		mIsPressed = true;
 
 		auto pos = event.getLocalPos();
-		mStartPosition = pos.y;
+        mLastPosition = pos.y;
+        mStartPosition = mLastPosition;
 		});
 
 	getSignal(MouseEvent::DRAG_INSIDE).connect([=](po::scene::MouseEvent& event) {
@@ -52,30 +51,25 @@ void ScrollBox::setup(float width, float height, float thumbScale) {
 		});
 
 
-	//    getSignal(MouseEvent::DRAG).connect([=] (po::scene::MouseEvent& event){
-	//        if(mIsPressed)
-	//        {
-	//            auto pos =  event.getLocalPos();
-	//           // updateMove(event);
-	//
-	//        }
-	//    });
-	//    getSignal(MouseEvent::MOVE).connect([=] (po::scene::MouseEvent& event){
-	//
-	//        if(mIsPressed)
-	//        {
-	//            auto pos =  event.getLocalPos();
-	//            //updateMove(event);
-	//
-	//        }
-	//    });
-
 
 	getSignal(MouseEvent::UP).connect([=](po::scene::MouseEvent& event) {
-		mIsPressed = false;
-		targetIndex = round(currentIndex);
-		mOnValueChanged.emit(getIndex(targetIndex));
-		});
+
+		if(mIsPressed){
+            mIsPressed = false;
+
+            float newPosY = event.getLocalPos().y;
+            float  diff  = fabsf(newPosY - mStartPosition);
+
+            if(diff < 20){
+                int  indexOffset = floor((newPosY / mScaledFrameSize.y)) - 1;
+                currentIndex += indexOffset;
+            }
+
+            targetIndex = round(currentIndex);
+            mOnValueChanged.emit(getIndex(targetIndex));
+		}
+
+	});
 
 
 	mGlsl = gl::GlslProg::create(ci::app::loadAsset("passthrough.vert"), ci::app::loadAsset("color.frag"));
@@ -95,8 +89,8 @@ void ScrollBox::setup(float width, float height, float thumbScale) {
 
 void ScrollBox::updateMove(po::scene::MouseEvent& event) {
 
-	float diff = mStartPosition - event.getLocalPos().y;
-	mStartPosition = event.getLocalPos().y;
+	float diff = mLastPosition - event.getLocalPos().y;
+    mLastPosition = event.getLocalPos().y;
 
 	targetIndex += diff / mScaledFrameSize.y;
 	currentIndex = targetIndex;
@@ -109,20 +103,18 @@ int ScrollBox::getIndex(int index) {
 		index += mTextures.size();
 	}
 
-	//  if (index >= mTextures.size()) return index - mTextures.size();
-
 	return index % mTextures.size();
 }
-
 
 
 
 void ScrollBox::setTextures(std::vector<ci::gl::TextureRef> textures) {
 	mTextures = textures;
 
+
 	if (mTextures.size() > 0) {
 
-
+        mRenderFbo = true;
 		ci::vec2 frameSize = textures[0]->getSize();
 		//mScaledFrameSize = frameSize * mThumbScale;
 		mScaledFrameSize.x = mMaxThumbWidth;
@@ -135,11 +127,8 @@ void ScrollBox::setTextures(std::vector<ci::gl::TextureRef> textures) {
 void ScrollBox::update() {
 
 
-	// currentIndex = (app::getElapsedSeconds()*0.1);
-
 	currentIndex += (targetIndex - currentIndex) * 0.001;
 
-	mRenderFbo = true;
 	if (mRenderFbo && mTextures.size() > 0)
 	{
 		mRenderFbo = false;
@@ -175,7 +164,8 @@ void ScrollBox::update() {
 			}
 			ci::gl::color(1, 1, 1, 1);
 
-			GS()->mTextureFont->drawString(std::to_string(index + 1), vec2(14, 18));
+			float height = GS()->mTextureFont->measureString("D").y;
+			GS()->mTextureFont->drawString(std::to_string(index + 1), vec2(14, height + 28));
 
 			ci::gl::popMatrices();
 
@@ -185,16 +175,8 @@ void ScrollBox::update() {
 		activeFrame.offset(vec2(4, 0));
 		ci::gl::drawStrokedRect(activeFrame, 4);
 
-
-
 		gl::setMatricesWindow(ci::app::getWindowSize());
-
-
-
-
 	}
-
-
 
 }
 
@@ -202,10 +184,12 @@ void ScrollBox::update() {
 void ScrollBox::draw() {
 
 	View::draw();
-
 	gl::draw(mFbo->getColorTexture());
+}
 
 
-
-
+void ScrollBox::setActiveFrame(int index) {
+    currentIndex = index;
+    targetIndex = index;
+    mRenderFbo = true;
 }

@@ -89,7 +89,6 @@ void FramedApp::setup()
 
 	mTouchUI = TouchUI::create();
 	mTouchUI->setup(400 * frameSize.y / frameSize.x);
-	mTouchUI->addThumbs(mFrameManager.getTextures());
 	mTouchUI->setActiveFrame(0);
 
 
@@ -200,10 +199,12 @@ void FramedApp::keyDown(KeyEvent event)
 		GS()->projectorMode.setValue(!GS()->projectorMode.value());
 	}
 	else if (event.getCode() == event.KEY_LEFT) {
-		zoomAnchor.x -= 0.1;
+		mFrameManager.prevFrame();
+        mTouchUI->setActiveFrame(mFrameManager.getActiveFrame());
 	}
 	if (event.getCode() == event.KEY_RIGHT) {
-		zoomAnchor.x += 0.1;
+        mFrameManager.nextFrame();
+        mTouchUI->setActiveFrame(mFrameManager.getActiveFrame());
 	}
 	if (event.getCode() == event.KEY_SPACE) {
 		mFrameManager.saveAll();
@@ -303,7 +304,6 @@ void FramedApp::draw()
 	else {
 		drawInterface();
 	}
-
 
 	if (GS()->debugMode.value()) {
 		drawDebug();

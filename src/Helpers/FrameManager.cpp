@@ -5,7 +5,6 @@
 #include "FrameManager.h"
 #include "cinder/app/App.h"
 #include "cinder/CinderImGui.h"
-#include "mathHelper.h"
 #include "Lab101Utils.h"
 #include "GlobalSettings.h"
 
@@ -52,6 +51,18 @@ void FrameManager::setActiveFrame(int id) {
 	mActiveFrameIndex = id;
 }
 
+void FrameManager::nextFrame() {
+    if(++mActiveFrameIndex >= mFrames.size()){
+        mActiveFrameIndex = 0;
+    }
+}
+
+void FrameManager::prevFrame() {
+    if(--mActiveFrameIndex < 0){
+        mActiveFrameIndex = mFrames.size()-1;
+    }
+}
+
 void FrameManager::saveAll() {
 
 	std::string mOutputFolder = ci::getDocumentsDirectory().string() + "framed/" + getDateString();
@@ -95,12 +106,6 @@ int FrameManager::getActiveFrame() {
 }
 
 
-void FrameManager::setFrameIndexNormalised(float value) {
-
-	//mActiveFrameIndex = lab101::ofMap(value, 0, 1, 0, mFrames.size() - 1);
-}
-
-
 void FrameManager::draw(bool isFullscreen) {
 
 	if (isFullscreen) {
@@ -115,9 +120,17 @@ void FrameManager::draw(bool isFullscreen) {
 
 void FrameManager::drawAtIndex(int index) {
 
-	index = mActiveFrameIndex - 1;
-	index = index % (mFrames.size() - 1);
-	mFrames[index].draw();
+
+    index = mActiveFrameIndex - 1;
+    index = index % (mFrames.size() - 1);
+
+    if(index == 0) index = mFrames.size()-1;
+
+    //if(index == mFrames.size()-1) index = 0;
+    //else{
+
+
+  	mFrames[index].draw();
 }
 
 
