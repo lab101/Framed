@@ -122,12 +122,14 @@ void FrameManager::drawAtIndex(int index) {
 
 
     index = mActiveFrameIndex - 1;
-    index = index % (mFrames.size() - 1);
+    if(index == -1){
+        index = mFrames.size()-1;
+    }
+    else{
+        index = index % (mFrames.size() - 1);
+    }
 
-    if(index == 0) index = mFrames.size()-1;
-
-    //if(index == mFrames.size()-1) index = 0;
-    //else{
+    
 
 
   	mFrames[index].draw();
