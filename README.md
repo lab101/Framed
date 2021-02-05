@@ -17,4 +17,7 @@ Check the **[this video](https://vimeo.com/508517646 )** on how to do the above.
 - press **f** to toggle fullscreen
 - press **d** to toggle debug
 - press **s** to save application settings.
+- press **p** projector mode (view the animation fullscreen).
+
+Arrow buttons to go through different frames.
 
