@@ -85,7 +85,7 @@ void FramedApp::setup()
 	setupImGui();
 
 	frameSize = vec2(GS()->frameWidth.value(), GS()->frameHeight.value());
-	mFrameManager.setup(6, frameSize);
+	mFrameManager.setup(GS()->nrOfFrames.value(), frameSize);
 
 	mTouchUI = TouchUI::create();
 	mTouchUI->setup(400 * frameSize.y / frameSize.x);
@@ -94,6 +94,7 @@ void FramedApp::setup()
 
 	mTouchUI->onErase.connect([=] {
 		mNetworkManager.sendErase();
+        mFrameManager.clearAll();
 		});
 
 	mScene = po::scene::Scene::create(mTouchUI);
@@ -124,7 +125,7 @@ void FramedApp::setup()
 	CI_LOG_I("START ofxTablet");
 	ofxTablet::start();
 	ofxTablet::onData.connect([=](TabletData& data) {
-		mPenPressure = data.pressure * 20;
+		mPenPressure = data.pressure;
 		});
 	CI_LOG_I("finished ofxTablet");
 #endif
@@ -371,6 +372,7 @@ void FramedApp::drawDebug()
 	string pressureString = toString(mPenPressure);
     ImGui::LabelText("pen pressure", pressureString.c_str());
     ImGui::LabelText("ip", mNetworkManager.getIPadress().c_str());
+    ImGui::SliderInt("nr of frames (needs restart)", &GS()->nrOfFrames.value(), 1, 60);
 
 	if (ImGui::SliderInt("group id", &GS()->groupId.value(), 1, 4)) {
 		mNetworkManager.setGroupId(GS()->groupId.value());

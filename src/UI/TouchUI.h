@@ -20,7 +20,7 @@ class TouchUI : public po::scene::ViewController {
 
 private:
 
-	SliderRef zoomSlider;
+	//SliderRef zoomSlider;
 	SliderRef strokeSlider;
 	ColorPickerRef colorPicker;
 	ScrollBoxRef scrollBox;

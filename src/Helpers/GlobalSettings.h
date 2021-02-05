@@ -21,7 +21,8 @@ public:
 	Setting<bool>   isFullscreen;
     Setting<bool>   isMouseOn;
     Setting<bool>   projectorMode;
-    Setting<int>   groupId;
+    Setting<int>    groupId;
+    Setting<int>    nrOfFrames;
 
 
 	GlobalSettings();

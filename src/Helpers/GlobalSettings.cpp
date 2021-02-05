@@ -42,6 +42,9 @@ void GlobalSettings::setup(std::string appName) {
 
 	groupId = Setting<int>("groupId", 1);
 	mSettingManager.addSetting(&groupId);
+    
+    nrOfFrames = Setting<int>("nrOfFrames", 6);
+    mSettingManager.addSetting(&nrOfFrames);
 
 	projectorMode = Setting<bool>("projectorMode", false);
 	mSettingManager.addSetting(&projectorMode);
