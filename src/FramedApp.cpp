@@ -353,8 +353,9 @@ void FramedApp::drawInterface() {
 
 	// get the screen matrix when all the transformations on the "paper" (fbo) or done.
 	screenMatrix = ci::gl::getModelViewProjection();
-
 	ci::gl::popMatrices();
+    
+    gl::setMatricesWindow(ci::app::getWindowSize());
 	ci::gl::color(1, 1, 1);
 	mFrameManager.drawLoop();
 
