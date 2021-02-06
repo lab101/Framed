@@ -27,7 +27,8 @@ set( SRC_FILES
 		${APP_PATH}/src/UI/TouchUI.cpp
 		${APP_PATH}/src/Helpers/LineManager.cpp
 		${APP_PATH}/src/Helpers/BrushManager.cpp
-		${APP_PATH}/src/Helpers/FrameManager.cpp
+        ${APP_PATH}/src/Helpers/FrameManager.cpp
+        ${APP_PATH}/src/Helpers/OverlayManager.cpp
         ${APP_PATH}/src/Helpers/Frame.cpp
 		${APP_PATH}/src/Helpers/NetworkManager.cpp
         ${APP_PATH}/src/VO/PointsPackage.cpp

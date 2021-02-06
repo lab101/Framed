@@ -20,6 +20,7 @@
 #include "UI/TouchUI.h"
 #include "Helpers/LineManager.h"
 #include "Helpers/FrameManager.h"
+#include "Helpers/OverlayManager.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -57,6 +58,7 @@ private:
 	TouchUIRef mTouchUI;
 	LineManager mLineManger;
 	FrameManager mFrameManager;
+    OverlayManager mOverlayManager;
 	NetworkManager mNetworkManager;
 
 	// zoom related
@@ -87,6 +89,7 @@ void FramedApp::setup()
 
 	frameSize = vec2(GS()->frameWidth.value(), GS()->frameHeight.value());
 	mFrameManager.setup(GS()->nrOfFrames.value(), frameSize);
+    mOverlayManager.setup(GS()->nrOfFrames.value(),frameSize);
 
 	mTouchUI = TouchUI::create();
 	mTouchUI->setup(400 * frameSize.y / frameSize.x);
@@ -225,9 +228,10 @@ void FramedApp::keyDown(KeyEvent event)
 
     
     else if (event.getCode() == event.KEY_SPACE) {
-		mFrameManager.saveAll();
-		mFrameManager.clearAll();
-		mTouchUI->setActiveFrame(0);
+//		mFrameManager.saveAll();
+//		mFrameManager.clearAll();
+        mOverlayManager.setActiveFrame(mFrameManager.getActiveFrame());
+        mOverlayManager.snap();
 	}
 
 }
@@ -309,6 +313,10 @@ void FramedApp::update()
 	mTouchUI->onFrameSlected.connect([=](int id) {
 		mFrameManager.setActiveFrame(id);
 		});
+    
+    
+//    mOverlayManager.setActiveFrame(mFrameManager.getActiveFrame());
+//    mOverlayManager.snap();
 }
 
 
@@ -350,6 +358,10 @@ void FramedApp::drawInterface() {
 
 	gl::color(1, 1, 1, 0.2);
 	mFrameManager.drawAtIndex(-1);
+    
+    // overlay
+    gl::color(1, 1, 1, 0.4);
+    mOverlayManager.drawAtIndex(mFrameManager.getActiveFrame());
 
 	// get the screen matrix when all the transformations on the "paper" (fbo) or done.
 	screenMatrix = ci::gl::getModelViewProjection();
@@ -360,6 +372,12 @@ void FramedApp::drawInterface() {
 	mFrameManager.drawLoop();
 
 	mScene->draw();
+    ci::gl::color(1, 1, 1);
+//
+//    ci::gl::GlslProgRef textureShader = ci::gl::getStockShader(ci::gl::ShaderDef().texture().color());
+//    ci::gl::ScopedGlslProg glslProg(textureShader);
+//    mOverlayManager.drawAtIndex(0);
+
 	drawCursor(getPressure(), lastPenPosition);
 }
 
