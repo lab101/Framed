@@ -8,7 +8,7 @@
 
 class FrameManager {
 
-	std::vector<Frame> mFrames;
+	std::vector<Frame*> mFrames;
 	int mActiveFrameIndex;
 	ci::ivec2 mSize;
 

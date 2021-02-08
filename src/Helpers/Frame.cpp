@@ -16,9 +16,10 @@ void Frame::setup(ci::vec2 size){
 void Frame::setFbo(ci::gl::FboRef& fbo,ci::ivec2 size,float windowScale){
 
     gl::Fbo::Format format;
-    format.setColorTextureFormat( gl::Texture2d::Format().internalFormat( GL_RGBA32F ) );
-    // format.setSamples( 4 );
-    fbo = gl::Fbo::create(size.x, size.y ,format );
+ //   format.setColorTextureFormat( gl::Texture2d::Format().internalFormat( GL_RGBA32F ) );
+    format.setSamples( 0 );
+    format.disableDepth();
+    mActiveFbo = gl::Fbo::create(size.x, size.y ,format );
 
    // gl::enableAlphaBlending();
     clearFbo();
@@ -46,17 +47,19 @@ void Frame::writeBuffer(std::string path){
 }
 
 void Frame::draw(){
+    if(mActiveFbo)
     gl::draw(mActiveFbo->getColorTexture());
 }
 
 ci::gl::Texture2dRef Frame::getTexture(){
-    return mActiveFbo->getColorTexture();
+    if(mActiveFbo) return mActiveFbo->getColorTexture();
+    return nullptr;
 }
 
 
 void Frame::drawPoints(std::vector<ci::vec3>& points,ci::Color color){
 
-    if(points.size() > 0){
+    if(points.size() > 0 && mActiveFbo != nullptr){
 
         gl::ScopedFramebuffer fbScp( mActiveFbo );
         gl::ScopedViewport fbVP (mActiveFbo->getSize());

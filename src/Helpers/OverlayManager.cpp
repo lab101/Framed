@@ -10,6 +10,8 @@
 #include "Lab101Utils.h"
 #include "GlobalSettings.h"
 #include "mathHelper.h"
+#include "FileHelper.h"
+
 
 using namespace ci;
 using namespace ci::app;
@@ -19,38 +21,88 @@ void OverlayManager::setup(int nrOfFrames, ci::vec2 size) {
 	mSize = size;
 	mActiveFrameIndex = 0;
     
-    for(int i =0 ; i < nrOfFrames; ++i){
-        gl::TextureRef text = gl::Texture::create(size.x,size.y);
-        mFrames.push_back(text);
-    }
+//    for(int i =0 ; i < nrOfFrames; ++i){
+//        gl::TextureRef text = gl::Texture::create(size.x,size.y);
+//        mFrames.push_back(text);
+//    }
     
     setupCamera();
+    loadOverlayFolders();
 }
 
 void OverlayManager::setupCamera(){
-    mCapture = Capture::create( 640, 480 );
-    mCapture->start();
+    if(GS()->hasWebcam.value() && !isWebcamStarted){
+        try{
+            mCapture = Capture::create( 640, 480 );
+            mCapture->start();
+            isWebcamStarted = true;
+            isLive = true;
+        }catch(...){
+            isWebcamStarted = false;
+        }
+    }
 }
 
 void OverlayManager::snap(){
     
+    if(!isWebcamStarted && mCapture != nullptr) return;
     
-    if( mCapture && mCapture->checkNewFrame() ) {
+    isLive = !isLive;
+}
 
-    
-    //gl::TextureRef newTexture = gl::Texture::create(*mCapture->getSurface());
-        gl::TextureRef newTexture  = gl::Texture::create( *mCapture->getSurface(), gl::Texture::Format().loadTopDown() );
+void OverlayManager::loadOverlayFolders(){
+        auto mOverlayFoldersPath = app::getAssetPath("").string() + "/overlays";
 
-   // auto texture = mFrames[mActiveFrameIndex];
-    
-    mFrames[mActiveFrameIndex] = newTexture;
+       if( !fs::exists( mOverlayFoldersPath ) ){
+           fs::create_directory(mOverlayFoldersPath);
+       }
 
+        mOverlayFolders.clear();
+        for(fs::directory_iterator it(mOverlayFoldersPath); it != fs::directory_iterator(); ++it ){
+           {
+               if(is_directory( *it )){
+                   mOverlayFolders.push_back(it->path());
+                }
+           }
+       }
+}
+
+void OverlayManager::loadOverlay(ci::fs::path path){
+    if( !fs::exists( path ) ){
+        return;
     }
-//    if(texture != nullptr){
-//
-//        texture->update(  );
-//    }
+    
+    mFrames.clear();
+    int index=0;
+    for(fs::directory_iterator it(path); it != fs::directory_iterator(); ++it )
+    {
+            std::string extension = it->path().extension().string();
+            if(extension == ".jpg" || extension == ".png"){
+                try{
+                    auto text =  gl::Texture::create(loadImage(it->path()));
+                    mFrames.push_back(text);
+                    
+                    // stop when more overlays than frames;
+                    if(++index > mFrames.size()) return;
+                }catch(...){
+                    std::cout << "error loading " <<  it->path().string() << std::endl;
+                }
+            }
+    }
+}
 
+void OverlayManager::update(){
+    
+    
+    if(isWebcamStarted && isLive && mCapture && mCapture->checkNewFrame() ) {
+       gl::TextureRef newTexture  = gl::Texture::create( *mCapture->getSurface(), gl::Texture::Format().loadTopDown() );
+        
+        if(mActiveFrameIndex >= mFrames.size()){
+            mFrames.push_back(newTexture);
+        }else{
+            mFrames[mActiveFrameIndex] = newTexture;
+        }
+   }
 }
 
 ci::ivec2 OverlayManager::getSize() {
@@ -59,8 +111,7 @@ ci::ivec2 OverlayManager::getSize() {
 
 void OverlayManager::clearAll() {
     mFrames.clear();
-    mActiveFrameIndex = 0;
-    
+    mActiveFrameIndex = 0;    
 }
 
 
@@ -88,13 +139,16 @@ int OverlayManager::getActiveFrame() {
 
 
 void OverlayManager::drawAtIndex(int index) {
+    if(mFrames.size() == 0) return;
     
     int rangeIndex = lab101::getInRangeIndex(index, mFrames.size());
+    
+    if(rangeIndex < 0 || rangeIndex > mFrames.size()) return;
     
     auto texture = mFrames[rangeIndex];
        if(texture != nullptr){
            
-           
+           // center the overlay.
            float height  = mSize.y;
            float width =  texture->getWidth() * mSize.y / texture->getHeight();
         
@@ -103,14 +157,12 @@ void OverlayManager::drawAtIndex(int index) {
            
            gl::draw(texture,frame);
        }
-  //	mFrames[rangeIndex].draw();
 }
 
 
 void OverlayManager::drawGUI() {
-	ImGui::Begin("OverlayManager");
-	ImGui::SliderFloat("speed: ", &GS()->frameSpeed.value(), 2.f, 20.0f);
-
-	ImGui::End();
-
+    
+    if (ImGui::Combo("overlays", &(selectedOverlayFolder), getStringList(mOverlayFolders))) {
+            loadOverlay(mOverlayFolders[selectedOverlayFolder]);
+        }
 }

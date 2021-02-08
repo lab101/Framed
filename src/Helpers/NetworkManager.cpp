@@ -24,7 +24,7 @@ NetworkManager::NetworkManager()
 
           mReceiver(3000, asio::ip::udp::v4(), *mIoService),
           mSender(mSocket, udp::endpoint(address_v4::broadcast(), 3000)) {
-    mSocket->set_option(asio::socket_base::broadcast(true));
+          mSocket->set_option(asio::socket_base::broadcast(true));
 }
 
 
@@ -52,8 +52,6 @@ bool NetworkManager::setup() {
 
                                   int frameId = msg.getArgInt32(1);
                                   bool isEraserOn = msg.getArgBool(2);
-
-                                  std::cout << frameId << std::endl;
 
                                   ci::Color color;
                                   color.r = msg.getArgFloat(3);
@@ -156,9 +154,6 @@ bool NetworkManager::isMessageAllowed(const osc::Message &msg) {
 }
 
 
-void NetworkManager::setNextGroup() {
-    if (++groupId > GS()->maxGroups.value() - 1) groupId = 0;
-}
 
 void NetworkManager::setGroupId(int id){
      groupId = id;

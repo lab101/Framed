@@ -25,7 +25,6 @@ void ColorPicker::setup() {
 
 	auto text = CACHE()->getTextureByAssetPath("UI/sliderDot.png");
 
-
 	mDotBorder = po::scene::ImageView::create(text);
 	addSubview(mDotBorder);
 	mDotBorder->setAlignment(po::scene::Alignment::CENTER_CENTER);
@@ -72,7 +71,41 @@ void ColorPicker::setup() {
 
 
 	getSignal(MouseEvent::UP).connect([=](po::scene::MouseEvent& event) {
-		mIsPressed = false;
+        
+        if(mIsPressed){
+            // change history
+            if(mHistory.size() < 5){
+                    auto text = CACHE()->getTextureByAssetPath("UI/sliderDot.png");
+                    auto history = po::scene::ImageView::create(text);
+                    addSubview(history);
+                    history->setFillColor(mSelectedColor);
+                    history->setAlignment(po::scene::Alignment::CENTER_CENTER);
+                    float offset =  mHistory.size() * 30;
+                    history->setPosition(180,16 + offset);
+                    mHistory.push_back(history);
+                    history->setScale(0.8);
+                
+                history->getSignal(MouseEvent::UP_INSIDE).connect([=](po::scene::MouseEvent& event) {
+                    mSelectedColor = history->getFillColor();
+                    mDotBorder->setPosition(history->getPosition());
+                    mDotBorder->setScale(1.9);
+                  //  moveSubviewToBack(mDotBorder);
+                    std::cout << "ss" << std::endl;
+                });
+
+            }else{
+                
+                for(int i = mHistory.size()-1; i > 0 ;i--){
+                    mHistory[i]->setFillColor(mHistory[i-1]->getFillColor());
+                }
+                mHistory[0]->setFillColor(mSelectedColor);
+
+                
+            }
+        }
+        
+        mIsPressed = false;
+
 		});
 
 
@@ -97,7 +130,7 @@ void ColorPicker::setup() {
 	// update to fill the fbo for the initial color set.
 	update();
 	setColorPosition(vec2(50, 50));
-
+     
 
 }
 
@@ -113,6 +146,10 @@ void ColorPicker::setColorPosition(ci::vec2 pos) {
 
 	mDot->setPosition(pos);
 	mDot->setFillColor(mSelectedColor);
+    
+    
+  
+    
 }
 
 
@@ -150,11 +187,11 @@ void ColorPicker::update() {
 	}
 
 	if (mIsPressed) {
-		mDot->setScale(1.2);
+		mDot->setScale(1.3);
 		mDotBorder->setScale(1.5);
 	}
 	else {
-		mDot->setScale(0.7);
+		mDot->setScale(0.8);
 		mDotBorder->setScale(1);
 	}
 }

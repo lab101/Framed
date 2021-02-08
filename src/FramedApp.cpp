@@ -51,6 +51,9 @@ private:
 	float mPenPressure = 0.25;
 	bool mTouchDown = false;
 
+    
+    std::queue<PointsPackage> packageQueue;
+    std::mutex pLock;
 
 	ci::vec2 frameSize = vec2(1600, 1200);
 
@@ -59,7 +62,7 @@ private:
 	LineManager mLineManger;
 	FrameManager mFrameManager;
     OverlayManager mOverlayManager;
-	NetworkManager mNetworkManager;
+	NetworkManager* mNetworkManager;
 
 	// zoom related
 	ci::mat4 screenMatrix;
@@ -103,22 +106,23 @@ void FramedApp::setup()
 	mScene = po::scene::Scene::create(mTouchUI);
 
 
-	mLineManger.onNewPoints.connect([=](pointVec points) {
-		mFrameManager.drawPoints(points, mTouchUI->getColor());
-		mNetworkManager.sendPoints(points, false, mTouchUI->getColor(), mFrameManager.getActiveFrame());
-		});
+        mLineManger.onNewPoints.connect([=](pointVec points) {
+            mFrameManager.drawPoints(points, mTouchUI->getColor());
+            
+            if(mNetworkManager){
 
-
-	mNetworkManager.onErase.connect([=]() {
-        eraseAndSave();
-
-		});
+            mNetworkManager->sendPoints(points, false, mTouchUI->getColor(), mFrameManager.getActiveFrame());
+            }
+        
+        
+        });
+        
+    
 
 
 	zoomCenterPoint.x = 410;
 	zoomCenterPoint.y = 10;
 
-	setupNetwork();
 
 	if (GS()->projectorMode.value()) {
 		hideCursor();
@@ -132,6 +136,10 @@ void FramedApp::setup()
 		});
 	CI_LOG_I("finished ofxTablet");
 #endif
+    
+    
+    setupNetwork();
+
 }
 
 
@@ -139,17 +147,26 @@ void FramedApp::eraseAndSave(){
     mFrameManager.saveAll();
     mFrameManager.clearAll();
     mTouchUI->setActiveFrame(0);
+    
 }
 
 void FramedApp::setupNetwork() {
 
-	if (mNetworkManager.setup()) {
+    mNetworkManager = new NetworkManager();
+	if (mNetworkManager->setup()) {
 		// points
-		mNetworkManager.onReceivePoints.connect([=](PointsPackage package) {
+		mNetworkManager->onReceivePoints.connect([=](PointsPackage package) {
 			//bool currentEraser = BrushManagerSingleton::Instance()->isEraserOn;
 			//BrushManagerSingleton::Instance()->isEraserOn = package.isEraserOn;
-			mFrameManager.drawPoints(package.points, package.color, package.frameId);
+            pLock.lock();
+            packageQueue.push(package);
+            pLock.unlock();
 			});
+        
+        mNetworkManager->onErase.connect([=]() {
+        eraseAndSave();
+
+        });
 	}
 }
 
@@ -228,8 +245,6 @@ void FramedApp::keyDown(KeyEvent event)
 
     
     else if (event.getCode() == event.KEY_SPACE) {
-//		mFrameManager.saveAll();
-//		mFrameManager.clearAll();
         mOverlayManager.setActiveFrame(mFrameManager.getActiveFrame());
         mOverlayManager.snap();
 	}
@@ -247,8 +262,9 @@ void FramedApp::mouseDown(MouseEvent event)
 
 void FramedApp::mouseMove(MouseEvent event)
 {
-	lastPenPosition = vec3(event.getPos().x, event.getPos().y, getPressure());
 	if (mTouchDown) {
+        lastPenPosition = vec3(event.getPos().x, event.getPos().y, getPressure());
+
 		localCoordinate = getLocalPoint(lastPenPosition);
 		mLineManger.lineTo(localCoordinate, ci::Color::white());
 	}
@@ -306,7 +322,8 @@ float FramedApp::getPressure() {
 void FramedApp::update()
 {
 
-	mNetworkManager.update();
+    mNetworkManager->update();
+    mOverlayManager.update();
 	mScene->update();
 
 	mTouchUI->updateThumbs(mFrameManager.getTextures());
@@ -317,6 +334,14 @@ void FramedApp::update()
     
 //    mOverlayManager.setActiveFrame(mFrameManager.getActiveFrame());
 //    mOverlayManager.snap();
+    
+    pLock.lock();
+    if(!packageQueue.empty()){
+        auto package  = packageQueue.front();
+        packageQueue.pop();
+        mFrameManager.drawPoints(package.points, package.color, package.frameId);
+    }
+    pLock.unlock();
 }
 
 
@@ -371,13 +396,15 @@ void FramedApp::drawInterface() {
 	ci::gl::color(1, 1, 1);
 	mFrameManager.drawLoop();
 
-	mScene->draw();
-    ci::gl::color(1, 1, 1);
-//
-//    ci::gl::GlslProgRef textureShader = ci::gl::getStockShader(ci::gl::ShaderDef().texture().color());
-//    ci::gl::ScopedGlslProg glslProg(textureShader);
-//    mOverlayManager.drawAtIndex(0);
+    if(mOverlayManager.isLive){
+        ci::gl::color(1, 0, 0,0.5);
+        float const radius = 10 + (sin(getElapsedSeconds() * 3) * 1);
+        gl::drawSolidCircle(vec2(zoomCenterPoint.x + 14 ,10 + 14), radius);
+    }
 
+    ci::gl::color(1, 1, 1);
+
+    mScene->draw();
 	drawCursor(getPressure(), lastPenPosition);
 }
 
@@ -386,7 +413,7 @@ void FramedApp::drawCursor(float scale, vec2 position) const {
 	gl::color(0.8, 0.8, 0.8);
 
 	float size = scale * 2;
-	size = fminf(20, size);
+	size = fminf(10, size);
 	vec2 pVec2 = vec2(position.x, position.y);
 	ci::gl::drawLine(pVec2 - ci::vec2(size, 0), pVec2 + ci::vec2(size, 0));
 	ci::gl::drawLine(pVec2 + ci::vec2(0, -size), pVec2 + ci::vec2(0, +size));
@@ -394,7 +421,6 @@ void FramedApp::drawCursor(float scale, vec2 position) const {
 
 void FramedApp::drawDebug()
 {
-	mFrameManager.drawGUI();
 
 	mFps = getAverageFps();
 
@@ -403,15 +429,26 @@ void FramedApp::drawDebug()
 	ImGui::Checkbox("show debug", &GS()->debugMode.value());
 	ImGui::Separator();
 	ImGui::Checkbox("projector mode", &GS()->projectorMode.value());
-	ImGui::Checkbox("fullscreen", &GS()->isFullscreen.value());
+    ImGui::Checkbox("fullscreen", &GS()->isFullscreen.value());
+    if(ImGui::Checkbox("webcam", &GS()->hasWebcam.value())){
+        if(GS()->hasWebcam.value()){
+            mOverlayManager.setupCamera();
+        }
+    }
+    
+    ImGui::SliderFloat("speed: ", &GS()->frameSpeed.value(), 2.f, 20.0f);
+
 
 	string pressureString = toString(mPenPressure);
     ImGui::LabelText("pen pressure", pressureString.c_str());
-    ImGui::LabelText("ip", mNetworkManager.getIPadress().c_str());
+    ImGui::LabelText("ip", mNetworkManager->getIPadress().c_str());
     ImGui::SliderInt("nr of frames (needs restart)", &GS()->nrOfFrames.value(), 1, 60);
 
+    
+    mOverlayManager.drawGUI();
+    
 	if (ImGui::SliderInt("group id", &GS()->groupId.value(), 1, 4)) {
-		mNetworkManager.setGroupId(GS()->groupId.value());
+		mNetworkManager->setGroupId(GS()->groupId.value());
 	}
 
 	if (ImGui::Button("save setttings")) {

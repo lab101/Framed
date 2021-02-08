@@ -19,6 +19,8 @@ class ColorPicker : public po::scene::View
     ci::ColorA mSelectedColor;
     bool mIsPressed = false;
     bool mRenderFbo = true;
+    
+    std::vector<po::scene::ImageViewRef> mHistory;
 
 protected:
     po::scene::ImageViewRef mHueImage = nullptr;

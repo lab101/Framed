@@ -11,15 +11,21 @@
 class OverlayManager {
 
 	std::vector<ci::gl::TextureRef> mFrames;
-	int mActiveFrameIndex;
+
+    int mActiveFrameIndex;
+    bool isWebcamStarted = false;
 	ci::ivec2 mSize;
     
     ci::CaptureRef            mCapture;
-
-
+    
+    std::vector<ci::fs::path> mOverlayFolders;
+    int selectedOverlayFolder = 0;
+    
 public:
+    bool isLive = false;
 
 	void setup(int nrOfFrames, ci::vec2 size);
+    void update();
     void setupCamera();
     void drawAtIndex(int index);
     void snap();
@@ -28,6 +34,9 @@ public:
     void setActiveFrame(int id);
     void nextFrame();
     void prevFrame();
+    
+    void loadOverlayFolders();
+    void loadOverlay(ci::fs::path path);
 
     int getActiveFrame();
 

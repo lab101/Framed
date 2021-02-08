@@ -49,6 +49,9 @@ void GlobalSettings::setup(std::string appName) {
 	projectorMode = Setting<bool>("projectorMode", false);
 	mSettingManager.addSetting(&projectorMode);
 
+    hasWebcam = Setting<bool>("webcam", false);
+    mSettingManager.addSetting(&hasWebcam);
+
 
 	fboBackground = ColorA(0.0, 0.0, 0.0, 1.0);
 

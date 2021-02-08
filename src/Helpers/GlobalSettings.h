@@ -18,7 +18,8 @@ public:
 	SettingManager mSettingManager;
 
 	Setting<bool>   debugMode;
-	Setting<bool>   isFullscreen;
+    Setting<bool>   isFullscreen;
+    Setting<bool>   hasWebcam;
     Setting<bool>   isMouseOn;
     Setting<bool>   projectorMode;
     Setting<int>    groupId;
