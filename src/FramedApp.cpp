@@ -38,6 +38,7 @@ public:
 	void update() override;
 	void draw() override;
     void eraseAndSave();
+    void save();
 
 	float getPressure();
 	void activatePenPressure();
@@ -99,10 +100,15 @@ void FramedApp::setup()
 	mTouchUI->setup(400 * frameSize.y / frameSize.x);
 	mTouchUI->setActiveFrame(0);
 
-
+    // erase
 	mTouchUI->onErase.connect([=] {
         eraseAndSave();
 		});
+    
+    // save
+    mTouchUI->onSave.connect([=] {
+        save();
+    });
 
 	mScene = po::scene::Scene::create(mTouchUI);
 
@@ -149,7 +155,10 @@ void FramedApp::eraseAndSave(){
     mFrameManager.saveAll();
     mFrameManager.clearAll();
     mTouchUI->setActiveFrame(0);
-    
+}
+
+void FramedApp::save(){
+    mFrameManager.saveAll();
 }
 
 void FramedApp::setupNetwork() {
@@ -268,8 +277,9 @@ void FramedApp::mouseDown(MouseEvent event)
 
 void FramedApp::mouseMove(MouseEvent event)
 {
+    lastPenPosition = vec3(event.getPos().x, event.getPos().y, getPressure());
+
 	if (mTouchDown) {
-        lastPenPosition = vec3(event.getPos().x, event.getPos().y, getPressure());
 
 		localCoordinate = getLocalPoint(lastPenPosition);
 		mLineManger.lineTo(localCoordinate, ci::Color::white());

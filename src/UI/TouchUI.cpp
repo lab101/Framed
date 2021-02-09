@@ -77,10 +77,21 @@ void TouchUI::setup(float yOffset) {
 		});
 
     
+    mSaveButton = TouchButton::create();
+    auto textSave = CACHE()->getTextureByAssetPath("UI/save.png");
+    mSaveButton->setImage(textSave);
+    getView()->addSubview(mSaveButton);
+    mSaveButton->setPosition(280, yOffset + 10);
+
+    mSaveButton->getSignalPressed().connect([=](TouchButtonRef ref) {
+        onSave.emit();
+        });
+
+    
     mLineButton = TouchButton::create();
     auto txtLine = CACHE()->getTextureByAssetPath("UI/line.png");
     mLineButton->setImage(txtLine);
-    getView()->addSubview(mLineButton);
+   // getView()->addSubview(mLineButton);
     mLineButton->setPosition(356, yOffset + 200);
 
     mLineButton->getSignalPressed().connect([=](TouchButtonRef ref) {

@@ -77,7 +77,7 @@ void OverlayManager::loadOverlay(ci::fs::path path){
     for(fs::directory_iterator it(path); it != fs::directory_iterator(); ++it )
     {
             std::string extension = it->path().extension().string();
-            if(extension == ".jpg" || extension == ".png"){
+            if(extension == ".jpg" || extension == ".jpeg" || extension == ".png"){
                 try{
                     auto text =  gl::Texture::create(loadImage(it->path()));
                     mFrames.push_back(text);

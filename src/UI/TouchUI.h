@@ -26,6 +26,7 @@ private:
 	ScrollBoxRef scrollBox;
 
 	TouchButtonRef mEraseButton;
+    TouchButtonRef mSaveButton;
 
     TouchButtonRef mLineButton;
     TouchButtonRef mCircleButton;
@@ -34,7 +35,8 @@ private:
 public:
 
 	ci::signals::Signal<void(int)> onFrameSlected;
-	ci::signals::Signal<void()> onErase;
+    ci::signals::Signal<void()> onErase;
+    ci::signals::Signal<void()> onSave;
 
 	void setup(float yOffset);
 	void update();
