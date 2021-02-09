@@ -50,6 +50,7 @@ private:
 
 	float mPenPressure = 0.25;
 	bool mTouchDown = false;
+    bool useOverLay = true;
 
     
     std::queue<PointsPackage> packageQueue;
@@ -139,6 +140,7 @@ void FramedApp::setup()
     
     
     setupNetwork();
+    
 
 }
 
@@ -167,7 +169,11 @@ void FramedApp::setupNetwork() {
         eraseAndSave();
 
         });
-	}
+	
+        // set group on startup
+        mNetworkManager->setGroupId(GS()->groupId.value());
+    
+    }
 }
 
 void FramedApp::setupImGui() {
@@ -323,7 +329,7 @@ void FramedApp::update()
 {
 
     mNetworkManager->update();
-    mOverlayManager.update();
+    if(useOverLay) mOverlayManager.update();
 	mScene->update();
 
 	mTouchUI->updateThumbs(mFrameManager.getTextures());
@@ -385,8 +391,10 @@ void FramedApp::drawInterface() {
 	mFrameManager.drawAtIndex(-1);
     
     // overlay
-    gl::color(1, 1, 1, 0.4);
-    mOverlayManager.drawAtIndex(mFrameManager.getActiveFrame());
+    if(useOverLay){
+        gl::color(1, 1, 1, 0.4);
+        mOverlayManager.drawAtIndex(mFrameManager.getActiveFrame());
+    }
 
 	// get the screen matrix when all the transformations on the "paper" (fbo) or done.
 	screenMatrix = ci::gl::getModelViewProjection();
@@ -396,7 +404,7 @@ void FramedApp::drawInterface() {
 	ci::gl::color(1, 1, 1);
 	mFrameManager.drawLoop();
 
-    if(mOverlayManager.isLive){
+    if(useOverLay &&  mOverlayManager.isLive){
         ci::gl::color(1, 0, 0,0.5);
         float const radius = 10 + (sin(getElapsedSeconds() * 3) * 1);
         gl::drawSolidCircle(vec2(zoomCenterPoint.x + 14 ,10 + 14), radius);
@@ -426,31 +434,61 @@ void FramedApp::drawDebug()
 
 	ImGui::Begin("Settings");
 	ImGui::Text("framerate: %f", mFps);
-	ImGui::Checkbox("show debug", &GS()->debugMode.value());
-	ImGui::Separator();
-	ImGui::Checkbox("projector mode", &GS()->projectorMode.value());
-    ImGui::Checkbox("fullscreen", &GS()->isFullscreen.value());
-    if(ImGui::Checkbox("webcam", &GS()->hasWebcam.value())){
-        if(GS()->hasWebcam.value()){
-            mOverlayManager.setupCamera();
-        }
-    }
-    
-    ImGui::SliderFloat("speed: ", &GS()->frameSpeed.value(), 2.f, 20.0f);
-
-
-	string pressureString = toString(mPenPressure);
+    string pressureString = toString(mPenPressure);
     ImGui::LabelText("pen pressure", pressureString.c_str());
     ImGui::LabelText("ip", mNetworkManager->getIPadress().c_str());
-    ImGui::SliderInt("nr of frames (needs restart)", &GS()->nrOfFrames.value(), 1, 60);
+
+    ImGui::Separator();
+	ImGui::Checkbox("show debug", &GS()->debugMode.value());
+	ImGui::Checkbox("projector mode", &GS()->projectorMode.value());
+    ImGui::Checkbox("fullscreen", &GS()->isFullscreen.value());
+    ImGui::Separator();
+    ImGui::Spacing();
+
+    ImGui::Checkbox("overlays", &useOverLay);
 
     
-    mOverlayManager.drawGUI();
+
+    if(useOverLay){
+        if (ImGui::TreeNode("overlay")){
+
+            if(ImGui::Checkbox("webcam", &GS()->hasWebcam.value())){
+                if(GS()->hasWebcam.value()){
+                    mOverlayManager.setupCamera();
+                }
+            }
+            
+            mOverlayManager.drawGUI();
+
+            ImGui::Spacing();
+           ImGui::Separator();
+           ImGui::Spacing();
+            
+            ImGui::TreePop();
+
+        }
+        
+    }
     
+
+    if (ImGui::TreeNode("frames")){
+        ImGui::SliderFloat("speed: ", &GS()->frameSpeed.value(), 2.f, 20.0f);
+        ImGui::SliderInt("nr of frames (needs restart)", &GS()->nrOfFrames.value(), 1, 60);
+        ImGui::TreePop();
+    }
+    
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Spacing();
+
 	if (ImGui::SliderInt("group id", &GS()->groupId.value(), 1, 4)) {
 		mNetworkManager->setGroupId(GS()->groupId.value());
 	}
 
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Spacing();
+    
 	if (ImGui::Button("save setttings")) {
 		GS()->mSettingManager.writeSettings();
 	}
