@@ -36,7 +36,6 @@ void GlobalSettings::setup(std::string appName) {
 	frameSpeed = Setting<float>("frameSpeed", 4);
 	mSettingManager.addSetting(&frameSpeed);
 
-
 	zoomLevel = Setting<float>("zoomLevel", .8f);
 	mSettingManager.addSetting(&zoomLevel);
 

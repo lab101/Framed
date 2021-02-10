@@ -120,8 +120,6 @@ void FramedApp::setup()
 
             mNetworkManager->sendPoints(points, false, mTouchUI->getColor(), mFrameManager.getActiveFrame());
             }
-        
-        
         });
         
     
@@ -235,6 +233,11 @@ void FramedApp::keyDown(KeyEvent event)
 		if (isFullScreen()) hideCursor();
 		else showCursor();
 	}
+    else if(event.getCode() == event.KEY_x){
+        // send a clear to the whole network!
+        eraseAndSave();
+        mNetworkManager->sendErase();
+    }
 	else if (event.getCode() == event.KEY_s) {
 		GS()->mSettingManager.writeSettings();
 	}
