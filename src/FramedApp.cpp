@@ -452,35 +452,41 @@ void FramedApp::drawDebug()
 	ImGui::LabelText("pen pressure", pressureString.c_str());
 	ImGui::LabelText("ip", mNetworkManager->getIPadress().c_str());
 
+	ImGui::Dummy(ImVec2(0.0f, 20.0f));
 	ImGui::Separator();
+	ImGui::Dummy(ImVec2(0.0f, 20.0f));
+
+
 	ImGui::Checkbox("show debug", &GS()->debugMode.value());
 	ImGui::Checkbox("projector mode", &GS()->projectorMode.value());
 	if (ImGui::Checkbox("fullscreen", &GS()->isFullscreen.value())) {
 		setFullScreen(GS()->isFullscreen.value());
 	}
+
+	ImGui::Dummy(ImVec2(0.0f, 20.0f));
 	ImGui::Separator();
-	ImGui::Spacing();
+	ImGui::Dummy(ImVec2(0.0f, 20.0f));
+
+
 	ImGui::Checkbox("disable pen on windows (restart needed)", &GS()->disablePenPressure.value());
 	if (ImGui::Checkbox("hide clear button", &GS()->hideClearButton.value())) {
 		mTouchUI->enableClearButton(!GS()->hideClearButton.value());
 	}
 
-	ImGui::Checkbox("overlay on", &useOverLay);
+	if (ImGui::Checkbox("hide save button", &GS()->hideSaveButton.value())) {
+		mTouchUI->enableSaveButton(!GS()->hideSaveButton.value());
+	}
+
+	ImGui::Checkbox("overlay active", &useOverLay);
 
 	if (useOverLay) {
 		if (ImGui::TreeNode("overlay")) {
 
-			if (ImGui::Checkbox("start webcam", &GS()->hasWebcam.value())) {
-				if (GS()->hasWebcam.value()) {
-					mOverlayManager.setupCamera();
-				}
-			}
-
 			mOverlayManager.drawGUI();
 
-			ImGui::Spacing();
+			ImGui::Dummy(ImVec2(0.0f, 20.0f));
 			ImGui::Separator();
-			ImGui::Spacing();
+			ImGui::Dummy(ImVec2(0.0f, 20.0f));
 
 			ImGui::TreePop();
 
@@ -488,24 +494,27 @@ void FramedApp::drawDebug()
 
 	}
 
-
+	ImGui::Dummy(ImVec2(0.0f, 20.0f));
 	if (ImGui::TreeNode("frames")) {
 		ImGui::SliderFloat("speed: ", &GS()->frameSpeed.value(), 2.f, 20.0f);
 		ImGui::SliderInt("nr of frames (needs restart)", &GS()->nrOfFrames.value(), 1, 60);
 		ImGui::TreePop();
 	}
 
-	ImGui::Spacing();
+	ImGui::Dummy(ImVec2(0.0f, 20.0f));
 	ImGui::Separator();
-	ImGui::Spacing();
+	ImGui::Dummy(ImVec2(0.0f, 20.0f));
+
+
 
 	if (ImGui::SliderInt("group id", &GS()->groupId.value(), 1, 4)) {
 		mNetworkManager->setGroupId(GS()->groupId.value());
 	}
 
-	ImGui::Spacing();
+	ImGui::Dummy(ImVec2(0.0f, 20.0f));
 	ImGui::Separator();
-	ImGui::Spacing();
+	ImGui::Dummy(ImVec2(0.0f, 20.0f));
+
 
 	if (ImGui::Button("save setttings")) {
 		GS()->mSettingManager.writeSettings();

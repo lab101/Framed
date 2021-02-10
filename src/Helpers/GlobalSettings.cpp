@@ -48,14 +48,15 @@ void GlobalSettings::setup(std::string appName) {
 	projectorMode = Setting<bool>("projectorMode", false);
 	mSettingManager.addSetting(&projectorMode);
 
-	hasWebcam = Setting<bool>("webcam", false);
-	mSettingManager.addSetting(&hasWebcam);
 
 	disablePenPressure = Setting<bool>("disablePenPressure", false);
 	mSettingManager.addSetting(&disablePenPressure);
 
 	hideClearButton = Setting<bool>("hideClearButton", false);
 	mSettingManager.addSetting(&hideClearButton);
+
+	hideSaveButton = Setting<bool>("hideSaveButton", false);
+	mSettingManager.addSetting(&hideSaveButton);
 
 
 

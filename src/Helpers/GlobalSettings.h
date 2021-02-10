@@ -24,6 +24,7 @@ public:
 	Setting<bool>   projectorMode;
 	Setting<bool>   disablePenPressure;
 	Setting<bool>   hideClearButton;
+	Setting<bool>   hideSaveButton;
 
 	Setting<int>    groupId;
 	Setting<int>    nrOfFrames;

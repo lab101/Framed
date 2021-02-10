@@ -51,6 +51,7 @@ public:
 	void updateThumbs(std::vector<ci::gl::TextureRef> textures);
 	void setActiveFrame(int index);
 	void enableClearButton(bool value);
+	void enableSaveButton(bool value);
 
 };
 

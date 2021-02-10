@@ -48,7 +48,6 @@ void TouchUI::setup(float yOffset) {
 	strokeSlider->setSliderPosition(0.5);
 	strokeSlider->setShowProgressActive(true);
 
-
 	scrollBox = ScrollBox::create();
 	scrollBox->setup(200, yOffset + 10 + colorPicker->getHeight());
 	getView()->addSubview(scrollBox);
@@ -56,6 +55,10 @@ void TouchUI::setup(float yOffset) {
 	scrollBox->mOnValueChanged.connect([=](int value) {
 		onFrameSlected.emit(value);
 		});
+
+
+	scrollBox->setVisible(GS()->nrOfFrames.value() > 1);
+
 
 
 	//	zoomSlider = Slider::create();
@@ -90,6 +93,7 @@ void TouchUI::setup(float yOffset) {
 
 
 	enableClearButton(!GS()->hideClearButton.value());
+	enableSaveButton(!GS()->hideSaveButton.value());
 
 
 	/*
@@ -109,6 +113,10 @@ void TouchUI::setup(float yOffset) {
 void TouchUI::enableClearButton(bool value) {
 	mEraseButton->setVisible(value);
 	mSaveButton->setOffset(vec2(value ? 0 : 80, 0));
+}
+
+void TouchUI::enableSaveButton(bool value) {
+	mSaveButton->setVisible(value);
 }
 
 void TouchUI::setActiveFrame(int index) {
