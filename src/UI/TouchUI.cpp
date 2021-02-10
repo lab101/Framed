@@ -20,7 +20,7 @@ TouchUIRef TouchUI::create()
 }
 
 float TouchUI::getScale() {
-    return 1;//zoomSlider->getSliderValue();
+	return 1;//zoomSlider->getSliderValue();
 }
 
 float TouchUI::getStrokeScale() {
@@ -58,12 +58,12 @@ void TouchUI::setup(float yOffset) {
 		});
 
 
-//	zoomSlider = Slider::create();
-	//zoomSlider->setup();
-	//getView()->addSubview(zoomSlider);
-	//zoomSlider->setPosition(10, 1140);
-	//zoomSlider->setShowProgressActive(true);
-	//zoomSlider->setSliderPosition(0.4);
+	//	zoomSlider = Slider::create();
+		//zoomSlider->setup();
+		//getView()->addSubview(zoomSlider);
+		//zoomSlider->setPosition(10, 1140);
+		//zoomSlider->setShowProgressActive(true);
+		//zoomSlider->setSliderPosition(0.4);
 
 
 	mEraseButton = TouchButton::create();
@@ -76,27 +76,30 @@ void TouchUI::setup(float yOffset) {
 		onErase.emit();
 		});
 
-    
-    mSaveButton = TouchButton::create();
-    auto textSave = CACHE()->getTextureByAssetPath("UI/save.png");
-    mSaveButton->setImage(textSave);
-    getView()->addSubview(mSaveButton);
-    mSaveButton->setPosition(280, yOffset + 10);
 
-    mSaveButton->getSignalPressed().connect([=](TouchButtonRef ref) {
-        onSave.emit();
-        });
+	mSaveButton = TouchButton::create();
+	auto textSave = CACHE()->getTextureByAssetPath("UI/save.png");
+	mSaveButton->setImage(textSave);
+	getView()->addSubview(mSaveButton);
+	mSaveButton->setPosition(280, yOffset + 10);
 
-    
-    mLineButton = TouchButton::create();
-    auto txtLine = CACHE()->getTextureByAssetPath("UI/line.png");
-    mLineButton->setImage(txtLine);
-   // getView()->addSubview(mLineButton);
-    mLineButton->setPosition(356, yOffset + 200);
+	mSaveButton->getSignalPressed().connect([=](TouchButtonRef ref) {
+		onSave.emit();
+		});
 
-    mLineButton->getSignalPressed().connect([=](TouchButtonRef ref) {
-        //onErase.emit();
-    });
+
+	/*
+	mLineButton = TouchButton::create();
+	auto txtLine = CACHE()->getTextureByAssetPath("UI/line.png");
+	mLineButton->setImage(txtLine);
+	getView()->addSubview(mLineButton);
+	mLineButton->setPosition(356, yOffset + 200);
+
+	mLineButton->getSignalPressed().connect([=](TouchButtonRef ref) {
+		//onErase.emit();
+	});
+
+	*/
 }
 
 
