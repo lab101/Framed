@@ -36,7 +36,6 @@ void GlobalSettings::setup(std::string appName) {
 	frameSpeed = Setting<float>("frameSpeed", 4);
 	mSettingManager.addSetting(&frameSpeed);
 
-
 	zoomLevel = Setting<float>("zoomLevel", .8f);
 	mSettingManager.addSetting(&zoomLevel);
 
@@ -54,6 +53,10 @@ void GlobalSettings::setup(std::string appName) {
 
 	disablePenPressure = Setting<bool>("disablePenPressure", false);
 	mSettingManager.addSetting(&disablePenPressure);
+
+	hideClearButton = Setting<bool>("hideClearButton", false);
+	mSettingManager.addSetting(&hideClearButton);
+
 
 
 	fboBackground = ColorA(0.0, 0.0, 0.0, 1.0);

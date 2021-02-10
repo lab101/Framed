@@ -143,7 +143,7 @@ void FramedApp::setup()
 	setupNetwork();
 
 
-	}
+}
 
 
 void FramedApp::eraseAndSave() {
@@ -229,6 +229,11 @@ void FramedApp::keyDown(KeyEvent event)
 		setFullScreen(!isFullScreen());
 		if (isFullScreen()) hideCursor();
 		else showCursor();
+	}
+	else if (event.getCode() == event.KEY_x) {
+		// send a clear to the whole network!
+		eraseAndSave();
+		mNetworkManager->sendErase();
 	}
 	else if (event.getCode() == event.KEY_s) {
 		GS()->mSettingManager.writeSettings();
@@ -456,6 +461,9 @@ void FramedApp::drawDebug()
 	ImGui::Separator();
 	ImGui::Spacing();
 	ImGui::Checkbox("disable pen on windows (restart needed)", &GS()->disablePenPressure.value());
+	if (ImGui::Checkbox("hide clear button", &GS()->hideClearButton.value())) {
+		mTouchUI->enableClearButton(!GS()->hideClearButton.value());
+	}
 
 	ImGui::Checkbox("overlay on", &useOverLay);
 

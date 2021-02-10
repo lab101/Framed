@@ -70,7 +70,8 @@ void TouchUI::setup(float yOffset) {
 	auto text = CACHE()->getTextureByAssetPath("UI/erase.png");
 	mEraseButton->setImage(text);
 	getView()->addSubview(mEraseButton);
-	mEraseButton->setPosition(356, yOffset + 10);
+	mEraseButton->setPosition(360, yOffset + 10);
+
 
 	mEraseButton->getSignalPressed().connect([=](TouchButtonRef ref) {
 		onErase.emit();
@@ -88,6 +89,9 @@ void TouchUI::setup(float yOffset) {
 		});
 
 
+	enableClearButton(!GS()->hideClearButton.value());
+
+
 	/*
 	mLineButton = TouchButton::create();
 	auto txtLine = CACHE()->getTextureByAssetPath("UI/line.png");
@@ -102,7 +106,10 @@ void TouchUI::setup(float yOffset) {
 	*/
 }
 
-
+void TouchUI::enableClearButton(bool value) {
+	mEraseButton->setVisible(value);
+	mSaveButton->setOffset(vec2(value ? 0 : 80, 0));
+}
 
 void TouchUI::setActiveFrame(int index) {
 	scrollBox->setActiveFrame(index);

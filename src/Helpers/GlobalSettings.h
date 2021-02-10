@@ -23,6 +23,8 @@ public:
 	Setting<bool>   isMouseOn;
 	Setting<bool>   projectorMode;
 	Setting<bool>   disablePenPressure;
+	Setting<bool>   hideClearButton;
+
 	Setting<int>    groupId;
 	Setting<int>    nrOfFrames;
 
