@@ -23,9 +23,15 @@ Check the **[this video](https://vimeo.com/508517646 )** on how to do the above.
 Arrow buttons to go through different frames.
 
 # Webcam
-There is experimental support for webcams on OSX & Windows.  
+There is experimental support for webcams on OSX & Windows in the *overlay* section. 
 Enable the camera in settings panel.  
 When working use **spacebar** to put a image on a layer and freeze it.
 
-
+# Overlay
+Early support for overlays is added.  
+To use it create folders in /assets/overlays/  
+Example:
+- /assets/overlays/space  
+- /assets/overlays/people  
+And drop your images in these folders. They will be available when the app starts.
 
