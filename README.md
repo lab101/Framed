@@ -22,3 +22,10 @@ Check the **[this video](https://vimeo.com/508517646 )** on how to do the above.
 
 Arrow buttons to go through different frames.
 
+# Webcam
+There is experimental support for webcams on OSX & Windows.  
+Enable the camera in settings panel.  
+When working use **spacebar** to put a image on a layer and freeze it.
+
+
+
