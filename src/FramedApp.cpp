@@ -7,6 +7,7 @@
 #include "Helpers/NetworkManager.h"
 #include "Helpers/GlobalSettings.h"
 #include "mathHelper.h"
+#include "enum.h"
 
 #if defined( CINDER_MSW_DESKTOP )
 #include "Pen/Windows/CRTEventHandler.h"
@@ -52,6 +53,10 @@ private:
 	float mPenPressure = 0.25;
 	bool mTouchDown = false;
 	bool useOverLay = true;
+
+	ToolState mCurrentToolState;
+	ci::vec2 mShapeStartPoint;
+	ci::vec2 mShapeEndPoint;
 
 
 	std::queue<PointsPackage> packageQueue;
@@ -108,6 +113,12 @@ void FramedApp::setup()
 	// save
 	mTouchUI->onSave.connect([=] {
 		save();
+		});
+
+
+	// tool change
+	mTouchUI->onNewToolElection.connect([=]  (ToolState state) {
+		mCurrentToolState = state;
 		});
 
 	mScene = po::scene::Scene::create(mTouchUI);
@@ -271,8 +282,17 @@ void FramedApp::mouseDown(MouseEvent event)
 	lastPenPosition = vec3(event.getPos(), getPressure());
 	localCoordinate = getLocalPoint(lastPenPosition);
 
-	mLineManger.newLine(localCoordinate);
 	mTouchDown = true;
+
+	switch (mCurrentToolState) {
+	case ToolState::BRUSH : 
+			mLineManger.newLine(localCoordinate);
+			break;
+	case ToolState::LINE :
+	case ToolState::CIRCLE:
+		mShapeStartPoint = vec2(localCoordinate.x, localCoordinate.y);
+		break;
+	}
 }
 
 void FramedApp::mouseMove(MouseEvent event)
@@ -282,7 +302,20 @@ void FramedApp::mouseMove(MouseEvent event)
 	if (mTouchDown) {
 
 		localCoordinate = getLocalPoint(lastPenPosition);
-		mLineManger.lineTo(localCoordinate, ci::Color::white());
+	//	mLineManger.lineTo(localCoordinate, ci::Color::white());
+
+		switch (mCurrentToolState) {
+		case ToolState::BRUSH:
+			mLineManger.lineTo(localCoordinate, mTouchUI->getColor());
+			break;
+		case ToolState::LINE:
+		case ToolState::CIRCLE:
+			mShapeEndPoint = vec2(localCoordinate.x, localCoordinate.y);
+			break;
+		}
+
+
+
 	}
 }
 
@@ -292,7 +325,7 @@ void FramedApp::mouseDrag(MouseEvent event)
 		lastPenPosition = vec3(event.getPos(), getPressure());
 		localCoordinate = getLocalPoint(lastPenPosition);
 
-		mLineManger.lineTo(localCoordinate, ci::Color::white());
+		mLineManger.lineTo(localCoordinate, mTouchUI->getColor());
 	}
 }
 
@@ -375,7 +408,7 @@ void FramedApp::draw()
 	else {
 		drawInterface();
 	}
-
+	w
 	if (GS()->debugMode.value()) {
 		drawDebug();
 	}
