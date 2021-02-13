@@ -168,9 +168,10 @@ void OverlayManager::drawAtIndex(int index) {
 		float width = texture->getWidth() * mSize.y / texture->getHeight();
 
 		float offsetCenter = (mSize.x - width) * 0.5;
-		ci::Rectf frame(offsetCenter, 0, offsetCenter + width, height);
 
-		if (mFrames[rangeIndex].flipHorizontal) {
+		ci::Rectf frame = ci::Rectf(offsetCenter, 0, offsetCenter + width, height);
+		
+		if (GS()->mirrorWebcam.value() && mFrames[rangeIndex].flipHorizontal) {
 			frame = ci::Rectf(offsetCenter + width, 0, offsetCenter, height);
 		}
 
@@ -182,16 +183,17 @@ void OverlayManager::drawAtIndex(int index) {
 void OverlayManager::drawGUI() {
 
 	if (ImGui::Combo("available webcams", &(mSelectedWebcam), webcamList)) {
-		//loadOverlay(mOverlayFolders[selectedOverlayFolder]);
+	}
+
+	if (ImGui::Button("reload cameralist")) {
+		getWebcamList();
 	}
 
 	if (ImGui::Button("start webcam")) {
 		setupCamera();
 	}
 
-	if (ImGui::Button("reload cameralist")) {
-		getWebcamList();
-	}
+	ImGui::Checkbox("mirror webcam", &(GS()->mirrorWebcam.value()));
 
 	if (ImGui::Combo("overlays", &(selectedOverlayFolder), getStringList(mOverlayFolders))) {
 		loadOverlay(mOverlayFolders[selectedOverlayFolder]);

@@ -175,9 +175,11 @@ void FramedApp::setupNetwork() {
 		mNetworkManager->onReceivePoints.connect([=](PointsPackage package) {
 			//bool currentEraser = BrushManagerSingleton::Instance()->isEraserOn;
 			//BrushManagerSingleton::Instance()->isEraserOn = package.isEraserOn;
-			pLock.lock();
-			packageQueue.push(package);
-			pLock.unlock();
+			//pLock.lock();
+			//packageQueue.push(package);
+			//pLock.unlock();
+			mFrameManager.drawPoints(package.points, package.color, package.frameId);
+
 			});
 
 		mNetworkManager->onErase.connect([=]() {

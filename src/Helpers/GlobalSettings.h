@@ -20,6 +20,7 @@ public:
 	Setting<bool>   debugMode;
 	Setting<bool>   isFullscreen;
 	Setting<bool>   hasWebcam;
+	Setting<bool>   mirrorWebcam;
 	Setting<bool>   isMouseOn;
 	Setting<bool>   projectorMode;
 	Setting<bool>   disablePenPressure;
