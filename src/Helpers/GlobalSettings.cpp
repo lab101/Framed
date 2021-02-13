@@ -58,6 +58,8 @@ void GlobalSettings::setup(std::string appName) {
 	hideSaveButton = Setting<bool>("hideSaveButton", false);
 	mSettingManager.addSetting(&hideSaveButton);
 
+	mirrorWebcam = Setting<bool>("mirrorWebcam", true);
+	mSettingManager.addSetting(&mirrorWebcam);
 
 
 	fboBackground = ColorA(0.0, 0.0, 0.0, 1.0);

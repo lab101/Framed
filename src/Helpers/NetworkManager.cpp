@@ -41,7 +41,9 @@ bool NetworkManager::setup() {
 
 
     mReceiver.setListener("/erase", [&](const osc::Message &msg) {
-        queueClear = true;
+        if (isMessageAllowed(msg)) {
+            queueClear = true;
+        }
     });
 
     mReceiver.setListener("/points",
