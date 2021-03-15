@@ -45,6 +45,27 @@ void OverlayManager::setupCamera() {
 }
 
 
+void OverlayManager::stopCamera() {
+	isLive = false;
+	isWebcamStarted = false;
+	try {
+		if (mCapture) mCapture->stop();
+	}
+	catch (...) {
+
+	}
+	mCapture = nullptr;
+
+}
+
+//std::vector<std::string> OverlayManager::getWebcamList()
+//{
+//	webcamList.clear();
+//	deviceList = Capture::getDevices(true);
+//	for (const auto& device : deviceList) {
+//		webcamList.push_back(device->getName());
+//}
+
 void OverlayManager::setTexture(int index, ci::gl::TextureRef texture){
     mFrames[index] = texture;
 }
@@ -200,27 +221,31 @@ void OverlayManager::drawAtIndex(int index) {
 
 	if (mFrames.size() == 0) return;
 
-	int rangeIndex = lab101::getInRangeIndex(index, mFrames.size());
+	//int rangeIndex = lab101::getInRangeIndex(index, mFrames.size());
 
-	if (rangeIndex < 0 || rangeIndex > mFrames.size()) return;
+	//if (rangeIndex < 0 || rangeIndex > mFrames.size()) return;
 
-	auto texture = mFrames[rangeIndex];
+	if(mFrames.find(index) == mFrames.end()) return;
+
+	
+	ci::gl::TextureRef texture = mFrames[index];
 	if (texture != nullptr) {
 
-		// center the overlay.
+		// ceci::gnter the overlay.
 		float height = mSize.y;
 		float width = texture->getWidth() * mSize.y / texture->getHeight();
 
 		float offsetCenter = (mSize.x - width) * 0.5;
 
 		ci::Rectf frame = ci::Rectf(offsetCenter, 0, offsetCenter + width, height);
-		
-	/*	if (GS()->mirrorWebcam.value() && mFrames[rangeIndex].flipHorizontal) {
-			frame = ci::Rectf(offsetCenter + width, 0, offsetCenter, height);
-		}*/
+
+		//		if (GS()->mirrorWebcam.value() && mFrames[rangeIndex].flipHorizontal) {
+			//		frame = ci::Rectf(offsetCenter + width, 0, offsetCenter, height);
+				//}
 
 		gl::draw(texture, frame);
 	}
+}
 //    
 //    if(mFrames.find(index) == mFrames.end()) return;
 //    
@@ -267,7 +292,7 @@ void OverlayManager::drawAtIndex(int index) {
 //	}
 //>>>>>>> a346506b59d87e8c15a243f356d7b2e7b9ed01f8
 //>>>>>>> 7f3bf5965c249227ba5c3845686180c254090dcf
-}
+//}
 
 
 void OverlayManager::drawGUI() {
@@ -275,7 +300,7 @@ void OverlayManager::drawGUI() {
 	if (ImGui::Combo("available webcams", &(mSelectedWebcam), webcamList)) {
 	}
 
-	if (ImGui::Button("reload cameralist")) {
+	if (ImGui::Button("reload cameralist",ImVec2(200, 40))) {
 		getWebcamList();
 	}
 //    if (ImGui::Combo("available webcams", &(mSelectedWebcam), webcamList)) {
@@ -283,9 +308,19 @@ void OverlayManager::drawGUI() {
 //>>>>>>> 7f3bf5965c249227ba5c3845686180c254090dcf
 //	}
 
-	if (ImGui::Button("start webcam")) {
+	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(ImColor(0, 182, 80 + (sin(app::getElapsedSeconds() * 5) * 60))));
+	if (ImGui::Button("start webcam", ImVec2(200, 40))) {
 		setupCamera();
 	}
+	ImGui::PopStyleColor();
+
+	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(ImColor(233, 3, 80)));
+
+	if (ImGui::Button("stop webcam", ImVec2(200, 40))) {
+		stopCamera();
+	}
+	ImGui::PopStyleColor();
+
 
 	ImGui::Checkbox("mirror webcam", &(GS()->mirrorWebcam.value()));
 }

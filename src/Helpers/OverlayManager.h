@@ -43,10 +43,15 @@ public:
 
 	void setup(int nrOfFrames, ci::vec2 size);
 
-    void update();
     void setupCamera();
-    void drawAtIndex(int index);
     void snap();
+	void drawAtIndex(int index);
+
+	//webcam
+	void stopCamera();
+	std::vector<std::string> getWebcamList();
+	void update();
+
 
     void clearAll();
     void setActiveFrame(int id);
@@ -62,7 +67,6 @@ public:
 	ci::ivec2 getSize();
 	void drawGUI();
     
-    std::vector<std::string> getWebcamList();
 
     
     //std::map<int ,ci::gl::TextureRef> getTextures();

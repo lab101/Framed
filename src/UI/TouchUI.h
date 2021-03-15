@@ -11,7 +11,7 @@
 #include "cinder/Signals.h"
 #include "ColorPicker.h"
 #include "ScrollBox.h"
-
+#include "../enum.h"
 
 class TouchUI;
 typedef std::shared_ptr<TouchUI> TouchUIRef;
@@ -37,6 +37,7 @@ public:
 	ci::signals::Signal<void(int)> onFrameSlected;
 	ci::signals::Signal<void()> onErase;
 	ci::signals::Signal<void()> onSave;
+	ci::signals::Signal<void(ToolState)> onNewToolElection;
 
 	void setup(float yOffset);
 	void update();
