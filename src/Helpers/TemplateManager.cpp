@@ -47,18 +47,16 @@ void TemplateManager::loadTemplate(ci::fs::path path){
 
     mFrames.clear();
 //    int index=0;
-    for(fs::directory_iterator it(path); it != fs::directory_iterator(); ++it )
-    {
-            std::string extension = it->path().extension().string();
-            if(extension == ".jpg" || extension == ".jpeg" || extension == ".png"){
-                try{
-                    auto text =  gl::Texture::create(loadImage(it->path()));
-                    mFrames.push_back(text);
-                    std::cout << it->path() << std::endl;
-                }catch(...){
-                    std::cout << "error loading " <<  it->path().string() << std::endl;
-                }
-            }
+    
+    std::vector<std::string> extensions = {".png",".jpg",".jpeg"};
+    auto files = readDirectory(path.string(),extensions);
+    for(auto& file : files){
+        try{
+            auto text =  gl::Texture::create(loadImage(file));
+            mFrames.push_back(text);
+        }catch(...){
+            std::cout << "error loading " << file << std::endl;
+        }
     }
 }
 

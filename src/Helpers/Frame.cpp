@@ -34,7 +34,13 @@ void Frame::clearFbo(){
 void Frame::drawTexture(ci::gl::TextureRef text){
     if(!mActiveFbo) return;
     gl::ScopedFramebuffer fbScp( mActiveFbo );
-    gl::draw(text);
+    
+    gl::ScopedViewport fbVP (mActiveFbo->getSize());
+    gl::setMatricesWindow( mActiveFbo->getSize() );
+    gl::ScopedBlendPremult scpBlend;
+    
+    ci::Rectf rec(0,0,mActiveFbo->getSize().x,mActiveFbo->getSize().y);
+    gl::draw(text,rec);
 
 }
 

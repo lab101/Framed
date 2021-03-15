@@ -96,19 +96,22 @@ void FramedApp::setup()
 {
 
 	GS()->setup(appName);
+    
+    frameSize = vec2(GS()->frameWidth.value(), GS()->frameHeight.value());
+
+    mTouchUI = TouchUI::create();
+    mTouchUI->setup(400 * frameSize.y / frameSize.x);
+    mTouchUI->setActiveFrame(0);
 
 	setupImGui();
 
-	frameSize = vec2(GS()->frameWidth.value(), GS()->frameHeight.value());
 	mFrameManager.setup(GS()->nrOfFrames.value(), frameSize);
     mOverlayManager.setup(GS()->nrOfFrames.value(),frameSize);
     mTemplateManager.setup();
     
     mFrameManager.drawTextures(mTemplateManager.getTextures());
 
-	mTouchUI = TouchUI::create();
-	mTouchUI->setup(400 * frameSize.y / frameSize.x);
-	mTouchUI->setActiveFrame(0);
+	
 
     // erase
 	mTouchUI->onErase.connect([=] {
@@ -121,7 +124,6 @@ void FramedApp::setup()
     });
 
 	mScene = po::scene::Scene::create(mTouchUI);
-
 
         mLineManger.onNewPoints.connect([=](pointVec points) {
             mFrameManager.drawPoints(points, mTouchUI->getColor());
@@ -171,27 +173,24 @@ void FramedApp::save(){
 
 void FramedApp::setupNetwork() {
 
-    mNetworkManager = new NetworkManager();
-	if (mNetworkManager->setup()) {
-		// points
-		mNetworkManager->onReceivePoints.connect([=](PointsPackage package) {
-			//bool currentEraser = BrushManagerSingleton::Instance()->isEraserOn;
-			//BrushManagerSingleton::Instance()->isEraserOn = package.isEraserOn;
-            pLock.lock();
-            packageQueue.push(package);
-            pLock.unlock();
-			});
-        
-        mNetworkManager->onErase.connect([=]() {
-        eraseAndSave();
 
-        });
-	
-        // set group on startup
-        mNetworkManager->setGroupId(GS()->groupId.value());
+    mNetworkManager = new NetworkManager();
+    if (mNetworkManager->setup()) {
+            // points
+            mNetworkManager->onReceivePoints.connect([=](PointsPackage package) {
+                //bool currentEraser = BrushManagerSingleton::Instance()->isEraserOn;
+                //BrushManagerSingleton::Instance()->isEraserOn = package.isEraserOn;
+                pLock.lock();
+                packageQueue.push(package);
+                pLock.unlock();
+                });
+            
+            mNetworkManager->onErase.connect([=]() {
+                eraseAndSave();
+            });
+        }
     
     }
-}
 
 void FramedApp::setupImGui() {
 	ImGui::Initialize();
@@ -321,6 +320,7 @@ void FramedApp::mouseDrag(MouseEvent event)
 
 void FramedApp::mouseUp(MouseEvent event)
 {
+
 	lastPenPosition = vec3(event.getPos(), getPressure());
 
 	if (mTouchDown) {
@@ -387,17 +387,17 @@ void FramedApp::update()
 
 void FramedApp::draw()
 {
-	gl::clear(Color(0.2, 0.2, 0.25));
-	if (GS()->projectorMode.value()) {
-		mFrameManager.drawLoop(true);
-	}
-	else {
-		drawInterface();
-	}
+        gl::clear(Color(0.2, 0.2, 0.25));
+        if (GS()->projectorMode.value()) {
+            mFrameManager.drawLoop(true);
+        }
+        else {
+            drawInterface();
+        }
 
-	if (GS()->debugMode.value()) {
-		drawDebug();
-	}
+        if (GS()->debugMode.value()) {
+            drawDebug();
+        }
 }
 
 
@@ -423,30 +423,30 @@ void FramedApp::drawInterface() {
 	gl::color(1, 1, 1, 0.2);
 	mFrameManager.drawAtIndex(-1);
     
-    // overlay
-    if(useOverLay){
+  // overlay
+    if (useOverLay) {
         gl::color(1, 1, 1, 0.4);
         mOverlayManager.drawAtIndex(mFrameManager.getActiveFrame());
     }
 
-	// get the screen matrix when all the transformations on the "paper" (fbo) or done.
-	screenMatrix = ci::gl::getModelViewProjection();
-	ci::gl::popMatrices();
-    
-    gl::setMatricesWindow(ci::app::getWindowSize());
-	ci::gl::color(1, 1, 1);
-	mFrameManager.drawLoop();
+    // get the screen matrix when all the transformations on the "paper" (fbo) or done.
+    screenMatrix = ci::gl::getModelViewProjection();
+    ci::gl::popMatrices();
 
-    if(useOverLay &&  mOverlayManager.isLive){
-        ci::gl::color(1, 0, 0,0.5);
+    gl::setMatricesWindow(ci::app::getWindowSize());
+    ci::gl::color(1, 1, 1);
+    mFrameManager.drawLoop();
+
+    if (useOverLay && mOverlayManager.isLive) {
+        ci::gl::color(1, 0, 0, 0.5);
         float const radius = 10 + (sin(getElapsedSeconds() * 3) * 1);
-        gl::drawSolidCircle(vec2(zoomCenterPoint.x + 14 ,10 + 14), radius);
+        gl::drawSolidCircle(vec2(zoomCenterPoint.x + 14, 10 + 14), radius);
     }
 
     ci::gl::color(1, 1, 1);
 
     mScene->draw();
-	drawCursor(getPressure(), lastPenPosition);
+    drawCursor(getPressure(), lastPenPosition);
 }
 
 void FramedApp::drawCursor(float scale, vec2 position) const {

@@ -40,10 +40,12 @@ void FrameManager::clearAll() {
 }
 
 void FrameManager::drawTextures(std::vector<gl::TextureRef> textures) {
+    if(textures.size() ==0) return;
+    
     int textureIndex = 0;
     for (auto& f : mFrames) {
         f->drawTexture(textures[textureIndex]);
-        if(++textureIndex >= mFrames.size()-1) return;
+        if(++textureIndex >= textures.size()-1) return;
     }
 }
 
