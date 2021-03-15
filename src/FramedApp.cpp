@@ -21,6 +21,7 @@
 #include "Helpers/LineManager.h"
 #include "Helpers/FrameManager.h"
 #include "Helpers/OverlayManager.h"
+#include "Helpers/TemplateManager.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -35,11 +36,12 @@ public:
 	void mouseDrag(MouseEvent event) override;
 	void mouseUp(MouseEvent event) override;
 	void mouseMove(MouseEvent event) override;
+    void fileDrop( FileDropEvent event ) override;
+
 	void update() override;
 	void draw() override;
-	void eraseAndSave();
-	void save();
-
+    void eraseAndSave();
+    void save();
 	float getPressure();
 	void activatePenPressure();
 
@@ -63,7 +65,10 @@ private:
 	TouchUIRef mTouchUI;
 	LineManager mLineManger;
 	FrameManager mFrameManager;
-	OverlayManager mOverlayManager;
+    OverlayManager mOverlayManager;
+    TemplateManager mTemplateManager;
+    // this was changed due a threading bug which in the end wasn't
+    // should be changed back to non pointer.
 	NetworkManager* mNetworkManager;
 
 	// zoom related
@@ -89,16 +94,20 @@ void FramedApp::setup()
 {
 
 	GS()->setup(appName);
+    
+    frameSize = vec2(GS()->frameWidth.value(), GS()->frameHeight.value());
+
+    mTouchUI = TouchUI::create();
+    mTouchUI->setup(400 * frameSize.y / frameSize.x);
+    mTouchUI->setActiveFrame(0);
 
 	setupImGui();
 
-	frameSize = vec2(GS()->frameWidth.value(), GS()->frameHeight.value());
 	mFrameManager.setup(GS()->nrOfFrames.value(), frameSize);
-	mOverlayManager.setup(GS()->nrOfFrames.value(), frameSize);
-
-	mTouchUI = TouchUI::create();
-	mTouchUI->setup(400 * frameSize.y / frameSize.x);
-	mTouchUI->setActiveFrame(0);
+    mOverlayManager.setup(GS()->nrOfFrames.value(),frameSize);
+    mTemplateManager.setup();
+    mFrameManager.drawTextures(mTemplateManager.getTextures());
+	
 
 	// erase
 	mTouchUI->onErase.connect([=] {
@@ -110,25 +119,26 @@ void FramedApp::setup()
 		save();
 		});
 
-	mScene = po::scene::Scene::create(mTouchUI);
 
-	// incoming points from the user.
-	mLineManger.onNewPoints.connect([=](pointVec points) {
-		mFrameManager.drawPoints(points, mTouchUI->getColor());
+    mScene = po::scene::Scene::create(mTouchUI);
 
-		if (mNetworkManager) {
-			mNetworkManager->sendPoints(points, false, mTouchUI->getColor(), mFrameManager.getActiveFrame());
-		}
-		});
+// incoming points from the user.
+mLineManger.onNewPoints.connect([=](pointVec points) {
+    mFrameManager.drawPoints(points, mTouchUI->getColor());
 
-
-	zoomCenterPoint.x = 410;
-	zoomCenterPoint.y = 10;
+    if (mNetworkManager) {
+        mNetworkManager->sendPoints(points, false, mTouchUI->getColor(), mFrameManager.getActiveFrame());
+    }
+    });
 
 
-	if (GS()->projectorMode.value()) {
-		hideCursor();
-	}
+    zoomCenterPoint.x = 410;
+    zoomCenterPoint.y = 10;
+
+
+    if (GS()->projectorMode.value()) {
+        hideCursor();
+    }
 
 #if defined( CINDER_COCOA )
 	CI_LOG_I("START ofxTablet");
@@ -180,7 +190,9 @@ void FramedApp::setupNetwork() {
 		mNetworkManager->setGroupId(GS()->groupId.value());
 
 	}
+
 }
+    
 
 void FramedApp::setupImGui() {
 	ImGui::Initialize();
@@ -265,7 +277,17 @@ void FramedApp::keyDown(KeyEvent event)
 		mOverlayManager.setActiveFrame(mFrameManager.getActiveFrame());
 		mOverlayManager.snap();
 	}
+}
 
+void FramedApp::fileDrop( FileDropEvent event )
+{
+    try {
+        auto mTexture = gl::Texture::create( loadImage( loadFile( event.getFile( 0 ) ) ) );
+        mOverlayManager.setTexture(mFrameManager.getActiveFrame(), mTexture);
+    }
+    catch( Exception &exc ) {
+        CI_LOG_EXCEPTION( "failed to load image: " << event.getFile( 0 ), exc );
+    }
 }
 
 void FramedApp::mouseDown(MouseEvent event)
@@ -300,6 +322,7 @@ void FramedApp::mouseDrag(MouseEvent event)
 
 void FramedApp::mouseUp(MouseEvent event)
 {
+
 	lastPenPosition = vec3(event.getPos(), getPressure());
 
 	if (mTouchDown) {
@@ -370,17 +393,17 @@ void FramedApp::update()
 
 void FramedApp::draw()
 {
-	gl::clear(Color(0.2, 0.2, 0.25));
-	if (GS()->projectorMode.value()) {
-		mFrameManager.drawLoop(true);
-	}
-	else {
-		drawInterface();
-	}
+        gl::clear(Color(0.2, 0.2, 0.25));
+        if (GS()->projectorMode.value()) {
+            mFrameManager.drawLoop(true);
+        }
+        else {
+            drawInterface();
+        }
 
-	if (GS()->debugMode.value()) {
-		drawDebug();
-	}
+        if (GS()->debugMode.value()) {
+            drawDebug();
+        }
 }
 
 
@@ -405,29 +428,51 @@ void FramedApp::drawInterface() {
 
 	gl::color(1, 1, 1, 0.2);
 	mFrameManager.drawAtIndex(-1);
+//<<<<<<< HEAD
+    
+  // overlay
+    if (useOverLay) {
+        gl::color(1, 1, 1, 0.4);
+        mOverlayManager.drawAtIndex(mFrameManager.getActiveFrame());
+    }
 
-	// overlay
-	if (useOverLay) {
-		gl::color(1, 1, 1, 0.4);
-		mOverlayManager.drawAtIndex(mFrameManager.getActiveFrame());
-	}
+    // get the screen matrix when all the transformations on the "paper" (fbo) or done.
+    screenMatrix = ci::gl::getModelViewProjection();
+    ci::gl::popMatrices();
 
-	// get the screen matrix when all the transformations on the "paper" (fbo) or done.
-	screenMatrix = ci::gl::getModelViewProjection();
-	ci::gl::popMatrices();
+    gl::setMatricesWindow(ci::app::getWindowSize());
+    ci::gl::color(1, 1, 1);
+    mFrameManager.drawLoop();
 
-	gl::setMatricesWindow(ci::app::getWindowSize());
+    if (useOverLay && mOverlayManager.isLive) {
+        ci::gl::color(1, 0, 0, 0.5);
+        float const radius = 10 + (sin(getElapsedSeconds() * 3) * 1);
+        gl::drawSolidCircle(vec2(zoomCenterPoint.x + 14, 10 + 14), radius);
+    }
+//=======
+//
+//	// overlay
+//	if (useOverLay) {
+//		gl::color(1, 1, 1, 0.4);
+//		mOverlayManager.drawAtIndex(mFrameManager.getActiveFrame());
+//	}
+//
+//	// get the screen matrix when all the transformations on the "paper" (fbo) or done.
+//	screenMatrix = ci::gl::getModelViewProjection();
+//	ci::gl::popMatrices();
+//
+//	gl::setMatricesWindow(ci::app::getWindowSize());
+//	ci::gl::color(1, 1, 1);
+//	mFrameManager.drawLoop();
+//
+//	if (useOverLay && mOverlayManager.isLive) {
+//		ci::gl::color(1, 0, 0, 0.5);
+//		float const radius = 10 + (sin(getElapsedSeconds() * 3) * 1);
+//		gl::drawSolidCircle(vec2(zoomCenterPoint.x + 14, 10 + 14), radius);
+//	}
+//>>>>>>> a346506b59d87e8c15a243f356d7b2e7b9ed01f8
+
 	ci::gl::color(1, 1, 1);
-	mFrameManager.drawLoop();
-
-	if (useOverLay && mOverlayManager.isLive) {
-		ci::gl::color(1, 0, 0, 0.5);
-		float const radius = 10 + (sin(getElapsedSeconds() * 3) * 1);
-		gl::drawSolidCircle(vec2(zoomCenterPoint.x + 14, 10 + 14), radius);
-	}
-
-	ci::gl::color(1, 1, 1);
-
 	mScene->draw();
 	drawCursor(getPressure(), lastPenPosition);
 }

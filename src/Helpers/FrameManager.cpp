@@ -34,9 +34,17 @@ void FrameManager::clearAll() {
 	for (auto& f : mFrames) {
 		f->clearFbo();
 	}
+    mActiveFrameIndex = 0;
+}
 
-	mActiveFrameIndex = 0;
-
+void FrameManager::drawTextures(std::vector<gl::TextureRef> textures) {
+    if(textures.size() ==0) return;
+    
+    int textureIndex = 0;
+    for (auto& f : mFrames) {
+        f->drawTexture(textures[textureIndex]);
+        if(++textureIndex >= textures.size()) return;
+    }
 }
 
 std::vector<ci::gl::TextureRef> FrameManager::getTextures() {

@@ -29,20 +29,31 @@ void Frame::clearFbo() {
 	gl::clear(GS()->fboBackground);
 }
 
-void Frame::writeBuffer(std::string path) {
-	auto source = mActiveFbo->getColorTexture()->createSource();
+void Frame::drawTexture(ci::gl::TextureRef text){
+    if(!mActiveFbo) return;
+    gl::ScopedFramebuffer fbScp( mActiveFbo );
+    
+    gl::ScopedViewport fbVP (mActiveFbo->getSize());
+    gl::setMatricesWindow( mActiveFbo->getSize() );
+    gl::ScopedBlendPremult scpBlend;
+    
+    ci::Rectf rec(0,0,mActiveFbo->getSize().x,mActiveFbo->getSize().y);
+    gl::draw(text,rec);
 
-	std::thread threadObj([=] {
-		try {
-			writeImage(path, source);
-		}
-		catch (...) {
-			CI_LOG_E("error writing PNG file: " + path);
-		}
-		});
+}
 
-	threadObj.detach();
-
+void Frame::writeBuffer(std::string path){
+    auto source = mActiveFbo->getColorTexture()->createSource();
+    
+    std::thread threadObj([=]{
+           try{
+               writeImage(path, source);
+           }catch(...){
+               CI_LOG_E("error writing PNG file: " + path);
+           }
+       });
+       
+       threadObj.detach();
 }
 
 void Frame::draw() {

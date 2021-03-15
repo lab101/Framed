@@ -14,6 +14,8 @@ public:
     void setup(ci::vec2 size);
     void drawPoints(std::vector<ci::vec3>& points,ci::Color color);
     void draw();
+    void drawTexture(ci::gl::TextureRef text);
+
     ci::gl::Texture2dRef getTexture();
 
     void clearFbo();

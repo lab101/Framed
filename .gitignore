@@ -4,6 +4,7 @@
 
 assets/images
 assets/overlays
+assets/template
 
 proj/cmake/cmake-build-debug
 proj/cmake/.idea/

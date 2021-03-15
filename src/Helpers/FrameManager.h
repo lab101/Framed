@@ -19,6 +19,8 @@ public:
     void drawAtIndex(int index);
 
     void clearAll();
+    void drawTextures(std::vector<ci::gl::TextureRef> textures);
+
     void saveAll();
 	void drawLoop(bool isFullscreen = false);
 	void drawPoints(std::vector<ci::vec3>& points, ci::Color color,int frameId= -1);
