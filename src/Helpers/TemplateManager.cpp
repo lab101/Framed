@@ -23,22 +23,6 @@ void TemplateManager::setup() {
 }
 
 
-//void TemplateManager::loadOverlayFolders(){
-//        auto mOverlayFoldersPath = app::getAssetPath("").string() + "/overlays";
-//
-//       if( !fs::exists( mOverlayFoldersPath ) ){
-//           fs::create_directory(mOverlayFoldersPath);
-//       }
-//
-//        mOverlayFolders.clear();
-//        for(fs::directory_iterator it(mOverlayFoldersPath); it != fs::directory_iterator(); ++it ){
-//           {
-//               if(is_directory( *it )){
-//                   mOverlayFolders.push_back(it->path());
-//                }
-//           }
-//       }
-//}
 
 void TemplateManager::loadTemplate(ci::fs::path path){
     if( !fs::exists( path ) ){
@@ -46,7 +30,6 @@ void TemplateManager::loadTemplate(ci::fs::path path){
     }
 
     mFrames.clear();
-//    int index=0;
     
     std::vector<std::string> extensions = {".png",".jpg",".jpeg"};
     auto files = readDirectory(path.string(),extensions);
@@ -68,14 +51,6 @@ void TemplateManager::update(){
 
 
 void TemplateManager::drawAtIndex(int index) {
-    
-    //if(mFrames.find(index) == mFrames.end()) return;
-    
-//    if(mFrames.size() == 0) return;
-//
-//    int rangeIndex = lab101::getInRangeIndex(index, mFrames.size());
-//
-//    if(rangeIndex < 0 || rangeIndex > mFrames.size()) return;
     
     auto texture = mFrames[index];
        if(texture != nullptr){
