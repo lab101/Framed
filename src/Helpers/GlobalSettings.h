@@ -18,12 +18,16 @@ public:
 	SettingManager mSettingManager;
 
 	Setting<bool>   debugMode;
-    Setting<bool>   isFullscreen;
-    Setting<bool>   hasWebcam;
-    Setting<bool>   isMouseOn;
-    Setting<bool>   projectorMode;
-    Setting<int>    groupId;
-    Setting<int>    nrOfFrames;
+	Setting<bool>   isFullscreen;
+	Setting<bool>   hasWebcam;
+	Setting<bool>   isMouseOn;
+	Setting<bool>   projectorMode;
+	Setting<bool>   disablePenPressure;
+	Setting<bool>   hideClearButton;
+	Setting<bool>   hideSaveButton;
+
+	Setting<int>    groupId;
+	Setting<int>    nrOfFrames;
 
 
 	GlobalSettings();
@@ -34,21 +38,21 @@ public:
 	Setting<float> screenScale;
 
 
-    Setting<float> performanceDownScale;
-    Setting<int> maxGroups;
-    Setting<float> frameSpeed;
+	Setting<float> performanceDownScale;
+	Setting<int> maxGroups;
+	Setting<float> frameSpeed;
 
 
 
-    void setup(std::string appName);
+	void setup(std::string appName);
 
 
 	Setting<float>  zoomLevel;
-    ci::Font				mFont;
-    ci::gl::TextureFontRef	mTextureFont;
+	ci::Font				mFont;
+	ci::gl::TextureFontRef	mTextureFont;
 
 
-    ci::ColorA fboBackground;
+	ci::ColorA fboBackground;
 
 
 };

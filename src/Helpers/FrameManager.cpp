@@ -15,10 +15,9 @@ using namespace ci::app;
 void FrameManager::setup(int nrOfFrames, ci::vec2 size) {
 
 	mSize = size;
-//    mFrames.resize(nrOfFrames);
 
 	for (int i = 0; i < nrOfFrames; i++) {
-        Frame* newFrame = new Frame();;
+		Frame* newFrame = new Frame();;
 		newFrame->setup(size);
 		mFrames.push_back(newFrame);
 	}
@@ -35,7 +34,6 @@ void FrameManager::clearAll() {
 	for (auto& f : mFrames) {
 		f->clearFbo();
 	}
-    
     mActiveFrameIndex = 0;
 }
 
@@ -45,7 +43,7 @@ void FrameManager::drawTextures(std::vector<gl::TextureRef> textures) {
     int textureIndex = 0;
     for (auto& f : mFrames) {
         f->drawTexture(textures[textureIndex]);
-        if(++textureIndex >= textures.size()-1) return;
+        if(++textureIndex >= textures.size()) return;
     }
 }
 
@@ -53,7 +51,7 @@ std::vector<ci::gl::TextureRef> FrameManager::getTextures() {
 	std::vector<ci::gl::TextureRef>  textures;
 	for (auto& f : mFrames) {
 		auto text = f->getTexture();
-        if(text) textures.push_back(text);
+		if (text) textures.push_back(text);
 	}
 
 	return  textures;
@@ -64,21 +62,20 @@ void FrameManager::setActiveFrame(int id) {
 }
 
 void FrameManager::nextFrame() {
-    if(++mActiveFrameIndex >= mFrames.size()){
-        mActiveFrameIndex = 0;
-    }
+	if (++mActiveFrameIndex >= mFrames.size()) {
+		mActiveFrameIndex = 0;
+	}
 }
 
 void FrameManager::prevFrame() {
-    if(--mActiveFrameIndex < 0){
-        mActiveFrameIndex = mFrames.size()-1;
-    }
+	if (--mActiveFrameIndex < 0) {
+		mActiveFrameIndex = mFrames.size() - 1;
+	}
 }
 
 void FrameManager::saveAll() {
 
 	std::string mOutputFolder = ci::getDocumentsDirectory().string() + "framed/" + getDateString();
-//	std::cout << mOutputFolder << std::endl;
 
 	if (ci::fs::exists(mOutputFolder)) {
 		ci::fs::create_directory(mOutputFolder);
@@ -122,10 +119,10 @@ void FrameManager::draw(bool isFullscreen) {
 
 	if (isFullscreen) {
 		auto text = mFrames[mActiveFrameIndex]->getTexture();
-        
-        if(text){
-            ci::gl::draw(text, ci::Rectf(0, 0, app::getWindowWidth(), app::getWindowHeight()));
-        }
+
+		if (text) {
+			ci::gl::draw(text, ci::Rectf(0, 0, app::getWindowWidth(), app::getWindowHeight()));
+		}
 	}
 	else {
 		mFrames[mActiveFrameIndex]->draw();
@@ -134,9 +131,9 @@ void FrameManager::draw(bool isFullscreen) {
 }
 
 void FrameManager::drawAtIndex(int index) {
-    
-    int rangeIndex = lab101::getInRangeIndex(mActiveFrameIndex +  index, mFrames.size());
-  	mFrames[rangeIndex]->draw();
+
+	int rangeIndex = lab101::getInRangeIndex(mActiveFrameIndex + index, mFrames.size());
+	mFrames[rangeIndex]->draw();
 }
 
 
@@ -152,12 +149,11 @@ void FrameManager::drawLoop(bool isFullscreen) {
 
 void FrameManager::drawPoints(std::vector<ci::vec3>& points, ci::Color color, int frameId) {
 	if (frameId == -1) frameId = mActiveFrameIndex;
-    if(frameId <  mFrames.size()) mFrames[frameId]->drawPoints(points, color);
+	if (frameId < mFrames.size()) mFrames[frameId]->drawPoints(points, color);
 }
 
 void FrameManager::drawGUI() {
-	ImGui::Begin("FrameManager");
-
-	ImGui::End();
+	//ImGui::Begin("FrameManager");
+	//ImGui::End();
 
 }

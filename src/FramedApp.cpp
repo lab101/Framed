@@ -42,8 +42,6 @@ public:
 	void draw() override;
     void eraseAndSave();
     void save();
-    
-
 	float getPressure();
 	void activatePenPressure();
 
@@ -55,11 +53,11 @@ private:
 
 	float mPenPressure = 0.25;
 	bool mTouchDown = false;
-    bool useOverLay = true;
+	bool useOverLay = true;
 
-    
-    std::queue<PointsPackage> packageQueue;
-    std::mutex pLock;
+
+	std::queue<PointsPackage> packageQueue;
+	std::mutex pLock;
 
 	ci::vec2 frameSize = vec2(1600, 1200);
 
@@ -108,42 +106,39 @@ void FramedApp::setup()
 	mFrameManager.setup(GS()->nrOfFrames.value(), frameSize);
     mOverlayManager.setup(GS()->nrOfFrames.value(),frameSize);
     mTemplateManager.setup();
-    
     mFrameManager.drawTextures(mTemplateManager.getTextures());
-
 	
 
-    // erase
+	// erase
 	mTouchUI->onErase.connect([=] {
-        eraseAndSave();
+		eraseAndSave();
 		});
-    
-    // save
-    mTouchUI->onSave.connect([=] {
-        save();
+
+	// save
+	mTouchUI->onSave.connect([=] {
+		save();
+		});
+
+
+    mScene = po::scene::Scene::create(mTouchUI);
+
+// incoming points from the user.
+mLineManger.onNewPoints.connect([=](pointVec points) {
+    mFrameManager.drawPoints(points, mTouchUI->getColor());
+
+    if (mNetworkManager) {
+        mNetworkManager->sendPoints(points, false, mTouchUI->getColor(), mFrameManager.getActiveFrame());
+    }
     });
 
-	mScene = po::scene::Scene::create(mTouchUI);
 
-        mLineManger.onNewPoints.connect([=](pointVec points) {
-            mFrameManager.drawPoints(points, mTouchUI->getColor());
-            
-            if(mNetworkManager){
-
-            mNetworkManager->sendPoints(points, false, mTouchUI->getColor(), mFrameManager.getActiveFrame());
-            }
-        });
-        
-    
+    zoomCenterPoint.x = 410;
+    zoomCenterPoint.y = 10;
 
 
-	zoomCenterPoint.x = 410;
-	zoomCenterPoint.y = 10;
-
-
-	if (GS()->projectorMode.value()) {
-		hideCursor();
-	}
+    if (GS()->projectorMode.value()) {
+        hideCursor();
+    }
 
 #if defined( CINDER_COCOA )
 	CI_LOG_I("START ofxTablet");
@@ -153,44 +148,47 @@ void FramedApp::setup()
 		});
 	CI_LOG_I("finished ofxTablet");
 #endif
-    
-    
-    setupNetwork();
-    
+
+
+	setupNetwork();
+
 
 }
 
 
-void FramedApp::eraseAndSave(){
-    mFrameManager.saveAll();
-    mFrameManager.clearAll();
-    mTouchUI->setActiveFrame(0);
+void FramedApp::eraseAndSave() {
+	mFrameManager.saveAll();
+	mFrameManager.clearAll();
+	mTouchUI->setActiveFrame(0);
 }
 
-void FramedApp::save(){
-    mFrameManager.saveAll();
+void FramedApp::save() {
+	mFrameManager.saveAll();
 }
 
 void FramedApp::setupNetwork() {
 
-
-    mNetworkManager = new NetworkManager();
+mNetworkManager = new NetworkManager();
     if (mNetworkManager->setup()) {
-            // points
-            mNetworkManager->onReceivePoints.connect([=](PointsPackage package) {
-                //bool currentEraser = BrushManagerSingleton::Instance()->isEraserOn;
-                //BrushManagerSingleton::Instance()->isEraserOn = package.isEraserOn;
-                pLock.lock();
-                packageQueue.push(package);
-                pLock.unlock();
-                });
-            
-            mNetworkManager->onErase.connect([=]() {
-                eraseAndSave();
+        // points
+        mNetworkManager->onReceivePoints.connect([=](PointsPackage package) {
+            //bool currentEraser = BrushManagerSingleton::Instance()->isEraserOn;
+            //BrushManagerSingleton::Instance()->isEraserOn = package.isEraserOn;
+            pLock.lock();
+            packageQueue.push(package);
+            pLock.unlock();
             });
-        }
-    
+
+        mNetworkManager->onErase.connect([=]() {
+            eraseAndSave();
+
+            });
+
+        // set group on startup
+        mNetworkManager->setGroupId(GS()->groupId.value());
     }
+}
+    
 
 void FramedApp::setupImGui() {
 	ImGui::Initialize();
@@ -242,11 +240,11 @@ void FramedApp::keyDown(KeyEvent event)
 		if (isFullScreen()) hideCursor();
 		else showCursor();
 	}
-    else if(event.getCode() == event.KEY_x){
-        // send a clear to the whole network!
-        eraseAndSave();
-        mNetworkManager->sendErase();
-    }
+	else if (event.getCode() == event.KEY_x) {
+		// send a clear to the whole network!
+		eraseAndSave();
+		mNetworkManager->sendErase();
+	}
 	else if (event.getCode() == event.KEY_s) {
 		GS()->mSettingManager.writeSettings();
 	}
@@ -255,25 +253,25 @@ void FramedApp::keyDown(KeyEvent event)
 	}
 	else if (event.getCode() == event.KEY_LEFT) {
 		mFrameManager.prevFrame();
-        mTouchUI->setActiveFrame(mFrameManager.getActiveFrame());
+		mTouchUI->setActiveFrame(mFrameManager.getActiveFrame());
 	}
 	else if (event.getCode() == event.KEY_RIGHT) {
-        mFrameManager.nextFrame();
-        mTouchUI->setActiveFrame(mFrameManager.getActiveFrame());
+		mFrameManager.nextFrame();
+		mTouchUI->setActiveFrame(mFrameManager.getActiveFrame());
 	}
-    else if (event.getCode() == event.KEY_UP) {
-        mFrameManager.prevFrame();
-        mTouchUI->setActiveFrame(mFrameManager.getActiveFrame());
-    }
-    else if (event.getCode() == event.KEY_DOWN) {
-        mFrameManager.nextFrame();
-        mTouchUI->setActiveFrame(mFrameManager.getActiveFrame());
-    }
+	else if (event.getCode() == event.KEY_UP) {
+		mFrameManager.prevFrame();
+		mTouchUI->setActiveFrame(mFrameManager.getActiveFrame());
+	}
+	else if (event.getCode() == event.KEY_DOWN) {
+		mFrameManager.nextFrame();
+		mTouchUI->setActiveFrame(mFrameManager.getActiveFrame());
+	}
 
-    
-    else if (event.getCode() == event.KEY_SPACE) {
-        mOverlayManager.setActiveFrame(mFrameManager.getActiveFrame());
-        mOverlayManager.snap();
+
+	else if (event.getCode() == event.KEY_SPACE) {
+		mOverlayManager.setActiveFrame(mFrameManager.getActiveFrame());
+		mOverlayManager.snap();
 	}
 }
 
@@ -299,7 +297,7 @@ void FramedApp::mouseDown(MouseEvent event)
 
 void FramedApp::mouseMove(MouseEvent event)
 {
-    lastPenPosition = vec3(event.getPos().x, event.getPos().y, getPressure());
+	lastPenPosition = vec3(event.getPos().x, event.getPos().y, getPressure());
 
 	if (mTouchDown) {
 
@@ -332,6 +330,10 @@ void FramedApp::mouseUp(MouseEvent event)
 
 void FramedApp::activatePenPressure() {
 
+	// disable the pen pressure if it would give performance issues
+	if (GS()->disablePenPressure.value()) return;
+
+
 #if defined( CINDER_MSW_DESKTOP )
 	if (!g_bTriedToCreateRTSHandler) {
 		if (ci::app::getElapsedFrames() > 1) {
@@ -361,26 +363,26 @@ float FramedApp::getPressure() {
 void FramedApp::update()
 {
 
-    mNetworkManager->update();
-    if(useOverLay) mOverlayManager.update();
+	mNetworkManager->update();
+	if (useOverLay) mOverlayManager.update();
 	mScene->update();
 
 	mTouchUI->updateThumbs(mFrameManager.getTextures());
 	mTouchUI->onFrameSlected.connect([=](int id) {
 		mFrameManager.setActiveFrame(id);
 		});
-    
-    
-//    mOverlayManager.setActiveFrame(mFrameManager.getActiveFrame());
-//    mOverlayManager.snap();
-    
-    pLock.lock();
-    if(!packageQueue.empty()){
-        auto package  = packageQueue.front();
-        packageQueue.pop();
-        mFrameManager.drawPoints(package.points, package.color, package.frameId);
-    }
-    pLock.unlock();
+
+
+	//    mOverlayManager.setActiveFrame(mFrameManager.getActiveFrame());
+	//    mOverlayManager.snap();
+
+	pLock.lock();
+	if (!packageQueue.empty()) {
+		auto package = packageQueue.front();
+		packageQueue.pop();
+		mFrameManager.drawPoints(package.points, package.color, package.frameId);
+	}
+	pLock.unlock();
 }
 
 
@@ -422,6 +424,7 @@ void FramedApp::drawInterface() {
 
 	gl::color(1, 1, 1, 0.2);
 	mFrameManager.drawAtIndex(-1);
+//<<<<<<< HEAD
     
   // overlay
     if (useOverLay) {
@@ -442,11 +445,32 @@ void FramedApp::drawInterface() {
         float const radius = 10 + (sin(getElapsedSeconds() * 3) * 1);
         gl::drawSolidCircle(vec2(zoomCenterPoint.x + 14, 10 + 14), radius);
     }
+//=======
+//
+//	// overlay
+//	if (useOverLay) {
+//		gl::color(1, 1, 1, 0.4);
+//		mOverlayManager.drawAtIndex(mFrameManager.getActiveFrame());
+//	}
+//
+//	// get the screen matrix when all the transformations on the "paper" (fbo) or done.
+//	screenMatrix = ci::gl::getModelViewProjection();
+//	ci::gl::popMatrices();
+//
+//	gl::setMatricesWindow(ci::app::getWindowSize());
+//	ci::gl::color(1, 1, 1);
+//	mFrameManager.drawLoop();
+//
+//	if (useOverLay && mOverlayManager.isLive) {
+//		ci::gl::color(1, 0, 0, 0.5);
+//		float const radius = 10 + (sin(getElapsedSeconds() * 3) * 1);
+//		gl::drawSolidCircle(vec2(zoomCenterPoint.x + 14, 10 + 14), radius);
+//	}
+//>>>>>>> a346506b59d87e8c15a243f356d7b2e7b9ed01f8
 
-    ci::gl::color(1, 1, 1);
-
-    mScene->draw();
-    drawCursor(getPressure(), lastPenPosition);
+	ci::gl::color(1, 1, 1);
+	mScene->draw();
+	drawCursor(getPressure(), lastPenPosition);
 }
 
 void FramedApp::drawCursor(float scale, vec2 position) const {
@@ -467,61 +491,74 @@ void FramedApp::drawDebug()
 
 	ImGui::Begin("Settings");
 	ImGui::Text("framerate: %f", mFps);
-    string pressureString = toString(mPenPressure);
-    ImGui::LabelText("pen pressure", pressureString.c_str());
-    ImGui::LabelText("ip", mNetworkManager->getIPadress().c_str());
+	string pressureString = toString(mPenPressure);
+	ImGui::LabelText("pen pressure", pressureString.c_str());
+	ImGui::LabelText("ip", mNetworkManager->getIPadress().c_str());
 
-    ImGui::Separator();
+	ImGui::Dummy(ImVec2(0.0f, 20.0f));
+	ImGui::Separator();
+	ImGui::Dummy(ImVec2(0.0f, 20.0f));
+
+
 	ImGui::Checkbox("show debug", &GS()->debugMode.value());
 	ImGui::Checkbox("projector mode", &GS()->projectorMode.value());
-    ImGui::Checkbox("fullscreen", &GS()->isFullscreen.value());
-    ImGui::Separator();
-    ImGui::Spacing();
+	if (ImGui::Checkbox("fullscreen", &GS()->isFullscreen.value())) {
+		setFullScreen(GS()->isFullscreen.value());
+	}
 
-    ImGui::Checkbox("overlays", &useOverLay);
+	ImGui::Dummy(ImVec2(0.0f, 20.0f));
+	ImGui::Separator();
+	ImGui::Dummy(ImVec2(0.0f, 20.0f));
 
-    
 
-    if(useOverLay){
-        if (ImGui::TreeNode("overlay")){
+	ImGui::Checkbox("disable pen on windows (restart needed)", &GS()->disablePenPressure.value());
+	if (ImGui::Checkbox("hide clear button", &GS()->hideClearButton.value())) {
+		mTouchUI->enableClearButton(!GS()->hideClearButton.value());
+	}
 
-            if(ImGui::Checkbox("webcam", &GS()->hasWebcam.value())){
-                if(GS()->hasWebcam.value()){
-                    mOverlayManager.setupCamera();
-                }
-            }
-            
-            mOverlayManager.drawGUI();
+	if (ImGui::Checkbox("hide save button", &GS()->hideSaveButton.value())) {
+		mTouchUI->enableSaveButton(!GS()->hideSaveButton.value());
+	}
 
-            ImGui::Spacing();
-           ImGui::Separator();
-           ImGui::Spacing();
-            
-            ImGui::TreePop();
+	ImGui::Checkbox("overlay active", &useOverLay);
 
-        }
-        
-    }
-    
+	if (useOverLay) {
+		if (ImGui::TreeNode("overlay")) {
 
-    if (ImGui::TreeNode("frames")){
-        ImGui::SliderFloat("speed: ", &GS()->frameSpeed.value(), 2.f, 20.0f);
-        ImGui::SliderInt("nr of frames (needs restart)", &GS()->nrOfFrames.value(), 1, 60);
-        ImGui::TreePop();
-    }
-    
-    ImGui::Spacing();
-    ImGui::Separator();
-    ImGui::Spacing();
+			mOverlayManager.drawGUI();
+
+			ImGui::Dummy(ImVec2(0.0f, 20.0f));
+			ImGui::Separator();
+			ImGui::Dummy(ImVec2(0.0f, 20.0f));
+
+			ImGui::TreePop();
+
+		}
+
+	}
+
+	ImGui::Dummy(ImVec2(0.0f, 20.0f));
+	if (ImGui::TreeNode("frames")) {
+		ImGui::SliderFloat("speed: ", &GS()->frameSpeed.value(), 2.f, 20.0f);
+		ImGui::SliderInt("nr of frames (needs restart)", &GS()->nrOfFrames.value(), 1, 60);
+		ImGui::TreePop();
+	}
+
+	ImGui::Dummy(ImVec2(0.0f, 20.0f));
+	ImGui::Separator();
+	ImGui::Dummy(ImVec2(0.0f, 20.0f));
+
+
 
 	if (ImGui::SliderInt("group id", &GS()->groupId.value(), 1, 4)) {
 		mNetworkManager->setGroupId(GS()->groupId.value());
 	}
 
-    ImGui::Spacing();
-    ImGui::Separator();
-    ImGui::Spacing();
-    
+	ImGui::Dummy(ImVec2(0.0f, 20.0f));
+	ImGui::Separator();
+	ImGui::Dummy(ImVec2(0.0f, 20.0f));
+
+
 	if (ImGui::Button("save setttings")) {
 		GS()->mSettingManager.writeSettings();
 	}

@@ -8,27 +8,25 @@
 
 using namespace  ci;
 
-void Frame::setup(ci::vec2 size){
-    setFbo(mActiveFbo,size, 1);
+void Frame::setup(ci::vec2 size) {
+	setFbo(mActiveFbo, size, 1);
 }
 
 
-void Frame::setFbo(ci::gl::FboRef& fbo,ci::ivec2 size,float windowScale){
+void Frame::setFbo(ci::gl::FboRef& fbo, ci::ivec2 size, float windowScale) {
 
-    gl::Fbo::Format format;
- //   format.setColorTextureFormat( gl::Texture2d::Format().internalFormat( GL_RGBA32F ) );
-    format.setSamples( 0 );
-    format.disableDepth();
-    mActiveFbo = gl::Fbo::create(size.x, size.y ,format );
-
-   // gl::enableAlphaBlending();
-    clearFbo();
+	gl::Fbo::Format format;
+	//   format.setColorTextureFormat( gl::Texture2d::Format().internalFormat( GL_RGBA32F ) );
+	format.setSamples(0);
+	format.disableDepth();
+	mActiveFbo = gl::Fbo::create(size.x, size.y, format);
+	clearFbo();
 }
 
-void Frame::clearFbo(){
-    if(!mActiveFbo) return;
-    gl::ScopedFramebuffer fbScp( mActiveFbo );
-    gl::clear( GS()->fboBackground );
+void Frame::clearFbo() {
+	if (!mActiveFbo) return;
+	gl::ScopedFramebuffer fbScp(mActiveFbo);
+	gl::clear(GS()->fboBackground);
 }
 
 void Frame::drawTexture(ci::gl::TextureRef text){
@@ -56,34 +54,32 @@ void Frame::writeBuffer(std::string path){
        });
        
        threadObj.detach();
-
 }
 
-void Frame::draw(){
-    if(mActiveFbo)
-    gl::draw(mActiveFbo->getColorTexture());
+void Frame::draw() {
+	if (mActiveFbo)  gl::draw(mActiveFbo->getColorTexture());
 }
 
-ci::gl::Texture2dRef Frame::getTexture(){
-    if(mActiveFbo) return mActiveFbo->getColorTexture();
-    return nullptr;
+ci::gl::Texture2dRef Frame::getTexture() {
+	if (mActiveFbo) return mActiveFbo->getColorTexture();
+	return nullptr;
 }
 
 
-void Frame::drawPoints(std::vector<ci::vec3>& points,ci::Color color){
+void Frame::drawPoints(std::vector<ci::vec3>& points, ci::Color color) {
 
-    if(points.size() > 0 && mActiveFbo != nullptr){
+	if (points.size() > 0 && mActiveFbo != nullptr) {
 
-        gl::ScopedFramebuffer fbScp( mActiveFbo );
-        gl::ScopedViewport fbVP (mActiveFbo->getSize());
-        gl::setMatricesWindow( mActiveFbo->getSize() );
-        gl::ScopedBlendPremult scpBlend;
+		gl::ScopedFramebuffer fbScp(mActiveFbo);
+		gl::ScopedViewport fbVP(mActiveFbo->getSize());
+		gl::setMatricesWindow(mActiveFbo->getSize());
+		gl::ScopedBlendPremult scpBlend;
 
-        gl::color(1, 1, 1, 1);
+		gl::color(1, 1, 1, 1);
 
-        BrushManagerSingleton::Instance()->drawBrush(points, 0.98,color);
-        gl::setMatricesWindow( ci::app::getWindowSize() );
-    }
+		BrushManagerSingleton::Instance()->drawBrush(points, 0.98, color);
+		gl::setMatricesWindow(ci::app::getWindowSize());
+	}
 }
 
 

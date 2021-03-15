@@ -41,15 +41,23 @@ void GlobalSettings::setup(std::string appName) {
 
 	groupId = Setting<int>("groupId", 1);
 	mSettingManager.addSetting(&groupId);
-    
-    nrOfFrames = Setting<int>("nrOfFrames", 6);
-    mSettingManager.addSetting(&nrOfFrames);
+
+	nrOfFrames = Setting<int>("nrOfFrames", 6);
+	mSettingManager.addSetting(&nrOfFrames);
 
 	projectorMode = Setting<bool>("projectorMode", false);
 	mSettingManager.addSetting(&projectorMode);
 
-    hasWebcam = Setting<bool>("webcam", false);
-    mSettingManager.addSetting(&hasWebcam);
+
+	disablePenPressure = Setting<bool>("disablePenPressure", false);
+	mSettingManager.addSetting(&disablePenPressure);
+
+	hideClearButton = Setting<bool>("hideClearButton", false);
+	mSettingManager.addSetting(&hideClearButton);
+
+	hideSaveButton = Setting<bool>("hideSaveButton", false);
+	mSettingManager.addSetting(&hideSaveButton);
+
 
 
 	fboBackground = ColorA(0.0, 0.0, 0.0, 1.0);

@@ -20,27 +20,28 @@ void OverlayManager::setup(int nrOfFrames, ci::vec2 size) {
 
 	mSize = size;
 	mActiveFrameIndex = 0;
-    
-//    for(int i =0 ; i < nrOfFrames; ++i){
-//        gl::TextureRef text = gl::Texture::create(size.x,size.y);
-//        mFrames.push_back(text);
-//    }
-    
-    setupCamera();
-   // loadOverlayFolders();
+  //  setupCamera();
+
 }
 
-void OverlayManager::setupCamera(){
-    if(GS()->hasWebcam.value() && !isWebcamStarted){
-        try{
-            mCapture = Capture::create( 640, 480 );
-            mCapture->start();
-            isWebcamStarted = true;
-            isLive = true;
-        }catch(...){
-            isWebcamStarted = false;
-        }
-    }
+void OverlayManager::setupCamera() {
+	//if (!isWebcamStarted) {
+	try {
+
+		mCapture = nullptr;
+
+		auto device = deviceList[mSelectedWebcam];
+		if (device->checkAvailable()) {
+			mCapture = Capture::create(640, 480, device);
+			mCapture->start();
+			isWebcamStarted = true;
+			isLive = true;
+		}
+	}
+	catch (...) {
+		isWebcamStarted = false;
+	}
+	//}
 }
 
 
@@ -49,53 +50,49 @@ void OverlayManager::setTexture(int index, ci::gl::TextureRef texture){
 }
 
 
+
+std::vector<std::string> OverlayManager::getWebcamList()
+{
+    webcamList.clear();
+    deviceList = Capture::getDevices(true);
+    for (const auto& device : deviceList) {
+        webcamList.push_back(device->getName());
+    }
+
+    return webcamList;
+}
+
 void OverlayManager::snap(){
     
     if(!isWebcamStarted && mCapture != nullptr) return;
     
     isLive = !isLive;
+
 }
 
-void OverlayManager::loadOverlayFolders(){
-        auto mOverlayFoldersPath = app::getAssetPath("").string() + "/overlays";
-
-       if( !fs::exists( mOverlayFoldersPath ) ){
-           fs::create_directory(mOverlayFoldersPath);
-       }
-
-        mOverlayFolders.clear();
-        for(fs::directory_iterator it(mOverlayFoldersPath); it != fs::directory_iterator(); ++it ){
-           {
-               if(is_directory( *it )){
-                   mOverlayFolders.push_back(it->path());
-                }
-           }
-       }
-}
-
-void OverlayManager::loadOverlay(ci::fs::path path){
-//    if( !fs::exists( path ) ){
-//        return;
-//    }
-//
-//    mFrames.clear();
-//    int index=0;
-//    for(fs::directory_iterator it(path); it != fs::directory_iterator(); ++it )
-//    {
-//            std::string extension = it->path().extension().string();
-//            if(extension == ".jpg" || extension == ".jpeg" || extension == ".png"){
-//                try{
-//                    auto text =  gl::Texture::create(loadImage(it->path()));
-//                    mFrames.push_back(text);
-//
-//                    // stop when more overlays than frames;
-//                    if(++index > mFrames.size()) return;
-//                }catch(...){
-//                    std::cout << "error loading " <<  it->path().string() << std::endl;
-//                }
-//            }
-//    }
-}
+//void OverlayManager::loadOverlay(ci::fs::path path){
+////    if( !fs::exists( path ) ){
+////        return;
+////    }
+////
+////    mFrames.clear();
+////    int index=0;
+////    for(fs::directory_iterator it(path); it != fs::directory_iterator(); ++it )
+////    {
+////            std::string extension = it->path().extension().string();
+////            if(extension == ".jpg" || extension == ".jpeg" || extension == ".png"){
+////                try{
+////                    auto text =  gl::Texture::create(loadImage(it->path()));
+////                    mFrames.push_back(text);
+////
+////                    // stop when more overlays than frames;
+////                    if(++index > mFrames.size()) return;
+////                }catch(...){
+////                    std::cout << "error loading " <<  it->path().string() << std::endl;
+////                }
+////            }
+////    }
+//}
 
 void OverlayManager::update(){
     
@@ -108,14 +105,71 @@ void OverlayManager::update(){
         }
     }
 }
+    
+//void OverlayManager::loadOverlayFolders() {
+//	auto mOverlayFoldersPath = app::getAssetPath("").string() + "/overlays";
+//
+//	if (!fs::exists(mOverlayFoldersPath)) {
+//		fs::create_directory(mOverlayFoldersPath);
+//	}
+//
+//	mOverlayFolders.clear();
+//	for (fs::directory_iterator it(mOverlayFoldersPath); it != fs::directory_iterator(); ++it) {
+//		{
+//			if (is_directory(*it)) {
+//				mOverlayFolders.push_back(it->path());
+//			}
+//		}
+//	}
+//}
 
-ci::ivec2 OverlayManager::getSize() {
-	return mSize;
-}
+//void OverlayManager::loadOverlay(ci::fs::path path) {
+//	if (!fs::exists(path)) {
+//		return;
+//	}
+//
+//	mFrames.clear();
+//	int index = 0;
+//	for (fs::directory_iterator it(path); it != fs::directory_iterator(); ++it)
+//	{
+//		std::string extension = it->path().extension().string();
+//		if (extension == ".jpg" || extension == ".jpeg" || extension == ".png") {
+//			try {
+//				gl::TextureRef text = gl::Texture::create(loadImage(it->path()));
+//				mFrames.push_back(OverlayFrame(text));
+//
+//				// stop when more overlays than frames;
+//				if (++index > mFrames.size()) return;
+//			}
+//			catch (...) {
+//				std::cout << "error loading " << it->path().string() << std::endl;
+//			}
+//		}
+//	}
+//>>>>>>> a346506b59d87e8c15a243f356d7b2e7b9ed01f8
+//}
+
+//void OverlayManager::update() {
+//
+//	// webcam
+//	if (isWebcamStarted && isLive && mCapture && mCapture->checkNewFrame()) {
+//		gl::TextureRef newTexture = gl::Texture::create(*mCapture->getSurface(), gl::Texture::Format().loadTopDown());
+//
+////		if (mActiveFrameIndex >= mFrames.size()) {
+////			mFrames.push_back(OverlayFrame(newTexture, true));
+////		}
+////		else {
+////			mFrames[mActiveFrameIndex].mTexture = newTexture;
+////			mFrames[mActiveFrameIndex].flipHorizontal = true;;
+////
+////		}
+//	}
+//}
+
 
 void OverlayManager::clearAll() {
-    mFrames.clear();
-    mActiveFrameIndex = 0;    
+	mFrames.clear();
+	mActiveFrameIndex = 0;
 }
 
 
@@ -124,15 +178,15 @@ void OverlayManager::setActiveFrame(int id) {
 }
 
 void OverlayManager::nextFrame() {
-    if(++mActiveFrameIndex >= mFrames.size()){
-        mActiveFrameIndex = 0;
-    }
+	if (++mActiveFrameIndex >= mFrames.size()) {
+		mActiveFrameIndex = 0;
+	}
 }
 
 void OverlayManager::prevFrame() {
-    if(--mActiveFrameIndex < 0){
-        mActiveFrameIndex = mFrames.size()-1;
-    }
+	if (--mActiveFrameIndex < 0) {
+		mActiveFrameIndex = mFrames.size() - 1;
+	}
 }
 
 
@@ -164,12 +218,44 @@ void OverlayManager::drawAtIndex(int index) {
            
            gl::draw(texture,frame);
        }
+//=======
+//	if (mFrames.size() == 0) return;
+//
+//	int rangeIndex = lab101::getInRangeIndex(index, mFrames.size());
+//
+//	if (rangeIndex < 0 || rangeIndex > mFrames.size()) return;
+//
+//	auto texture = mFrames[rangeIndex].mTexture;
+//	if (texture != nullptr) {
+//
+//		// center the overlay.
+//		float height = mSize.y;
+//		float width = texture->getWidth() * mSize.y / texture->getHeight();
+//
+//		float offsetCenter = (mSize.x - width) * 0.5;
+//		ci::Rectf frame(offsetCenter, 0, offsetCenter + width, height);
+//
+//		if (mFrames[rangeIndex].flipHorizontal) {
+//			frame = ci::Rectf(offsetCenter + width, 0, offsetCenter, height);
+//		}
+//
+//		gl::draw(texture, frame);
+//	}
+//>>>>>>> a346506b59d87e8c15a243f356d7b2e7b9ed01f8
 }
 
 
 void OverlayManager::drawGUI() {
-    
-//    if (ImGui::Combo("overlays", &(selectedOverlayFolder), getStringList(mOverlayFolders))) {
-//            loadOverlay(mOverlayFolders[selectedOverlayFolder]);
-//        }
+
+    if (ImGui::Combo("available webcams", &(mSelectedWebcam), webcamList)) {
+		//loadOverlay(mOverlayFolders[selectedOverlayFolder]);
+	}
+
+	if (ImGui::Button("start webcam")) {
+		setupCamera();
+	}
+
+	if (ImGui::Button("reload cameralist")) {
+		getWebcamList();
+	}
 }

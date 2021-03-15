@@ -20,7 +20,7 @@ TouchUIRef TouchUI::create()
 }
 
 float TouchUI::getScale() {
-    return 1;//zoomSlider->getSliderValue();
+	return 1;//zoomSlider->getSliderValue();
 }
 
 float TouchUI::getStrokeScale() {
@@ -48,7 +48,6 @@ void TouchUI::setup(float yOffset) {
 	strokeSlider->setSliderPosition(0.5);
 	strokeSlider->setShowProgressActive(true);
 
-
 	scrollBox = ScrollBox::create();
 	scrollBox->setup(200, yOffset + 10 + colorPicker->getHeight());
 	getView()->addSubview(scrollBox);
@@ -58,48 +57,67 @@ void TouchUI::setup(float yOffset) {
 		});
 
 
-//	zoomSlider = Slider::create();
-	//zoomSlider->setup();
-	//getView()->addSubview(zoomSlider);
-	//zoomSlider->setPosition(10, 1140);
-	//zoomSlider->setShowProgressActive(true);
-	//zoomSlider->setSliderPosition(0.4);
+	scrollBox->setVisible(GS()->nrOfFrames.value() > 1);
+
+
+
+	//	zoomSlider = Slider::create();
+		//zoomSlider->setup();
+		//getView()->addSubview(zoomSlider);
+		//zoomSlider->setPosition(10, 1140);
+		//zoomSlider->setShowProgressActive(true);
+		//zoomSlider->setSliderPosition(0.4);
 
 
 	mEraseButton = TouchButton::create();
 	auto text = CACHE()->getTextureByAssetPath("UI/erase.png");
 	mEraseButton->setImage(text);
 	getView()->addSubview(mEraseButton);
-	mEraseButton->setPosition(356, yOffset + 10);
+	mEraseButton->setPosition(360, yOffset + 10);
+
 
 	mEraseButton->getSignalPressed().connect([=](TouchButtonRef ref) {
 		onErase.emit();
 		});
 
-    
-    mSaveButton = TouchButton::create();
-    auto textSave = CACHE()->getTextureByAssetPath("UI/save.png");
-    mSaveButton->setImage(textSave);
-    getView()->addSubview(mSaveButton);
-    mSaveButton->setPosition(280, yOffset + 10);
 
-    mSaveButton->getSignalPressed().connect([=](TouchButtonRef ref) {
-        onSave.emit();
-        });
+	mSaveButton = TouchButton::create();
+	auto textSave = CACHE()->getTextureByAssetPath("UI/save.png");
+	mSaveButton->setImage(textSave);
+	getView()->addSubview(mSaveButton);
+	mSaveButton->setPosition(280, yOffset + 10);
 
-    
-    mLineButton = TouchButton::create();
-    auto txtLine = CACHE()->getTextureByAssetPath("UI/line.png");
-    mLineButton->setImage(txtLine);
-   // getView()->addSubview(mLineButton);
-    mLineButton->setPosition(356, yOffset + 200);
+	mSaveButton->getSignalPressed().connect([=](TouchButtonRef ref) {
+		onSave.emit();
+		});
 
-    mLineButton->getSignalPressed().connect([=](TouchButtonRef ref) {
-        //onErase.emit();
-    });
+
+	enableClearButton(!GS()->hideClearButton.value());
+	enableSaveButton(!GS()->hideSaveButton.value());
+
+
+	/*
+	mLineButton = TouchButton::create();
+	auto txtLine = CACHE()->getTextureByAssetPath("UI/line.png");
+	mLineButton->setImage(txtLine);
+	getView()->addSubview(mLineButton);
+	mLineButton->setPosition(356, yOffset + 200);
+
+	mLineButton->getSignalPressed().connect([=](TouchButtonRef ref) {
+		//onErase.emit();
+	});
+
+	*/
 }
 
+void TouchUI::enableClearButton(bool value) {
+	mEraseButton->setVisible(value);
+	mSaveButton->setOffset(vec2(value ? 0 : 80, 0));
+}
 
+void TouchUI::enableSaveButton(bool value) {
+	mSaveButton->setVisible(value);
+}
 
 void TouchUI::setActiveFrame(int index) {
 	scrollBox->setActiveFrame(index);

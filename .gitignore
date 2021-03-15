@@ -4,6 +4,7 @@
 
 assets/images
 assets/overlays
+assets/template
 
 proj/cmake/cmake-build-debug
 proj/cmake/.idea/
@@ -17,6 +18,7 @@ proj/cmake/cmake-build-release
 *.db
 *.opensdf
 *.sdf
+*.zip
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

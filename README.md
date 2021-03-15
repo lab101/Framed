@@ -23,6 +23,20 @@ The software will scale them to scene size so make sure they have the same ratio
 - press **d** to toggle debug
 - press **s** to save application settings.
 - press **p** projector mode (view the animation fullscreen).
+- press **x** to send a clear all participants. 
 
 Arrow buttons to go through different frames.
+
+# Webcam
+There is experimental support for webcams on OSX & Windows in the *overlay* section. 
+Enable the camera in settings panel.  
+When working use **spacebar** to put a image on a layer and freeze it.
+
+# Overlay
+Early support for overlays is added.  
+To use it create folders in /assets/overlays/  
+Example:
+- /assets/overlays/space  
+- /assets/overlays/people  
+And drop your images in these folders. They will be available when the app starts.
 

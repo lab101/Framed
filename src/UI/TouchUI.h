@@ -26,17 +26,17 @@ private:
 	ScrollBoxRef scrollBox;
 
 	TouchButtonRef mEraseButton;
-    TouchButtonRef mSaveButton;
+	TouchButtonRef mSaveButton;
 
-    TouchButtonRef mLineButton;
-    TouchButtonRef mCircleButton;
-    TouchButtonRef mRectButton;
+	TouchButtonRef mLineButton;
+	TouchButtonRef mCircleButton;
+	TouchButtonRef mRectButton;
 
 public:
 
 	ci::signals::Signal<void(int)> onFrameSlected;
-    ci::signals::Signal<void()> onErase;
-    ci::signals::Signal<void()> onSave;
+	ci::signals::Signal<void()> onErase;
+	ci::signals::Signal<void()> onSave;
 
 	void setup(float yOffset);
 	void update();
@@ -50,7 +50,8 @@ public:
 	//void addThumbs(std::vector<ci::gl::TextureRef> textures);
 	void updateThumbs(std::vector<ci::gl::TextureRef> textures);
 	void setActiveFrame(int index);
-
+	void enableClearButton(bool value);
+	void enableSaveButton(bool value);
 
 };
 
