@@ -21,7 +21,9 @@ public:
     void clearAll();
     void saveAll();
 	void drawLoop(bool isFullscreen = false);
-	void drawPoints(std::vector<ci::vec3>& points, ci::Color color,int frameId= -1);
+	void drawPoints(std::vector<ci::vec3>& points, ci::Color color,int frameId= 0);
+    void drawCircle(ci::vec2 p1, ci::vec2 p2, ci::Color color, int frameId = 0);
+
     void setActiveFrame(int id);
     void nextFrame();
     void prevFrame();

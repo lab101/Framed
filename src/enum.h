@@ -1,5 +1,5 @@
 #pragma once
 
 enum ToolState{
-	BRUSH, LINE, CIRCLE
+	BRUSH, LINE, CIRCLE, RECTANGLE
 };

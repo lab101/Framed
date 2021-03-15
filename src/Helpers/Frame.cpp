@@ -54,6 +54,9 @@ ci::gl::Texture2dRef Frame::getTexture() {
 	return nullptr;
 }
 
+void Frame::activateFbo() {
+
+}
 
 void Frame::drawPoints(std::vector<ci::vec3>& points, ci::Color color) {
 
@@ -63,6 +66,7 @@ void Frame::drawPoints(std::vector<ci::vec3>& points, ci::Color color) {
 		gl::ScopedViewport fbVP(mActiveFbo->getSize());
 		gl::setMatricesWindow(mActiveFbo->getSize());
 		gl::ScopedBlendPremult scpBlend;
+	
 
 		gl::color(1, 1, 1, 1);
 
@@ -71,5 +75,27 @@ void Frame::drawPoints(std::vector<ci::vec3>& points, ci::Color color) {
 	}
 }
 
+
+void Frame::drawCircle(ci::vec2 point1, ci::vec2 point2, ci::Color color) {
+
+	gl::ScopedFramebuffer fbScp(mActiveFbo);
+	gl::ScopedViewport fbVP(mActiveFbo->getSize());
+	gl::setMatricesWindow(mActiveFbo->getSize());
+	gl::ScopedBlendPremult scpBlend;
+
+	auto stock  = ci::gl::getStockShader(gl::ShaderDef().color());
+	gl::ScopedGlslProg scpd(stock);
+
+	gl::color(color);
+	float radius = fabsf(glm::distance(point1, point2));
+	//gl::color(1, 1, 1, 0);
+
+	ci::app::console() << point1 << " - " << radius << std::endl;
+	gl::drawSolidCircle(point1,radius);
+	
+	gl::setMatricesWindow(ci::app::getWindowSize());
+
+
+}
 
 

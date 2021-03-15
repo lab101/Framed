@@ -10,9 +10,13 @@
 class Frame {
     ci::gl::FboRef              mActiveFbo;
 
+    void activateFbo();
+
 public:
     void setup(ci::vec2 size);
     void drawPoints(std::vector<ci::vec3>& points,ci::Color color);
+    void drawCircle(ci::vec2 point1, ci::vec2 point2, ci::Color color);
+
     void draw();
     ci::gl::Texture2dRef getTexture();
 

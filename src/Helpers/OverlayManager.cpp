@@ -46,6 +46,19 @@ void OverlayManager::setupCamera() {
 	//}
 }
 
+void OverlayManager::stopCamera() {
+	isLive = false;
+	isWebcamStarted = false;
+	try {
+		if (mCapture) mCapture->stop();
+	}
+	catch (...) {
+
+	}
+	mCapture = nullptr;
+
+}
+
 std::vector<std::string> OverlayManager::getWebcamList()
 {
 	webcamList.clear();
@@ -185,13 +198,23 @@ void OverlayManager::drawGUI() {
 	if (ImGui::Combo("available webcams", &(mSelectedWebcam), webcamList)) {
 	}
 
-	if (ImGui::Button("reload cameralist")) {
+	if (ImGui::Button("reload cameralist",ImVec2(200, 40))) {
 		getWebcamList();
 	}
 
-	if (ImGui::Button("start webcam")) {
+	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(ImColor(0, 182, 80 + (sin(app::getElapsedSeconds() * 5) * 60))));
+	if (ImGui::Button("start webcam", ImVec2(200, 40))) {
 		setupCamera();
 	}
+	ImGui::PopStyleColor();
+
+	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(ImColor(233, 3, 80)));
+
+	if (ImGui::Button("stop webcam", ImVec2(200, 40))) {
+		stopCamera();
+	}
+	ImGui::PopStyleColor();
+
 
 	ImGui::Checkbox("mirror webcam", &(GS()->mirrorWebcam.value()));
 

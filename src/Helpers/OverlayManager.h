@@ -46,6 +46,7 @@ public:
 
 	//webcam
 	void setupCamera();
+	void stopCamera();
 	std::vector<std::string> getWebcamList();
 	void snap();
 

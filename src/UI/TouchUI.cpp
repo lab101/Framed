@@ -95,16 +95,24 @@ void TouchUI::setup(float yOffset) {
 	enableClearButton(!GS()->hideClearButton.value());
 	enableSaveButton(!GS()->hideSaveButton.value());
 
-
-
 	mLineButton = TouchButton::create();
-	auto txtLine = CACHE()->getTextureByAssetPath("UI/line.png");
-	mLineButton->setImage(txtLine);
+	auto txtBrush = CACHE()->getTextureByAssetPath("UI/line.png");
+	mLineButton->setImage(txtBrush);
 	getView()->addSubview(mLineButton);
-	mLineButton->setPosition(240, yOffset + 200);
+	mLineButton->setPosition(240, yOffset + 100);
 
 	mLineButton->getSignalPressed().connect([=](TouchButtonRef ref) {
-		onNewToolElection.emit(ToolState::LINE);
+		onNewToolElection.emit(ToolState::BRUSH);
+		});
+
+	mRectButton = TouchButton::create();
+	auto txtLine = CACHE()->getTextureByAssetPath("UI/rect.png");
+	mRectButton->setImage(txtLine);
+	getView()->addSubview(mRectButton);
+	mRectButton->setPosition(240, yOffset + 200);
+
+	mRectButton->getSignalPressed().connect([=](TouchButtonRef ref) {
+		onNewToolElection.emit(ToolState::RECTANGLE);
 		});
 
 	mCircleButton = TouchButton::create();

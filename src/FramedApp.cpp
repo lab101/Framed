@@ -36,8 +36,10 @@ public:
 	void mouseDrag(MouseEvent event) override;
 	void mouseUp(MouseEvent event) override;
 	void mouseMove(MouseEvent event) override;
+	void processMove(MouseEvent event);
 	void update() override;
 	void draw() override;
+	void drawShapes();
 	void eraseAndSave();
 	void save();
 
@@ -125,10 +127,10 @@ void FramedApp::setup()
 
 	// incoming points from the user.
 	mLineManger.onNewPoints.connect([=](pointVec points) {
-		mFrameManager.drawPoints(points, mTouchUI->getColor());
+		mFrameManager.drawPoints(points, mTouchUI->getColor(), mFrameManager.getActiveFrame());
 
 		if (mNetworkManager) {
-			mNetworkManager->sendPoints(points, false, mTouchUI->getColor(), mFrameManager.getActiveFrame());
+			mNetworkManager->sendPoints(points, false, mTouchUI->getColor(),mFrameManager.getActiveFrame());
 		}
 		});
 
@@ -151,8 +153,9 @@ void FramedApp::setup()
 #endif
 
 
-	setupNetwork();
+	mCurrentToolState = ToolState::BRUSH;
 
+	setupNetwork();
 
 }
 
@@ -293,18 +296,27 @@ void FramedApp::mouseDown(MouseEvent event)
 	case ToolState::LINE :
 	case ToolState::CIRCLE:
 		mShapeStartPoint = vec2(localCoordinate.x, localCoordinate.y);
+		mShapeEndPoint = mShapeStartPoint;
 		break;
 	}
 }
 
 void FramedApp::mouseMove(MouseEvent event)
 {
+	processMove(event);
+}
+
+void FramedApp::mouseDrag(MouseEvent event)
+{
+	processMove(event);
+}
+
+void FramedApp::processMove(MouseEvent event) {
 	lastPenPosition = vec3(event.getPos().x, event.getPos().y, getPressure());
 
 	if (mTouchDown) {
 
 		localCoordinate = getLocalPoint(lastPenPosition);
-	//	mLineManger.lineTo(localCoordinate, ci::Color::white());
 
 		switch (mCurrentToolState) {
 		case ToolState::BRUSH:
@@ -315,19 +327,6 @@ void FramedApp::mouseMove(MouseEvent event)
 			mShapeEndPoint = vec2(localCoordinate.x, localCoordinate.y);
 			break;
 		}
-
-
-
-	}
-}
-
-void FramedApp::mouseDrag(MouseEvent event)
-{
-	if (mTouchDown) {
-		lastPenPosition = vec3(event.getPos(), getPressure());
-		localCoordinate = getLocalPoint(lastPenPosition);
-
-		mLineManger.lineTo(localCoordinate, mTouchUI->getColor());
 	}
 }
 
@@ -337,7 +336,19 @@ void FramedApp::mouseUp(MouseEvent event)
 
 	if (mTouchDown) {
 		activatePenPressure();
-		mLineManger.endLine();
+
+		switch (mCurrentToolState) {
+		case ToolState::BRUSH:
+			mLineManger.endLine();
+			break;
+		case ToolState::LINE:
+			//mFrameManager.drawCircle(mShapeStartPoint, mShapeEndPoint, mTouchUI->getColor());
+			break;
+		case ToolState::CIRCLE:
+			mFrameManager.drawCircle(mShapeStartPoint, mShapeEndPoint, mTouchUI->getColor(),mFrameManager.getActiveFrame());
+			break;
+		}
+
 	}
 	mTouchDown = false;
 }
@@ -410,7 +421,7 @@ void FramedApp::draw()
 	else {
 		drawInterface();
 	}
-	w
+	
 	if (GS()->debugMode.value()) {
 		drawDebug();
 	}
@@ -445,6 +456,9 @@ void FramedApp::drawInterface() {
 		mOverlayManager.drawAtIndex(mFrameManager.getActiveFrame());
 	}
 
+	// draw shapes
+	drawShapes();
+
 	// get the screen matrix when all the transformations on the "paper" (fbo) or done.
 	screenMatrix = ci::gl::getModelViewProjection();
 	ci::gl::popMatrices();
@@ -463,6 +477,34 @@ void FramedApp::drawInterface() {
 
 	mScene->draw();
 	drawCursor(getPressure(), lastPenPosition);
+}
+
+void FramedApp::drawShapes() {
+
+	if (!mTouchDown) return;
+
+	switch (mCurrentToolState) {
+
+	case ToolState::LINE:
+		gl::drawLine(mShapeStartPoint, mShapeEndPoint);
+
+		break;
+	case ToolState::CIRCLE:
+	{
+		float radius = glm::distance(mShapeEndPoint, mShapeStartPoint);
+		ci::gl::color(mTouchUI->getColor());
+		gl::lineWidth(6);
+		gl::drawStrokedCircle(mShapeStartPoint, radius);
+		break;
+	}
+	case ToolState::RECTANGLE:
+	{
+		ci::gl::color(mTouchUI->getColor());
+		gl::lineWidth(6);
+		gl::drawStrokedRect(Rectf(mShapeStartPoint, mShapeEndPoint));
+		break;
+	}
+	}
 }
 
 void FramedApp::drawCursor(float scale, vec2 position) const {
@@ -541,7 +583,6 @@ void FramedApp::drawDebug()
 	ImGui::Dummy(ImVec2(0.0f, 20.0f));
 
 
-
 	if (ImGui::SliderInt("group id", &GS()->groupId.value(), 1, 4)) {
 		mNetworkManager->setGroupId(GS()->groupId.value());
 	}
@@ -550,10 +591,12 @@ void FramedApp::drawDebug()
 	ImGui::Separator();
 	ImGui::Dummy(ImVec2(0.0f, 20.0f));
 
-
-	if (ImGui::Button("save setttings")) {
+	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(ImColor(0, 122, 30 + (sin(app::getElapsedSeconds() * 5) * 70))));
+	if (ImGui::Button("save setttings", ImVec2(200, 40))) {
 		GS()->mSettingManager.writeSettings();
 	}
+	ImGui::PopStyleColor();
+
 	ImGui::End();
 }
 
