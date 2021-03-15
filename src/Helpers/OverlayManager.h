@@ -10,7 +10,7 @@
 
 class OverlayManager {
 
-	std::vector<ci::gl::TextureRef> mFrames;
+	std::map<int,ci::gl::TextureRef> mFrames;
 
     int mActiveFrameIndex;
     bool isWebcamStarted = false;
@@ -37,6 +37,7 @@ public:
     
     void loadOverlayFolders();
     void loadOverlay(ci::fs::path path);
+    void setTexture(int index, ci::gl::TextureRef texture);
 
     int getActiveFrame();
 
@@ -44,7 +45,7 @@ public:
 	void drawGUI();
     
     
-    std::vector<ci::gl::TextureRef> getTextures();
+    //std::map<int ,ci::gl::TextureRef> getTextures();
     
 
 };

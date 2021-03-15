@@ -31,6 +31,13 @@ void Frame::clearFbo(){
     gl::clear( GS()->fboBackground );
 }
 
+void Frame::drawTexture(ci::gl::TextureRef text){
+    if(!mActiveFbo) return;
+    gl::ScopedFramebuffer fbScp( mActiveFbo );
+    gl::draw(text);
+
+}
+
 void Frame::writeBuffer(std::string path){
     auto source = mActiveFbo->getColorTexture()->createSource();
     

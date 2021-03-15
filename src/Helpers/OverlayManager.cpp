@@ -27,7 +27,7 @@ void OverlayManager::setup(int nrOfFrames, ci::vec2 size) {
 //    }
     
     setupCamera();
-    loadOverlayFolders();
+   // loadOverlayFolders();
 }
 
 void OverlayManager::setupCamera(){
@@ -42,6 +42,12 @@ void OverlayManager::setupCamera(){
         }
     }
 }
+
+
+void OverlayManager::setTexture(int index, ci::gl::TextureRef texture){
+    mFrames[index] = texture;
+}
+
 
 void OverlayManager::snap(){
     
@@ -68,27 +74,27 @@ void OverlayManager::loadOverlayFolders(){
 }
 
 void OverlayManager::loadOverlay(ci::fs::path path){
-    if( !fs::exists( path ) ){
-        return;
-    }
-    
-    mFrames.clear();
-    int index=0;
-    for(fs::directory_iterator it(path); it != fs::directory_iterator(); ++it )
-    {
-            std::string extension = it->path().extension().string();
-            if(extension == ".jpg" || extension == ".jpeg" || extension == ".png"){
-                try{
-                    auto text =  gl::Texture::create(loadImage(it->path()));
-                    mFrames.push_back(text);
-                    
-                    // stop when more overlays than frames;
-                    if(++index > mFrames.size()) return;
-                }catch(...){
-                    std::cout << "error loading " <<  it->path().string() << std::endl;
-                }
-            }
-    }
+//    if( !fs::exists( path ) ){
+//        return;
+//    }
+//
+//    mFrames.clear();
+//    int index=0;
+//    for(fs::directory_iterator it(path); it != fs::directory_iterator(); ++it )
+//    {
+//            std::string extension = it->path().extension().string();
+//            if(extension == ".jpg" || extension == ".jpeg" || extension == ".png"){
+//                try{
+//                    auto text =  gl::Texture::create(loadImage(it->path()));
+//                    mFrames.push_back(text);
+//
+//                    // stop when more overlays than frames;
+//                    if(++index > mFrames.size()) return;
+//                }catch(...){
+//                    std::cout << "error loading " <<  it->path().string() << std::endl;
+//                }
+//            }
+//    }
 }
 
 void OverlayManager::update(){
@@ -98,11 +104,9 @@ void OverlayManager::update(){
        gl::TextureRef newTexture  = gl::Texture::create( *mCapture->getSurface(), gl::Texture::Format().loadTopDown() );
         
         if(mActiveFrameIndex >= mFrames.size()){
-            mFrames.push_back(newTexture);
-        }else{
             mFrames[mActiveFrameIndex] = newTexture;
         }
-   }
+    }
 }
 
 ci::ivec2 OverlayManager::getSize() {
@@ -139,13 +143,16 @@ int OverlayManager::getActiveFrame() {
 
 
 void OverlayManager::drawAtIndex(int index) {
-    if(mFrames.size() == 0) return;
     
-    int rangeIndex = lab101::getInRangeIndex(index, mFrames.size());
+    if(mFrames.find(index) == mFrames.end()) return;
     
-    if(rangeIndex < 0 || rangeIndex > mFrames.size()) return;
+//    if(mFrames.size() == 0) return;
+//
+//    int rangeIndex = lab101::getInRangeIndex(index, mFrames.size());
+//
+//    if(rangeIndex < 0 || rangeIndex > mFrames.size()) return;
     
-    auto texture = mFrames[rangeIndex];
+    auto texture = mFrames[index];
        if(texture != nullptr){
            
            // center the overlay.
@@ -162,7 +169,7 @@ void OverlayManager::drawAtIndex(int index) {
 
 void OverlayManager::drawGUI() {
     
-    if (ImGui::Combo("overlays", &(selectedOverlayFolder), getStringList(mOverlayFolders))) {
-            loadOverlay(mOverlayFolders[selectedOverlayFolder]);
-        }
+//    if (ImGui::Combo("overlays", &(selectedOverlayFolder), getStringList(mOverlayFolders))) {
+//            loadOverlay(mOverlayFolders[selectedOverlayFolder]);
+//        }
 }

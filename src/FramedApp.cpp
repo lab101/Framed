@@ -21,6 +21,7 @@
 #include "Helpers/LineManager.h"
 #include "Helpers/FrameManager.h"
 #include "Helpers/OverlayManager.h"
+#include "Helpers/TemplateManager.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -35,10 +36,13 @@ public:
 	void mouseDrag(MouseEvent event) override;
 	void mouseUp(MouseEvent event) override;
 	void mouseMove(MouseEvent event) override;
+    void fileDrop( FileDropEvent event ) override;
+
 	void update() override;
 	void draw() override;
     void eraseAndSave();
     void save();
+    
 
 	float getPressure();
 	void activatePenPressure();
@@ -64,6 +68,9 @@ private:
 	LineManager mLineManger;
 	FrameManager mFrameManager;
     OverlayManager mOverlayManager;
+    TemplateManager mTemplateManager;
+    // this was changed due a threading bug which in the end wasn't
+    // should be changed back to non pointer.
 	NetworkManager* mNetworkManager;
 
 	// zoom related
@@ -95,6 +102,9 @@ void FramedApp::setup()
 	frameSize = vec2(GS()->frameWidth.value(), GS()->frameHeight.value());
 	mFrameManager.setup(GS()->nrOfFrames.value(), frameSize);
     mOverlayManager.setup(GS()->nrOfFrames.value(),frameSize);
+    mTemplateManager.setup();
+    
+    mFrameManager.drawTextures(mTemplateManager.getTextures());
 
 	mTouchUI = TouchUI::create();
 	mTouchUI->setup(400 * frameSize.y / frameSize.x);
@@ -266,7 +276,17 @@ void FramedApp::keyDown(KeyEvent event)
         mOverlayManager.setActiveFrame(mFrameManager.getActiveFrame());
         mOverlayManager.snap();
 	}
+}
 
+void FramedApp::fileDrop( FileDropEvent event )
+{
+    try {
+        auto mTexture = gl::Texture::create( loadImage( loadFile( event.getFile( 0 ) ) ) );
+        mOverlayManager.setTexture(mFrameManager.getActiveFrame(), mTexture);
+    }
+    catch( Exception &exc ) {
+        CI_LOG_EXCEPTION( "failed to load image: " << event.getFile( 0 ), exc );
+    }
 }
 
 void FramedApp::mouseDown(MouseEvent event)
