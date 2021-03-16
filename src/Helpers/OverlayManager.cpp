@@ -169,10 +169,6 @@ void OverlayManager::drawGUI() {
 	if (ImGui::Button("reload cameralist",ImVec2(200, 40))) {
 		getWebcamList();
 	}
-//    if (ImGui::Combo("available webcams", &(mSelectedWebcam), webcamList)) {
-//		//loadOverlay(mOverlayFolders[selectedOverlayFolder]);
-//>>>>>>> 7f3bf5965c249227ba5c3845686180c254090dcf
-//	}
 
 	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(ImColor(0, 182, 80 + (sin(app::getElapsedSeconds() * 5) * 60))));
 	if (ImGui::Button("start webcam", ImVec2(200, 40))) {

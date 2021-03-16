@@ -314,6 +314,7 @@ void FramedApp::mouseDown(MouseEvent event)
 {
 	lastPenPosition = vec3(event.getPos(), getPressure());
 	localCoordinate = getLocalPoint(lastPenPosition);
+    if(localCoordinate.x < 0) return;
 
 	mTouchDown = true;
 
@@ -575,6 +576,8 @@ void FramedApp::drawDebug()
 	string pressureString = toString(mPenPressure);
 	ImGui::LabelText("pen pressure", pressureString.c_str());
 	ImGui::LabelText("ip", mNetworkManager->getIPadress().c_str());
+//    std::string localPoint = toString(localCoordinate.x);
+//    ImGui::LabelText("local", localPoint.c_str());
 
 	ImGui::Dummy(ImVec2(0.0f, 20.0f));
 	ImGui::Separator();
