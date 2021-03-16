@@ -10,12 +10,12 @@
 void PointsPackage::setup(std::vector<ci::vec3> _points, ci::Color _color){
     points = _points;
     color = _color;
-    shape = "";
+    shape = ToolState::BRUSH;
     isEraserOn = false;
     frameId = 0;
 };
 
-void PointsPackage::setShape(std::string _shape){
+void PointsPackage::setShape(ToolState _shape){
     shape =_shape;
 }
 

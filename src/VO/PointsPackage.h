@@ -12,20 +12,20 @@
 #include "cinder/Vector.h"
 #include <vector>
 #include "cinder/Color.h"
+#include "../enum.h"
 
 class PointsPackage{
-    
-    
-    
+
+
 public:
     std::vector<ci::vec3> points;
     ci::Color color;
-    std::string shape;
+    ToolState shape;
     bool isEraserOn;
     int frameId;
     
     void setup(std::vector<ci::vec3> points, ci::Color color);
-    void setShape(std::string shape);
+    void setShape(ToolState shape);
     void setEraser(bool isEraserOn);
 };
 

@@ -12,6 +12,7 @@
 #include "cinder/osc/Osc.h"
 #include "cinder/System.h"
 #include "cinder/Signals.h"
+#include "../enum.h"
 #include "../VO/PointsPackage.h"
 
 #include <map>
@@ -82,7 +83,7 @@ public:
 
     void sendOscMessage(std::string command,ci::vec3 point);
     void sendPoints(std::vector<ci::vec3> &points, bool isEraserOn, ci::Color color, int frameId);
-    void sendTwoPointShape(cinder::vec3& point1,cinder::vec3& point2, std::string shape,std::string color);
+    void sendTwoPointShape(ci::vec3 &point1, ci::vec3 &point2, ToolState toolstate, ci::Color color, int frameId);
     void cleanup() ;
     
 };

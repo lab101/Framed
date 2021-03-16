@@ -184,14 +184,13 @@ void FramedApp::setupNetwork() {
 	if (mNetworkManager->setup()) {
 		// points
 		mNetworkManager->onReceivePoints.connect([=](PointsPackage package) {
-			//bool currentEraser = BrushManagerSingleton::Instance()->isEraserOn;
-			//BrushManagerSingleton::Instance()->isEraserOn = package.isEraserOn;
-			//pLock.lock();
-			//packageQueue.push(package);
-			//pLock.unlock();
-			mFrameManager.drawPoints(package.points, package.color, package.frameId);
+		    if(package.shape == BRUSH){
+                mFrameManager.drawPoints(package.points, package.color, package.frameId);
+		    }else if(package.shape == CIRCLE){
+                mFrameManager.drawCircle(package.points[0],package.points[1],package.color,package.frameId);
+		    }
 
-			});
+		});
 
 		mNetworkManager->onErase.connect([=]() {
 			eraseAndSave();
@@ -367,6 +366,10 @@ void FramedApp::mouseUp(MouseEvent event)
 			break;
 		case ToolState::CIRCLE:
 			mFrameManager.drawCircle(mShapeStartPoint, mShapeEndPoint, mTouchUI->getColor(),mFrameManager.getActiveFrame());
+
+			vec3 p1(mShapeStartPoint.x,mShapeStartPoint.y,getPressure());
+			vec3 p2(mShapeEndPoint.x,mShapeEndPoint.y,getPressure());
+			mNetworkManager->sendTwoPointShape(p1,p2,ToolState::CIRCLE,mTouchUI->getColor(),CIRCLE);
 			break;
 		}
 
@@ -416,19 +419,16 @@ void FramedApp::update()
 	mTouchUI->updateThumbs(mFrameManager.getTextures());
 	mTouchUI->onFrameSlected.connect([=](int id) {
 		mFrameManager.setActiveFrame(id);
-		});
+	});
 
 
-	//    mOverlayManager.setActiveFrame(mFrameManager.getActiveFrame());
-	//    mOverlayManager.snap();
-
-	pLock.lock();
-	if (!packageQueue.empty()) {
-		auto package = packageQueue.front();
-		packageQueue.pop();
-		mFrameManager.drawPoints(package.points, package.color, package.frameId);
-	}
-	pLock.unlock();
+//	pLock.lock();
+//	if (!packageQueue.empty()) {
+//		auto package = packageQueue.front();
+//		packageQueue.pop();
+//		mFrameManager.drawPoints(package.points, package.color, package.frameId);
+//	}
+//	pLock.unlock();
 }
 
 
@@ -471,50 +471,6 @@ void FramedApp::drawInterface() {
 
 	gl::color(1, 1, 1, 0.2);
 	mFrameManager.drawAtIndex(-1);
-//<<<<<<< HEAD
-    
-//  // overlay
-//    if (useOverLay) {
-//        gl::color(1, 1, 1, 0.4);
-//        mOverlayManager.drawAtIndex(mFrameManager.getActiveFrame());
-//    }
-//
-//    // get the screen matrix when all the transformations on the "paper" (fbo) or done.
-//    screenMatrix = ci::gl::getModelViewProjection();
-//    ci::gl::popMatrices();
-//
-//    gl::setMatricesWindow(ci::app::getWindowSize());
-//    ci::gl::color(1, 1, 1);
-//    mFrameManager.drawLoop();
-//
-//    if (useOverLay && mOverlayManager.isLive) {
-//        ci::gl::color(1, 0, 0, 0.5);
-//        float const radius = 10 + (sin(getElapsedSeconds() * 3) * 1);
-//        gl::drawSolidCircle(vec2(zoomCenterPoint.x + 14, 10 + 14), radius);
-//    }
-////=======
-////
-////	// overlay
-////	if (useOverLay) {
-////		gl::color(1, 1, 1, 0.4);
-////		mOverlayManager.drawAtIndex(mFrameManager.getActiveFrame());
-////	}
-////
-////	// get the screen matrix when all the transformations on the "paper" (fbo) or done.
-////	screenMatrix = ci::gl::getModelViewProjection();
-////	ci::gl::popMatrices();
-////
-////	gl::setMatricesWindow(ci::app::getWindowSize());
-////	ci::gl::color(1, 1, 1);
-////	mFrameManager.drawLoop();
-////
-////	if (useOverLay && mOverlayManager.isLive) {
-////		ci::gl::color(1, 0, 0, 0.5);
-////		float const radius = 10 + (sin(getElapsedSeconds() * 3) * 1);
-////		gl::drawSolidCircle(vec2(zoomCenterPoint.x + 14, 10 + 14), radius);
-////	}
-////>>>>>>> a346506b59d87e8c15a243f356d7b2e7b9ed01f8
-//=======
 
 	// overlay
 	if (useOverLay) {
@@ -543,6 +499,7 @@ void FramedApp::drawInterface() {
 	mScene->draw();
 	drawCursor(getPressure(), lastPenPosition);
 }
+
 
 void FramedApp::drawShapes() {
 

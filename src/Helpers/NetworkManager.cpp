@@ -82,21 +82,31 @@ bool NetworkManager::setup() {
 
                               if (isMessageAllowed(msg)) {
 
+                                  std::string shape = msg.getArgString(1);
+                                  int frameId = msg.getArgInt32(2);
 
-//                                  int totals = msg.getNumArgs();
-//                                  
-//                                  std::string shape = msg.getArgString(1);
-//                                  std::string color = msg.getArgString(2);
-//                                  std::vector<ci::vec3> points;
-//                                  for (int i = 3; i < totals; i += 3){
-//                                      points.push_back(ci::vec3(msg[i].flt(), msg[i + 1].flt(), msg[i + 2].flt()));
-//                                  }
-//                                  PointsPackage newPackage;
-//                                  newPackage.setup(points, color);
-//                                  newPackage.setShape(shape);
-//                                  mShapesQueueLock.lock();
-//                                  shapesQueue.push(newPackage);
-//                                  mShapesQueueLock.unlock();
+                                  ToolState state = getToolStateByString(msg.getArgString(3));
+                                  ci::vec3 p1(msg.getArgFloat(3),msg.getArgFloat(4),msg.getArgFloat(5));
+                                  ci::vec3 p2(msg.getArgFloat(6),msg.getArgFloat(7),msg.getArgFloat(8));
+
+
+                                  ci::Color color;
+                                  color.r = msg.getArgFloat(9);
+                                  color.g = msg.getArgFloat(10);
+                                  color.b = msg.getArgFloat(11);
+
+
+                                  std::vector<ci::vec3> points;
+                                  points.push_back(p1);
+                                  points.push_back(p2);
+
+                                  PointsPackage newPackage;
+                                  newPackage.setup(points, color);
+                                  newPackage.frameId = frameId;
+
+                                  mPointsQueueLock.lock();
+                                  pointsQueue.push(newPackage);
+                                  mPointsQueueLock.unlock();
                               }
 
                           });
@@ -184,12 +194,12 @@ void NetworkManager::update() {
 
     mShapesQueueLock.lock();
 
-    while (!shapesQueue.empty()) {
-        onReceiveShapes.emit(shapesQueue.front());
-        shapesQueue.pop();
-    }
-
-    mShapesQueueLock.unlock();
+//    while (!shapesQueue.empty()) {
+//        onReceiveShapes.emit(shapesQueue.front());
+//        shapesQueue.pop();
+//    }
+//
+//    mShapesQueueLock.unlock();
 //    while( mListener.hasWaitingMessages() ) {
 //        osc::Message message;
 //        mListener.getNextMessage( &message );
@@ -319,20 +329,24 @@ void NetworkManager::sendPoints(std::vector<ci::vec3> &points, bool isEraserOn, 
     lastBroadcast = app::getElapsedSeconds();
 }
 
-void NetworkManager::sendTwoPointShape(vec3 &point1, vec3 &point2, std::string shape, std::string color) {
+void NetworkManager::sendTwoPointShape(vec3 &point1, vec3 &point2, ToolState toolstate, ci::Color color,int frameId) {
     osc::Message message;
     message.setAddress("/shape");
 
     message.append(groupId);
-    message.append(shape);
-    message.append(color);
+    message.append(frameId);
+    message.append(getToolStateString(toolstate));
 
     message.append(point1.x);
     message.append(point1.y);
-    message.append(point1.z * GS()->performanceDownScale.value());
+    message.append(point1.z);
     message.append(point2.x);
     message.append(point2.y);
-    message.append(point2.z * GS()->performanceDownScale.value());
+    message.append(point2.z);
+
+    message.append(color.r);            // 3
+    message.append(color.g);            // 4
+    message.append(color.b);            // 5
 
     mSender.send(message);
     lastBroadcast = app::getElapsedSeconds();
