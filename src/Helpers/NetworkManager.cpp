@@ -82,10 +82,28 @@ bool NetworkManager::setup() {
 
                               if (isMessageAllowed(msg)) {
 
-                                  std::string shape = msg.getArgString(1);
-                                  int frameId = msg.getArgInt32(2);
 
-                                  ToolState state = getToolStateByString(msg.getArgString(3));
+//                                  message.setAddress("/shape");
+//
+//                           0       message.append(groupId);
+//                            1      message.append(frameId);
+//                            2      message.append(getToolStateString(toolstate));
+//
+//                             3     message.append(point1.x);
+//                             4     message.append(point1.y);
+//                             5     message.append(point1.z);
+//                             6     message.append(point2.x);
+//                             7     message.append(point2.y);
+//                             8     message.append(point2.z);
+//
+//                              9    message.append(color.r);            // 3
+//                               10   message.append(color.g);            // 4
+//                              11    message.append(color.b);            // 5
+
+                                  //std::string shape = msg.getArgString(1);
+                                  int frameId = msg.getArgInt32(1);
+
+                                  ToolState state = getToolStateByString(msg.getArgString(2));
                                   ci::vec3 p1(msg.getArgFloat(3),msg.getArgFloat(4),msg.getArgFloat(5));
                                   ci::vec3 p2(msg.getArgFloat(6),msg.getArgFloat(7),msg.getArgFloat(8));
 
@@ -103,6 +121,7 @@ bool NetworkManager::setup() {
                                   PointsPackage newPackage;
                                   newPackage.setup(points, color);
                                   newPackage.frameId = frameId;
+                                  newPackage.shape = state;
 
                                   mPointsQueueLock.lock();
                                   pointsQueue.push(newPackage);
