@@ -96,7 +96,7 @@ void TouchUI::setup(float yOffset) {
 	enableSaveButton(!GS()->hideSaveButton.value());
 
 	mLineButton = TouchButton::create();
-	auto txtBrush = CACHE()->getTextureByAssetPath("UI/line.png");
+	auto txtBrush = CACHE()->getTextureByAssetPath("UI/brush.png");
 	mLineButton->setImage(txtBrush);
 	getView()->addSubview(mLineButton);
 	mLineButton->setPosition(240, yOffset + 100);

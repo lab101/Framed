@@ -16,7 +16,7 @@ Check the **[this video](https://vimeo.com/508517646 )** on how to do the above.
 
 # Templates
 If you want load files as background sequence put them in assets/templates.
-The software will scale them to scene size so make sure they have the same ratio.
+The software will scale them to scene size so make sure they have the same ratio. 
 
 # Hotkeys
 - press **f** to toggle fullscreen
