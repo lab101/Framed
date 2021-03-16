@@ -312,7 +312,7 @@ void FramedApp::mouseDown(MouseEvent event)
 	case ToolState::BRUSH : 
 			mLineManger.newLine(localCoordinate);
 			break;
-	case ToolState::LINE :
+	case ToolState::RECTANGLE :
 	case ToolState::CIRCLE:
 		mShapeStartPoint = vec2(localCoordinate.x, localCoordinate.y);
 		mShapeEndPoint = mShapeStartPoint;
@@ -341,7 +341,7 @@ void FramedApp::processMove(MouseEvent event) {
 		case ToolState::BRUSH:
 			mLineManger.lineTo(localCoordinate, mTouchUI->getColor());
 			break;
-		case ToolState::LINE:
+		case ToolState::RECTANGLE:
 		case ToolState::CIRCLE:
 			mShapeEndPoint = vec2(localCoordinate.x, localCoordinate.y);
 			break;
@@ -364,16 +364,28 @@ void FramedApp::mouseUp(MouseEvent event)
 		case ToolState::LINE:
 			//mFrameManager.drawCircle(mShapeStartPoint, mShapeEndPoint, mTouchUI->getColor());
 			break;
-		case ToolState::CIRCLE:
-			mFrameManager.drawCircle(mShapeStartPoint, mShapeEndPoint, mTouchUI->getColor(),mFrameManager.getActiveFrame());
+		case ToolState::CIRCLE: {
+            mFrameManager.drawCircle(mShapeStartPoint, mShapeEndPoint, mTouchUI->getColor(),
+                                     mFrameManager.getActiveFrame());
 
-			vec3 p1(mShapeStartPoint.x,mShapeStartPoint.y,getPressure());
-			vec3 p2(mShapeEndPoint.x,mShapeEndPoint.y,getPressure());
-			mNetworkManager->sendTwoPointShape(p1,p2,ToolState::CIRCLE,mTouchUI->getColor(),CIRCLE);
-			break;
-		}
+            vec3 p1(mShapeStartPoint.x, mShapeStartPoint.y, getPressure());
+            vec3 p2(mShapeEndPoint.x, mShapeEndPoint.y, getPressure());
+            mNetworkManager->sendTwoPointShape(p1, p2, ToolState::CIRCLE, mTouchUI->getColor(),
+                                               mFrameManager.getActiveFrame());
+            break;
+        }
+		case ToolState::RECTANGLE: {
+            mFrameManager.drawRectangle(mShapeStartPoint, mShapeEndPoint, mTouchUI->getColor(),
+                                        mFrameManager.getActiveFrame());
 
-	}
+            vec3 p1(mShapeStartPoint.x, mShapeStartPoint.y, getPressure());
+            vec3 p2(mShapeEndPoint.x, mShapeEndPoint.y, getPressure());
+            mNetworkManager->sendTwoPointShape(p1, p2, ToolState::CIRCLE, mTouchUI->getColor(),
+                                               mFrameManager.getActiveFrame());
+            break;
+            }
+        }
+    }
 	mTouchDown = false;
 }
 

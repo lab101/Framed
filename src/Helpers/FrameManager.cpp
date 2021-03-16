@@ -157,6 +157,11 @@ void FrameManager::drawCircle(ci::vec2 p1, ci::vec2 p2, ci::Color color, int fra
 	if (frameId < mFrames.size()) mFrames[frameId]->drawCircle(p1,p2, color);
 }
 
+void FrameManager::drawRectangle(ci::vec2 p1, ci::vec2 p2, ci::Color color, int frameId) {
+    if (frameId == -1) frameId = mActiveFrameIndex;
+    if (frameId < mFrames.size()) mFrames[frameId]->drawRectangle(p1,p2, color);
+}
+
 void FrameManager::drawGUI() {
 	//ImGui::Begin("FrameManager");
 	//ImGui::End();

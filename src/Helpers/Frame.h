@@ -16,6 +16,7 @@ public:
     void setup(ci::vec2 size);
     void drawPoints(std::vector<ci::vec3>& points,ci::Color color);
     void drawCircle(ci::vec2 point1, ci::vec2 point2, ci::Color color);
+    void drawRectangle(ci::vec2 point1, ci::vec2 point2, ci::Color color);
 
     void draw();
     void drawTexture(ci::gl::TextureRef text);
