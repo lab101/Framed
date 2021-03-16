@@ -192,7 +192,7 @@ void NetworkManager::update() {
 
     mPointsQueueLock.unlock();
 
-    mShapesQueueLock.lock();
+    //mShapesQueueLock.lock();
 
 //    while (!shapesQueue.empty()) {
 //        onReceiveShapes.emit(shapesQueue.front());
