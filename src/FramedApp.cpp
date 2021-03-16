@@ -29,6 +29,7 @@ using namespace ci::app;
 using namespace std;
 
 class FramedApp : public App {
+    
 public:
 	void setup() override;
 	void setupLogging();
@@ -51,12 +52,15 @@ public:
 
 private:
 
+    
 	ci::vec3 lastPenPosition;
 	ci::vec3 localCoordinate;
 
 	float mPenPressure = 0.25;
 	bool mTouchDown = false;
 	bool useOverLay = true;
+    bool isSetupComplete = false;
+
 
 	ToolState mCurrentToolState;
 	ci::vec2 mShapeStartPoint;
@@ -164,6 +168,8 @@ void FramedApp::setup()
 	mCurrentToolState = ToolState::BRUSH;
 
 	setupNetwork();
+    
+    isSetupComplete = true;
 
 }
 
@@ -334,6 +340,10 @@ void FramedApp::mouseDrag(MouseEvent event)
 }
 
 void FramedApp::processMove(MouseEvent event) {
+    
+    // sometimes the events are triggered when the app is not fully loaded
+    if(!isSetupComplete) return;
+    
 	lastPenPosition = vec3(event.getPos().x, event.getPos().y, getPressure());
 
 	if (mTouchDown) {
