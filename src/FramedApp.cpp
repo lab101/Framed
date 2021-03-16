@@ -189,6 +189,9 @@ void FramedApp::setupNetwork() {
 		    }else if(package.shape == CIRCLE){
                 mFrameManager.drawCircle(package.points[0],package.points[1],package.color,package.frameId);
 		    }
+            else if(package.shape == RECTANGLE){
+                mFrameManager.drawRectangle(package.points[0],package.points[1],package.color,package.frameId);
+            }
 
 		});
 
