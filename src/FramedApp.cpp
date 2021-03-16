@@ -383,7 +383,7 @@ void FramedApp::mouseUp(MouseEvent event)
 
             vec3 p1(mShapeStartPoint.x, mShapeStartPoint.y, getPressure());
             vec3 p2(mShapeEndPoint.x, mShapeEndPoint.y, getPressure());
-            mNetworkManager->sendTwoPointShape(p1, p2, ToolState::CIRCLE, mTouchUI->getColor(),
+            mNetworkManager->sendTwoPointShape(p1, p2, ToolState::RECTANGLE, mTouchUI->getColor(),
                                                mFrameManager.getActiveFrame());
             break;
             }
