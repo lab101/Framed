@@ -70,7 +70,7 @@ private:
 	std::queue<PointsPackage> packageQueue;
 	std::mutex pLock;
 
-	ci::vec2 frameSize = vec2(1600, 1200);
+    ci::vec2 frameSize = vec2(GS()->frameWidth.value(), GS()->frameHeight.value());
 
 	po::scene::SceneRef     mScene;
 	TouchUIRef mTouchUI;
