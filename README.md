@@ -7,6 +7,8 @@ Pen pressure support on OSX & Windows tested on Wacom & Huion hardware but shoul
 Download latest binary from the **[Releases](https://github.com/lab101/Framed/releases )** for your platform.  
 Choose the framed.zip from assets.
 
+Minimum osx 10.15 (Catalina) for Apple users.
+
 If you work on OSX there will be a lot of security issues.
 1. you need to allow the downloaded file in the filevault
 2. the app can't access to assets folder because it runs in quarontine.Move the app to a different folder and than back to the original location. After this osx will mark it as a safe file.
