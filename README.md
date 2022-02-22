@@ -11,9 +11,9 @@ Minimum osx 10.15 (Catalina) for Apple users.
 
 If you work on OSX there will be a lot of security issues.
 1. you need to allow the downloaded file in the filevault
-2. the app can't access to assets folder because it runs in quarontine.Move the app to a different folder and than back to the original location. After this osx will mark it as a safe file.
+2. the app can't access to assets folder because it runs in quarontine. Move the app to a different folder and than back to the original location. After this osx will mark it as a safe file.
 
-Check the **[this video](https://vimeo.com/508517646 )** on how to do the above.
+Check the **[this video](https://vimeo.com/508517646/c90b0e026f )** on how to do the above.
 
 
 # Templates
@@ -41,4 +41,9 @@ Example:
 - /assets/overlays/space  
 - /assets/overlays/people  
 And drop your images in these folders. They will be available when the app starts.
+
+# Spout
+Windows version has spout support.
+The spout.dll and spout.lib needs to be next toe .exe in the framed folder in order to make it work.
+
 

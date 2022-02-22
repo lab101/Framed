@@ -15,7 +15,6 @@ get_filename_component( APP_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../" ABSOLUTE )
 
 include( "${CINDER_PATH}/proj/cmake/modules/cinderMakeApp.cmake" )
 
-
 set( SRC_FILES
 		${APP_PATH}/src/FramedApp.cpp
     	${APP_PATH}/src/Helpers/GlobalSettings.cpp
@@ -45,6 +44,7 @@ endif()
 
 
 set( BLOCKSLIST
+	CinderSpout
 	OSC
 	TUIO
     Base
@@ -56,3 +56,5 @@ ci_make_app(
 	CINDER_PATH ${CINDER_PATH}
 	BLOCKS      ${BLOCKSLIST}
 )
+
+target_link_libraries(Framed Spout.dll)

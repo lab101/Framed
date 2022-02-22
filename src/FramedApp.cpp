@@ -11,6 +11,7 @@
 
 #if defined( CINDER_MSW_DESKTOP )
 #include "Pen/Windows/CRTEventHandler.h"
+#include "CiSpoutOut.h"
 #endif
 
 #if defined( CINDER_COCOA )
@@ -29,7 +30,7 @@ using namespace ci::app;
 using namespace std;
 
 class FramedApp : public App {
-    
+
 public:
 	void setup() override;
 	void setupLogging();
@@ -52,14 +53,18 @@ public:
 
 private:
 
-    
+#ifdef CINDER_MSW
+	// spout
+	SpoutOut* mSpoutOut = nullptr;
+#endif
+
 	ci::vec3 lastPenPosition;
 	ci::vec3 localCoordinate;
 
 	float mPenPressure = 0.25;
 	bool mTouchDown = false;
 	bool useOverLay = true;
-    bool isSetupComplete = false;
+	bool isSetupComplete = false;
 
 
 	ToolState mCurrentToolState;
@@ -70,16 +75,16 @@ private:
 	std::queue<PointsPackage> packageQueue;
 	std::mutex pLock;
 
-    ci::vec2 frameSize = vec2(GS()->frameWidth.value(), GS()->frameHeight.value());
+	ci::vec2 frameSize = vec2(GS()->frameWidth.value(), GS()->frameHeight.value());
 
 	po::scene::SceneRef     mScene;
 	TouchUIRef mTouchUI;
 	LineManager mLineManger;
 	FrameManager mFrameManager;
-    OverlayManager mOverlayManager;
-    TemplateManager mTemplateManager;
-    // this was changed due a threading bug which in the end wasn't
-    // should be changed back to non pointer.
+	OverlayManager mOverlayManager;
+	TemplateManager mTemplateManager;
+	// this was changed due a threading bug which in the end wasn't
+	// should be changed back to non pointer.
 	NetworkManager* mNetworkManager;
 
 	// zoom related
@@ -96,6 +101,7 @@ private:
 
 	void setupNetwork();
 	void setupImGui();
+	void setupSpout();
 };
 
 std::string appName = "Framed";
@@ -105,20 +111,20 @@ void FramedApp::setup()
 {
 
 	GS()->setup(appName);
-    
-    frameSize = vec2(GS()->frameWidth.value(), GS()->frameHeight.value());
 
-    mTouchUI = TouchUI::create();
-    mTouchUI->setup(400 * frameSize.y / frameSize.x);
-    mTouchUI->setActiveFrame(0);
+	frameSize = vec2(GS()->frameWidth.value(), GS()->frameHeight.value());
+
+	mTouchUI = TouchUI::create();
+	mTouchUI->setup(400 * frameSize.y / frameSize.x);
+	mTouchUI->setActiveFrame(0);
 
 	setupImGui();
 
 	mFrameManager.setup(GS()->nrOfFrames.value(), frameSize);
-    mOverlayManager.setup(GS()->nrOfFrames.value(),frameSize);
-    mTemplateManager.setup();
-    mFrameManager.drawTextures(mTemplateManager.getTextures());
-	
+	mOverlayManager.setup(GS()->nrOfFrames.value(), frameSize);
+	mTemplateManager.setup();
+	mFrameManager.drawTextures(mTemplateManager.getTextures());
+
 
 	// erase
 	mTouchUI->onErase.connect([=] {
@@ -132,7 +138,7 @@ void FramedApp::setup()
 
 
 	// tool change
-	mTouchUI->onNewToolElection.connect([=]  (ToolState state) {
+	mTouchUI->onNewToolElection.connect([=](ToolState state) {
 		mCurrentToolState = state;
 		});
 
@@ -143,17 +149,17 @@ void FramedApp::setup()
 		mFrameManager.drawPoints(points, mTouchUI->getColor(), mFrameManager.getActiveFrame());
 
 		if (mNetworkManager) {
-			mNetworkManager->sendPoints(points, false, mTouchUI->getColor(),mFrameManager.getActiveFrame());
+			mNetworkManager->sendPoints(points, false, mTouchUI->getColor(), mFrameManager.getActiveFrame());
 		}
-	});
+		});
 
-    zoomCenterPoint.x = 410;
-    zoomCenterPoint.y = 10;
+	zoomCenterPoint.x = 410;
+	zoomCenterPoint.y = 10;
 
 
-    if (GS()->projectorMode.value()) {
-        hideCursor();
-    }
+	if (GS()->projectorMode.value()) {
+		hideCursor();
+	}
 
 #if defined( CINDER_COCOA )
 	CI_LOG_I("START ofxTablet");
@@ -165,14 +171,24 @@ void FramedApp::setup()
 #endif
 
 
+	setupSpout();
+
 	mCurrentToolState = ToolState::BRUSH;
 
 	setupNetwork();
-    
-    isSetupComplete = true;
+
+	isSetupComplete = true;
 
 }
 
+void FramedApp::setupSpout() {
+#ifdef CINDER_MSW
+	// SPOUT
+	if (GS()->isSpoutActive.value() && mSpoutOut == nullptr) {
+		mSpoutOut = new ci::SpoutOut("FRAMED", frameSize);
+	}
+#endif
+}
 
 void FramedApp::eraseAndSave() {
 	mFrameManager.saveAll();
@@ -190,16 +206,17 @@ void FramedApp::setupNetwork() {
 	if (mNetworkManager->setup()) {
 		// points
 		mNetworkManager->onReceivePoints.connect([=](PointsPackage package) {
-		    if(package.shape == BRUSH){
-                mFrameManager.drawPoints(package.points, package.color, package.frameId);
-		    }else if(package.shape == CIRCLE){
-                mFrameManager.drawCircle(package.points[0],package.points[1],package.color,package.frameId);
-		    }
-            else if(package.shape == RECTANGLE){
-                mFrameManager.drawRectangle(package.points[0],package.points[1],package.color,package.frameId);
-            }
+			if (package.shape == BRUSH) {
+				mFrameManager.drawPoints(package.points, package.color, package.frameId);
+			}
+			else if (package.shape == CIRCLE) {
+				mFrameManager.drawCircle(package.points[0], package.points[1], package.color, package.frameId);
+			}
+			else if (package.shape == RECTANGLE) {
+				mFrameManager.drawRectangle(package.points[0], package.points[1], package.color, package.frameId);
+			}
 
-		});
+			});
 
 		mNetworkManager->onErase.connect([=]() {
 			eraseAndSave();
@@ -212,7 +229,7 @@ void FramedApp::setupNetwork() {
 	}
 
 }
-    
+
 
 void FramedApp::setupImGui() {
 	ImGui::Initialize();
@@ -299,30 +316,30 @@ void FramedApp::keyDown(KeyEvent event)
 	}
 }
 
-void FramedApp::fileDrop( FileDropEvent event )
+void FramedApp::fileDrop(FileDropEvent event)
 {
-    try {
-        auto mTexture = gl::Texture::create( loadImage( loadFile( event.getFile( 0 ) ) ) );
-        mOverlayManager.setTexture(mFrameManager.getActiveFrame(), mTexture);
-    }
-    catch( Exception &exc ) {
-        CI_LOG_EXCEPTION( "failed to load image: " << event.getFile( 0 ), exc );
-    }
+	try {
+		auto mTexture = gl::Texture::create(loadImage(loadFile(event.getFile(0))));
+		mOverlayManager.setTexture(mFrameManager.getActiveFrame(), mTexture);
+	}
+	catch (Exception& exc) {
+		CI_LOG_EXCEPTION("failed to load image: " << event.getFile(0), exc);
+	}
 }
 
 void FramedApp::mouseDown(MouseEvent event)
 {
 	lastPenPosition = vec3(event.getPos(), getPressure());
 	localCoordinate = getLocalPoint(lastPenPosition);
-    if(localCoordinate.x < 0) return;
+	if (localCoordinate.x < 0) return;
 
 	mTouchDown = true;
 
 	switch (mCurrentToolState) {
-	case ToolState::BRUSH : 
-			mLineManger.newLine(localCoordinate);
-			break;
-	case ToolState::RECTANGLE :
+	case ToolState::BRUSH:
+		mLineManger.newLine(localCoordinate);
+		break;
+	case ToolState::RECTANGLE:
 	case ToolState::CIRCLE:
 		mShapeStartPoint = vec2(localCoordinate.x, localCoordinate.y);
 		mShapeEndPoint = mShapeStartPoint;
@@ -341,10 +358,10 @@ void FramedApp::mouseDrag(MouseEvent event)
 }
 
 void FramedApp::processMove(MouseEvent event) {
-    
-    // sometimes the events are triggered when the app is not fully loaded
-    if(!isSetupComplete) return;
-    
+
+	// sometimes the events are triggered when the app is not fully loaded
+	if (!isSetupComplete) return;
+
 	lastPenPosition = vec3(event.getPos().x, event.getPos().y, getPressure());
 
 	if (mTouchDown) {
@@ -379,27 +396,27 @@ void FramedApp::mouseUp(MouseEvent event)
 			//mFrameManager.drawCircle(mShapeStartPoint, mShapeEndPoint, mTouchUI->getColor());
 			break;
 		case ToolState::CIRCLE: {
-            mFrameManager.drawCircle(mShapeStartPoint, mShapeEndPoint, mTouchUI->getColor(),
-                                     mFrameManager.getActiveFrame());
+			mFrameManager.drawCircle(mShapeStartPoint, mShapeEndPoint, mTouchUI->getColor(),
+				mFrameManager.getActiveFrame());
 
-            vec3 p1(mShapeStartPoint.x, mShapeStartPoint.y, getPressure());
-            vec3 p2(mShapeEndPoint.x, mShapeEndPoint.y, getPressure());
-            mNetworkManager->sendTwoPointShape(p1, p2, ToolState::CIRCLE, mTouchUI->getColor(),
-                                               mFrameManager.getActiveFrame());
-            break;
-        }
+			vec3 p1(mShapeStartPoint.x, mShapeStartPoint.y, getPressure());
+			vec3 p2(mShapeEndPoint.x, mShapeEndPoint.y, getPressure());
+			mNetworkManager->sendTwoPointShape(p1, p2, ToolState::CIRCLE, mTouchUI->getColor(),
+				mFrameManager.getActiveFrame());
+			break;
+		}
 		case ToolState::RECTANGLE: {
-            mFrameManager.drawRectangle(mShapeStartPoint, mShapeEndPoint, mTouchUI->getColor(),
-                                        mFrameManager.getActiveFrame());
+			mFrameManager.drawRectangle(mShapeStartPoint, mShapeEndPoint, mTouchUI->getColor(),
+				mFrameManager.getActiveFrame());
 
-            vec3 p1(mShapeStartPoint.x, mShapeStartPoint.y, getPressure());
-            vec3 p2(mShapeEndPoint.x, mShapeEndPoint.y, getPressure());
-            mNetworkManager->sendTwoPointShape(p1, p2, ToolState::RECTANGLE, mTouchUI->getColor(),
-                                               mFrameManager.getActiveFrame());
-            break;
-            }
-        }
-    }
+			vec3 p1(mShapeStartPoint.x, mShapeStartPoint.y, getPressure());
+			vec3 p2(mShapeEndPoint.x, mShapeEndPoint.y, getPressure());
+			mNetworkManager->sendTwoPointShape(p1, p2, ToolState::RECTANGLE, mTouchUI->getColor(),
+				mFrameManager.getActiveFrame());
+			break;
+		}
+		}
+	}
 	mTouchDown = false;
 }
 
@@ -445,16 +462,16 @@ void FramedApp::update()
 	mTouchUI->updateThumbs(mFrameManager.getTextures());
 	mTouchUI->onFrameSlected.connect([=](int id) {
 		mFrameManager.setActiveFrame(id);
-	});
+		});
 
 
-//	pLock.lock();
-//	if (!packageQueue.empty()) {
-//		auto package = packageQueue.front();
-//		packageQueue.pop();
-//		mFrameManager.drawPoints(package.points, package.color, package.frameId);
-//	}
-//	pLock.unlock();
+	//	pLock.lock();
+	//	if (!packageQueue.empty()) {
+	//		auto package = packageQueue.front();
+	//		packageQueue.pop();
+	//		mFrameManager.drawPoints(package.points, package.color, package.frameId);
+	//	}
+	//	pLock.unlock();
 }
 
 
@@ -469,10 +486,15 @@ void FramedApp::draw()
 	else {
 		drawInterface();
 	}
-	
+
 	if (GS()->debugMode.value()) {
 		drawDebug();
 	}
+
+#if defined( CINDER_MSW_DESKTOP )
+	if (GS()->isSpoutActive.value()) mSpoutOut->sendTexture(mFrameManager.getLoopTexture());
+#endif
+
 }
 
 
@@ -576,8 +598,8 @@ void FramedApp::drawDebug()
 	string pressureString = toString(mPenPressure);
 	ImGui::LabelText("pen pressure", pressureString.c_str());
 	ImGui::LabelText("ip", mNetworkManager->getIPadress().c_str());
-//    std::string localPoint = toString(localCoordinate.x);
-//    ImGui::LabelText("local", localPoint.c_str());
+	//    std::string localPoint = toString(localCoordinate.x);
+	//    ImGui::LabelText("local", localPoint.c_str());
 
 	ImGui::Dummy(ImVec2(0.0f, 20.0f));
 	ImGui::Separator();
@@ -585,6 +607,10 @@ void FramedApp::drawDebug()
 
 
 	ImGui::Checkbox("show debug", &GS()->debugMode.value());
+	if (ImGui::Checkbox("spout active", &GS()->isSpoutActive.value())) {
+		setupSpout();
+	}
+
 	ImGui::Checkbox("projector mode", &GS()->projectorMode.value());
 	if (ImGui::Checkbox("fullscreen", &GS()->isFullscreen.value())) {
 		setFullScreen(GS()->isFullscreen.value());

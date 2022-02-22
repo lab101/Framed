@@ -34,17 +34,17 @@ void FrameManager::clearAll() {
 	for (auto& f : mFrames) {
 		f->clearFbo();
 	}
-    mActiveFrameIndex = 0;
+	mActiveFrameIndex = 0;
 }
 
 void FrameManager::drawTextures(std::vector<gl::TextureRef> textures) {
-    if(textures.size() ==0) return;
-    
-    int textureIndex = 0;
-    for (auto& f : mFrames) {
-        f->drawTexture(textures[textureIndex]);
-        if(++textureIndex >= textures.size()) return;
-    }
+	if (textures.size() == 0) return;
+
+	int textureIndex = 0;
+	for (auto& f : mFrames) {
+		f->drawTexture(textures[textureIndex]);
+		if (++textureIndex >= textures.size()) return;
+	}
 }
 
 std::vector<ci::gl::TextureRef> FrameManager::getTextures() {
@@ -114,6 +114,10 @@ int FrameManager::getActiveFrame() {
 	return mActiveFrameIndex;
 }
 
+ci::gl::TextureRef FrameManager::getActiveTexture() {
+	return mFrames[mActiveFrameIndex]->getTexture();
+}
+
 
 void FrameManager::draw(bool isFullscreen) {
 
@@ -136,12 +140,16 @@ void FrameManager::drawAtIndex(int index) {
 	mFrames[rangeIndex]->draw();
 }
 
-
-void FrameManager::drawLoop(bool isFullscreen) {
+ci::gl::TextureRef FrameManager::getLoopTexture() {
 	const float frameSpeed = GS()->frameSpeed.value();
 	int index = (int)(ci::app::getElapsedSeconds() * frameSpeed) % (int)mFrames.size();
-	auto text = mFrames[index]->getTexture();
+	return  mFrames[index]->getTexture();
+}
 
+
+void FrameManager::drawLoop(bool isFullscreen) {
+
+	auto text = getLoopTexture();
 	auto rect = ci::Rectf(10, 10, 400, mSize.y * 400 / mSize.x);
 	if (isFullscreen) rect.set(0, 0, app::getWindowWidth(), app::getWindowHeight());
 	ci::gl::draw(text, rect);
@@ -154,12 +162,12 @@ void FrameManager::drawPoints(std::vector<ci::vec3>& points, ci::Color color, in
 
 void FrameManager::drawCircle(ci::vec2 p1, ci::vec2 p2, ci::Color color, int frameId) {
 	if (frameId == -1) frameId = mActiveFrameIndex;
-	if (frameId < mFrames.size()) mFrames[frameId]->drawCircle(p1,p2, color);
+	if (frameId < mFrames.size()) mFrames[frameId]->drawCircle(p1, p2, color);
 }
 
 void FrameManager::drawRectangle(ci::vec2 p1, ci::vec2 p2, ci::Color color, int frameId) {
-    if (frameId == -1) frameId = mActiveFrameIndex;
-    if (frameId < mFrames.size()) mFrames[frameId]->drawRectangle(p1,p2, color);
+	if (frameId == -1) frameId = mActiveFrameIndex;
+	if (frameId < mFrames.size()) mFrames[frameId]->drawRectangle(p1, p2, color);
 }
 
 void FrameManager::drawGUI() {

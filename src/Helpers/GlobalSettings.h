@@ -26,6 +26,7 @@ public:
 	Setting<bool>   disablePenPressure;
 	Setting<bool>   hideClearButton;
 	Setting<bool>   hideSaveButton;
+	Setting<bool>	isSpoutActive;
 
 	Setting<int>    groupId;
 	Setting<int>    nrOfFrames;
