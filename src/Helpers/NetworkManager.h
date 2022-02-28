@@ -22,70 +22,74 @@ using Receiver = ci::osc::ReceiverUdp;
 using Sender = ci::osc::SenderUdp;
 using protocol = asio::ip::udp;
 
-class NetworkManager{
-    
-    
-    // OSC
-   
-   
-    std::string mOwnIpAdress;
-    std::string mLastIpNr;
-    int groupId = 0;
-    float lastBroadcast;
-    bool queueClear= false;
+class NetworkManager {
 
-    void setupOSCSender();
 
-    
-    std::string extractLastIpNr(std::string& fullIp);
-    
-    std::queue<PointsPackage> pointsQueue;
-    std::mutex mPointsQueueLock;
-    
-    std::queue<PointsPackage> shapesQueue;
-    std::mutex mShapesQueueLock;
-    
-    void sendAlive();
+	// OSC
+
+
+	std::string mOwnIpAdress;
+	std::string mLastIpNr;
+	int groupId = 0;
+	float lastBroadcast;
+	bool queueClear = false;
+	int nrOfFramesChanged = -1;
+
+
+	void setupOSCSender();
+
+
+	std::string extractLastIpNr(std::string& fullIp);
+
+	std::queue<PointsPackage> pointsQueue;
+	std::mutex mPointsQueueLock;
+
+	std::queue<PointsPackage> shapesQueue;
+	std::mutex mShapesQueueLock;
+
+	void sendAlive();
 
 public:
-    
-    void sendErase();
 
-    NetworkManager();
-    
-    //threaded OSC server
-    std::shared_ptr<asio::io_service>        mIoService;
-    std::shared_ptr<asio::io_service::work>    mWork;
-    std::thread                                mThread;
-    
-    ci::osc::UdpSocketRef    mSocket;
-    ci::osc::ReceiverUdp mReceiver;
-    ci::osc::SenderUdp mSender;
-    std::map<uint64_t, protocol::endpoint> mConnections;
-    
-    ci::signals::Signal<void(PointsPackage pointPackage)>   onReceivePoints;
-    ci::signals::Signal<void(PointsPackage pointPackage)> onReceiveShapes;
-//    ci::signals::Signal<void(std::string&)>   onNewConnection;
-    //ci::signals::Signal<void(std::string&)>   onAlivePing;
-    ci::signals::Signal<void()>   onErase;
+	void sendErase();
 
-    std::map<std::string,float> mAliveIps;
+	NetworkManager();
 
-    bool setup();
-    void update();
-    void setNextGroup();
-    void setGroupId(int id);
-    std::string const getLastMyIpNr();
-    std::string getIPadress();
+	//threaded OSC server
+	std::shared_ptr<asio::io_service>        mIoService;
+	std::shared_ptr<asio::io_service::work>    mWork;
+	std::thread                                mThread;
 
-    int const getGroupId();
-    bool isMessageAllowed(const ci::osc::Message &msg);
+	ci::osc::UdpSocketRef    mSocket;
+	ci::osc::ReceiverUdp mReceiver;
+	ci::osc::SenderUdp mSender;
+	std::map<uint64_t, protocol::endpoint> mConnections;
 
-    void sendOscMessage(std::string command,ci::vec3 point);
-    void sendPoints(std::vector<ci::vec3> &points, bool isEraserOn, ci::Color color, int frameId);
-    void sendTwoPointShape(ci::vec3 &point1, ci::vec3 &point2, ToolState toolstate, ci::Color color, int frameId);
-    void cleanup() ;
-    
+	ci::signals::Signal<void(PointsPackage pointPackage)>   onReceivePoints;
+	ci::signals::Signal<void(PointsPackage pointPackage)>	onReceiveShapes;
+	//    ci::signals::Signal<void(std::string&)>   onNewConnection;
+		//ci::signals::Signal<void(std::string&)>   onAlivePing;
+	ci::signals::Signal<void()>   onErase;
+	ci::signals::Signal<void(int nrOfFrames)>   onNumberOfFramesChanged;
+
+	std::map<std::string, float> mAliveIps;
+
+	bool setup();
+	void update();
+	void setNextGroup();
+	void setGroupId(int id);
+	std::string const getLastMyIpNr();
+	std::string getIPadress();
+
+	int const getGroupId();
+	bool isMessageAllowed(const ci::osc::Message& msg);
+
+	void sendOscMessage(std::string command, ci::vec3 point);
+	void sendPoints(std::vector<ci::vec3>& points, bool isEraserOn, ci::Color color, int frameId);
+	void sendTwoPointShape(ci::vec3& point1, ci::vec3& point2, ToolState toolstate, ci::Color color, int frameId);
+	void cleanup();
+
+	void setNrOfFrames(int nrOfFrames);
 };
 
 

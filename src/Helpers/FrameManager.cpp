@@ -16,13 +16,22 @@ void FrameManager::setup(int nrOfFrames, ci::vec2 size) {
 
 	mSize = size;
 
+	mFrames.clear();
+	changeNrOfFrames(nrOfFrames);
+
+	mActiveFrameIndex = 0;
+}
+
+
+void FrameManager::changeNrOfFrames(int nrOfFrames) {
+	mFrames.clear();
+
 	for (int i = 0; i < nrOfFrames; i++) {
 		Frame* newFrame = new Frame();;
-		newFrame->setup(size);
+		newFrame->setup(mSize);
 		mFrames.push_back(newFrame);
 	}
 
-	mActiveFrameIndex = 0;
 }
 
 

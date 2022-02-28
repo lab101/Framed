@@ -177,6 +177,8 @@ void FramedApp::setup()
 
 	setupNetwork();
 
+	setFullScreen(GS()->isFullscreen.value());
+
 	isSetupComplete = true;
 
 }
@@ -191,6 +193,7 @@ void FramedApp::setupSpout() {
 }
 
 void FramedApp::eraseAndSave() {
+	console() << "CLEAR" << std::endl;
 	mFrameManager.saveAll();
 	mFrameManager.clearAll();
 	mTouchUI->setActiveFrame(0);
@@ -220,7 +223,10 @@ void FramedApp::setupNetwork() {
 
 		mNetworkManager->onErase.connect([=]() {
 			eraseAndSave();
+			});
 
+		mNetworkManager->onNumberOfFramesChanged.connect([=](int nrOfFramesChanged) {
+			mFrameManager.changeNrOfFrames(nrOfFramesChanged);
 			});
 
 		// set group on startup
@@ -308,12 +314,59 @@ void FramedApp::keyDown(KeyEvent event)
 		mFrameManager.nextFrame();
 		mTouchUI->setActiveFrame(mFrameManager.getActiveFrame());
 	}
-
-
 	else if (event.getCode() == event.KEY_SPACE) {
 		mOverlayManager.setActiveFrame(mFrameManager.getActiveFrame());
 		mOverlayManager.snap();
 	}
+
+	// director keys
+	else if (event.getCode() == event.KEY_1) {
+		int newFrameNr = 1;
+		Color c(1, 0, 0);
+		mNetworkManager->setNrOfFrames(newFrameNr);
+		mNetworkManager->sendErase();
+		mFrameManager.clearAll();
+		mFrameManager.changeNrOfFrames(newFrameNr);
+
+		auto s = mFrameManager.getSize();
+		mNetworkManager->sendTwoPointShape(vec3(0, 0, 0), vec3(s.x, s.y, 0), ToolState::RECTANGLE, c,
+			mFrameManager.getActiveFrame());
+		mFrameManager.drawRectangle(vec3(0, 0, 0), vec3(s.x, s.y, 0), c,
+			mFrameManager.getActiveFrame());
+	}
+	else if (event.getCode() == event.KEY_2) {
+		int newFrameNr = 6;
+		Color c(1, 1, 1);
+
+		mNetworkManager->setNrOfFrames(newFrameNr);
+		mNetworkManager->sendErase();
+		mFrameManager.clearAll();
+		mFrameManager.changeNrOfFrames(newFrameNr);
+
+
+		auto s = mFrameManager.getSize();
+		for (int i = 0; i < newFrameNr; i++) {
+			mNetworkManager->sendTwoPointShape(vec3(0, 0, 0), vec3(s.x, s.y, 0), ToolState::RECTANGLE, c,
+				i);
+			mFrameManager.drawRectangle(vec3(0, 0, 0), vec3(s.x, s.y, 0), c,
+				i);
+		}
+
+
+	}
+
+	else if (event.getCode() == event.KEY_3) {
+		int newFrameNr = 10;
+
+		mNetworkManager->setNrOfFrames(newFrameNr);
+		mNetworkManager->sendErase();
+		mFrameManager.clearAll();
+		mFrameManager.changeNrOfFrames(newFrameNr);
+
+	}
+
+
+
 }
 
 void FramedApp::fileDrop(FileDropEvent event)
@@ -580,7 +633,7 @@ void FramedApp::drawShapes() {
 void FramedApp::drawCursor(float scale, vec2 position) const {
 
 	gl::color(0.8, 0.8, 0.8);
-
+	gl::lineWidth(2);
 	float size = scale * 2;
 	size = fminf(10, size);
 	vec2 pVec2 = vec2(position.x, position.y);
@@ -679,4 +732,5 @@ void FramedApp::drawDebug()
 
 CINDER_APP(FramedApp, RendererGl(RendererGl::Options().msaa(0)), [](App::Settings* settings) {
 	settings->setWindowSize(1600, 1200);
+	settings->setConsoleWindowEnabled(true);
 	})

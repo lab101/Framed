@@ -35,7 +35,7 @@ public:
 	ci::gl::TextureRef FrameManager::getActiveTexture();
 	ci::gl::TextureRef FrameManager::getLoopTexture();
 
-
+	void changeNrOfFrames(int nrOfFrames);
 
 	ci::ivec2 getSize();
 	void drawGUI();
