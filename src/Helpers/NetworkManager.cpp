@@ -52,6 +52,13 @@ bool NetworkManager::setup() {
 		}
 		});
 
+
+	mReceiver.setListener("/frameSpeed", [&](const osc::Message& msg) {
+		if (isMessageAllowed(msg)) {
+			frameSpeedChanged = msg.getArgInt32(1);
+		}
+		});
+
 	mReceiver.setListener("/points",
 		[&](const osc::Message& msg) {
 			if (isMessageAllowed(msg)) {
@@ -199,6 +206,14 @@ void NetworkManager::setNrOfFrames(int nrOfFrames) {
 	mSender.send(message);
 }
 
+void NetworkManager::setFrameSpeed(int frameSpeed) {
+	osc::Message message;
+	message.setAddress("/frameSpeed");
+	message.append(groupId);
+	message.append(frameSpeed);
+	mSender.send(message);
+}
+
 
 void NetworkManager::setGroupId(int id) {
 	groupId = id;
@@ -219,6 +234,11 @@ void NetworkManager::update() {
 	if (nrOfFramesChanged > 0) {
 		onNumberOfFramesChanged.emit(nrOfFramesChanged);
 		nrOfFramesChanged = -1;
+	}
+
+	if (frameSpeedChanged > 0) {
+		onFrameSpeedChanged.emit(frameSpeedChanged);
+		frameSpeedChanged = -1;
 	}
 
 

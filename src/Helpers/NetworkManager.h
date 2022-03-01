@@ -34,6 +34,7 @@ class NetworkManager {
 	float lastBroadcast;
 	bool queueClear = false;
 	int nrOfFramesChanged = -1;
+	int frameSpeedChanged = -1;
 
 
 	void setupOSCSender();
@@ -71,6 +72,7 @@ public:
 		//ci::signals::Signal<void(std::string&)>   onAlivePing;
 	ci::signals::Signal<void()>   onErase;
 	ci::signals::Signal<void(int nrOfFrames)>   onNumberOfFramesChanged;
+	ci::signals::Signal<void(int framespeed)>   onFrameSpeedChanged;
 
 	std::map<std::string, float> mAliveIps;
 
@@ -90,6 +92,7 @@ public:
 	void cleanup();
 
 	void setNrOfFrames(int nrOfFrames);
+	void setFrameSpeed(int frameSpeed);
 };
 
 

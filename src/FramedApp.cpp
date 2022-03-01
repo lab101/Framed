@@ -102,6 +102,9 @@ private:
 	void setupNetwork();
 	void setupImGui();
 	void setupSpout();
+	// change the nr of frames locally and over the network
+	void changeNrOfFramesGlobal(int newNrOfFrames);
+	void changeColorGlobal(ci::Color color);
 };
 
 std::string appName = "Framed";
@@ -229,6 +232,10 @@ void FramedApp::setupNetwork() {
 			mFrameManager.changeNrOfFrames(nrOfFramesChanged);
 			});
 
+		mNetworkManager->onFrameSpeedChanged.connect([=](int framespeedChanged) {
+			GS()->frameSpeed.setValue(framespeedChanged);
+			});
+
 		// set group on startup
 		mNetworkManager->setGroupId(GS()->groupId.value());
 
@@ -322,51 +329,50 @@ void FramedApp::keyDown(KeyEvent event)
 	// director keys
 	else if (event.getCode() == event.KEY_1) {
 		int newFrameNr = 1;
-		Color c(1, 0, 0);
-		mNetworkManager->setNrOfFrames(newFrameNr);
-		mNetworkManager->sendErase();
-		mFrameManager.clearAll();
-		mFrameManager.changeNrOfFrames(newFrameNr);
+		Color c(1, 0, 0.2);
 
-		auto s = mFrameManager.getSize();
-		mNetworkManager->sendTwoPointShape(vec3(0, 0, 0), vec3(s.x, s.y, 0), ToolState::RECTANGLE, c,
-			mFrameManager.getActiveFrame());
-		mFrameManager.drawRectangle(vec3(0, 0, 0), vec3(s.x, s.y, 0), c,
-			mFrameManager.getActiveFrame());
+		changeNrOfFramesGlobal(newFrameNr);
+		changeColorGlobal(c);
+
 	}
 	else if (event.getCode() == event.KEY_2) {
 		int newFrameNr = 6;
 		Color c(1, 1, 1);
 
-		mNetworkManager->setNrOfFrames(newFrameNr);
-		mNetworkManager->sendErase();
-		mFrameManager.clearAll();
-		mFrameManager.changeNrOfFrames(newFrameNr);
-
-
-		auto s = mFrameManager.getSize();
-		for (int i = 0; i < newFrameNr; i++) {
-			mNetworkManager->sendTwoPointShape(vec3(0, 0, 0), vec3(s.x, s.y, 0), ToolState::RECTANGLE, c,
-				i);
-			mFrameManager.drawRectangle(vec3(0, 0, 0), vec3(s.x, s.y, 0), c,
-				i);
-		}
+		changeNrOfFramesGlobal(newFrameNr);
+		changeColorGlobal(c);
+		
 
 
 	}
 
 	else if (event.getCode() == event.KEY_3) {
-		int newFrameNr = 10;
-
-		mNetworkManager->setNrOfFrames(newFrameNr);
-		mNetworkManager->sendErase();
-		mFrameManager.clearAll();
-		mFrameManager.changeNrOfFrames(newFrameNr);
+		changeNrOfFramesGlobal(10);
 
 	}
 
 
 
+}
+
+
+void FramedApp::changeColorGlobal(ci::Color color) {
+	auto s = mFrameManager.getSize();
+	int frameCount = mFrameManager.totalFrameCount();
+
+	for (int i = 0; i < frameCount; i++) {
+		mNetworkManager->sendTwoPointShape(vec3(0, 0, 0), vec3(s.x, s.y, 0), ToolState::RECTANGLE, color,
+			i);
+		mFrameManager.drawRectangle(vec3(0, 0, 0), vec3(s.x, s.y, 0), color,
+			i);
+	}
+}
+
+void FramedApp::changeNrOfFramesGlobal(int newNrOfFrames) {
+	mNetworkManager->setNrOfFrames(newNrOfFrames);
+	mNetworkManager->sendErase();
+	mFrameManager.clearAll();
+	mFrameManager.changeNrOfFrames(newNrOfFrames);
 }
 
 void FramedApp::fileDrop(FileDropEvent event)
@@ -703,7 +709,13 @@ void FramedApp::drawDebug()
 	ImGui::Dummy(ImVec2(0.0f, 20.0f));
 	if (ImGui::TreeNode("frames")) {
 		ImGui::SliderFloat("speed: ", &GS()->frameSpeed.value(), 2.f, 20.0f);
-		ImGui::SliderInt("nr of frames (needs restart)", &GS()->nrOfFrames.value(), 1, 60);
+		if (ImGui::SliderInt("nr of frames", &GS()->nrOfFrames.value(), 1, 60)) {
+			mFrameManager.changeNrOfFrames(GS()->nrOfFrames.value());
+		}
+		if (ImGui::Button("sync settings to all")) {
+			mNetworkManager->setNrOfFrames(GS()->nrOfFrames.value());
+			mNetworkManager->setFrameSpeed(GS()->frameSpeed.value());
+		}
 		ImGui::TreePop();
 	}
 
@@ -732,5 +744,5 @@ void FramedApp::drawDebug()
 
 CINDER_APP(FramedApp, RendererGl(RendererGl::Options().msaa(0)), [](App::Settings* settings) {
 	settings->setWindowSize(1600, 1200);
-	settings->setConsoleWindowEnabled(true);
+//	settings->setConsoleWindowEnabled(true);
 	})

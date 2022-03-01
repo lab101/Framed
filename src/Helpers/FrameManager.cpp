@@ -24,13 +24,24 @@ void FrameManager::setup(int nrOfFrames, ci::vec2 size) {
 
 
 void FrameManager::changeNrOfFrames(int nrOfFrames) {
-	mFrames.clear();
+//	mFrames.clear();
 
-	for (int i = 0; i < nrOfFrames; i++) {
-		Frame* newFrame = new Frame();;
-		newFrame->setup(mSize);
-		mFrames.push_back(newFrame);
+	// erase frames
+	if (nrOfFrames < mFrames.size()) {
+
+		mFrames.erase(mFrames.begin() + nrOfFrames, mFrames.begin() + mFrames.size());
+	}else{
+
+		// add new frames
+		int newFramesCount = nrOfFrames - mFrames.size();
+		for (int i = 0; i < newFramesCount; i++) {
+			Frame* newFrame = new Frame();;
+			newFrame->setup(mSize);
+			mFrames.push_back(newFrame);
+		}
 	}
+
+
 
 }
 
@@ -117,6 +128,10 @@ void FrameManager::saveAll() {
 //        }
 	}
 
+}
+
+int FrameManager::totalFrameCount() {
+	return mFrames.size();
 }
 
 int FrameManager::getActiveFrame() {
