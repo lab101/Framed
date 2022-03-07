@@ -27,6 +27,9 @@ void OverlayManager::setup(int nrOfFrames, ci::vec2 size) {
 void OverlayManager::setupCamera() {
 
 #if defined( CINDER_MSW_DESKTOP ) || defined( CINDER_OSX_DESKTOP )
+
+	getWebcamList();
+
     try {
         mCapture = nullptr;
         auto device = deviceList[mSelectedWebcam];
@@ -88,13 +91,16 @@ void OverlayManager::snap(){
 void OverlayManager::update(){
 
 #if defined( CINDER_MSW_DESKTOP ) || defined( CINDER_OSX_DESKTOP )
-    if(isWebcamStarted && isLive && mCapture && mCapture->checkNewFrame() ) {
-       gl::TextureRef newTexture  = gl::Texture::create( *mCapture->getSurface(), gl::Texture::Format().loadTopDown() );
-        
-        if(mActiveFrameIndex >= mFrames.size()){
-            mFrames[mActiveFrameIndex] = newTexture;
-        }
-    }
+	try {
+		if (isWebcamStarted && isLive && mCapture && mCapture->checkNewFrame()) {
+			gl::TextureRef newTexture = gl::Texture::create(*mCapture->getSurface(), gl::Texture::Format().loadTopDown());
+			if (mActiveFrameIndex <= mFrames.size()) {
+				mFrames[mActiveFrameIndex] = newTexture;
+			}
+		}
+	}
+	catch (...) {
+	}
 #endif
 }
 
@@ -151,9 +157,9 @@ void OverlayManager::drawAtIndex(int index) {
 
 		ci::Rectf frame = ci::Rectf(offsetCenter, 0, offsetCenter + width, height);
 
-		//		if (GS()->mirrorWebcam.value() && mFrames[rangeIndex].flipHorizontal) {
+			//	if (GS()->mirrorWebcam.value() && mFrames[rangeIndex].flipHorizontal) {
 			//		frame = ci::Rectf(offsetCenter + width, 0, offsetCenter, height);
-				//}
+			//	}
 
 		gl::draw(texture, frame);
 	}

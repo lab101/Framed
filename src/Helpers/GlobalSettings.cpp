@@ -61,7 +61,7 @@ void GlobalSettings::setup(std::string appName) {
 	mirrorWebcam = Setting<bool>("mirrorWebcam", true);
 	mSettingManager.addSetting(&mirrorWebcam);
 
-	isSpoutActive = Setting<bool>("isSpoutActive", true);
+	isSpoutActive = Setting<bool>("isSpoutActive", false);
 	mSettingManager.addSetting(&isSpoutActive);
 
 

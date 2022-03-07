@@ -63,7 +63,7 @@ private:
 
 	float mPenPressure = 0.25;
 	bool mTouchDown = false;
-	bool useOverLay = true;
+	bool useOverLay = false;
 	bool isSetupComplete = false;
 
 
@@ -341,15 +341,30 @@ void FramedApp::keyDown(KeyEvent event)
 
 		changeNrOfFramesGlobal(newFrameNr);
 		changeColorGlobal(c);
-		
-
-
 	}
 
 	else if (event.getCode() == event.KEY_3) {
 		changeNrOfFramesGlobal(10);
 
 	}
+	else if (event.getCode() == event.KEY_4) {
+		changeNrOfFramesGlobal(10);
+		mOverlayManager.setupCamera();
+		mOverlayManager.isLive = true;
+		useOverLay = true;
+	}
+	else if (event.getCode() == event.KEY_5) {
+		changeNrOfFramesGlobal(10);
+		mOverlayManager.stopCamera();
+		mOverlayManager.isLive = false;
+		useOverLay = false;
+	}
+
+	else if (event.getCode() == event.KEY_6) {
+		changeNrOfFramesGlobal(2);
+
+	}
+
 
 
 
@@ -744,5 +759,5 @@ void FramedApp::drawDebug()
 
 CINDER_APP(FramedApp, RendererGl(RendererGl::Options().msaa(0)), [](App::Settings* settings) {
 	settings->setWindowSize(1600, 1200);
-//	settings->setConsoleWindowEnabled(true);
+	//settings->setConsoleWindowEnabled(true);
 	})
