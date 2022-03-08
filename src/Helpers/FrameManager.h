@@ -6,11 +6,20 @@
 
 #include "Frame.h"
 
+#ifdef CINDER_MAC
+#include "syphonServer.h"
+#endif
+
+
 class FrameManager {
 
 	std::vector<Frame*> mFrames;
 	int mActiveFrameIndex;
 	ci::ivec2 mSize;
+    
+    syphonServer mTextureSyphon;
+    //each item to publish requires a different server
+
 
 public:
 
@@ -33,8 +42,8 @@ public:
 	void prevFrame();
 
 	int getActiveFrame();
-	ci::gl::TextureRef FrameManager::getActiveTexture();
-	ci::gl::TextureRef FrameManager::getLoopTexture();
+	ci::gl::TextureRef getActiveTexture();
+	ci::gl::TextureRef getLoopTexture();
 
 	void changeNrOfFrames(int nrOfFrames);
 

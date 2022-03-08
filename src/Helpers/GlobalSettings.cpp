@@ -61,8 +61,11 @@ void GlobalSettings::setup(std::string appName) {
 	mirrorWebcam = Setting<bool>("mirrorWebcam", true);
 	mSettingManager.addSetting(&mirrorWebcam);
 
-	isSpoutActive = Setting<bool>("isSpoutActive", false);
-	mSettingManager.addSetting(&isSpoutActive);
+    isSpoutActive = Setting<bool>("isSpoutActive", false);
+    mSettingManager.addSetting(&isSpoutActive);
+
+    isSyphonActive = Setting<bool>("isSyphonActive", true);
+    mSettingManager.addSetting(&isSyphonActive);
 
 
 	fboBackground = ColorA(0.0, 0.0, 0.0, 1.0);

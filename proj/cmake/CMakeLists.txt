@@ -1,11 +1,6 @@
 cmake_minimum_required( VERSION 2.8 FATAL_ERROR )
 set( CMAKE_VERBOSE_MAKEFILE ON )
 
-message("CMAKE_CXX_STANDARD=${SET17}")
-if( SET17 ) 
-set(CMAKE_CXX_STANDARD 17)
-endif()
-
 set(CMAKE_CXX_STANDARD 17)
 
 project( Framed )
@@ -44,6 +39,7 @@ endif()
 
 set( BLOCKSLIST
 	CinderSpout
+    Cinder-Syphon
 	OSC
 	TUIO
     Base
@@ -55,5 +51,12 @@ ci_make_app(
 	CINDER_PATH ${CINDER_PATH}
 	BLOCKS      ${BLOCKSLIST}
 )
+if(WIN32)
+	target_link_libraries(Framed Spout.dll)
+endif()
 
-target_link_libraries(Framed Spout.dll)
+add_custom_command( TARGET ${APP_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${APP_PATH}../../../../Cinder/blocks/Cinder-Syphon/lib/Syphon.framework
+    ${CMAKE_BUILD_TYPE}/${APP_NAME}/${APP_NAME}.app/Contents/Frameworks/Syphon.framework
+)

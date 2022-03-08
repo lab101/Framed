@@ -247,10 +247,10 @@ void FramedApp::setupNetwork() {
 void FramedApp::setupImGui() {
 	ImGui::Initialize();
 	ImGui::StyleColorsClassic();
-	float SCALE = 1.0f;
-	ImFontConfig cfg;
-	cfg.SizePixels = 20 * SCALE;
-	ImGui::GetIO().Fonts->AddFontDefault(&cfg)->DisplayOffset.y = SCALE;
+//	float SCALE = 1.0f;
+//	ImFontConfig cfg;
+//	cfg.SizePixels = 20 * SCALE;
+//	ImGui::GetIO().Fonts->AddFontDefault(&cfg)->DisplayOffset.y = SCALE;
 }
 
 
@@ -376,7 +376,9 @@ void FramedApp::changeColorGlobal(ci::Color color) {
 	int frameCount = mFrameManager.totalFrameCount();
 
 	for (int i = 0; i < frameCount; i++) {
-		mNetworkManager->sendTwoPointShape(vec3(0, 0, 0), vec3(s.x, s.y, 0), ToolState::RECTANGLE, color,
+        ci::vec3 start(0,0,0);
+        ci::vec3 end(s.x, s.y, 0);
+		mNetworkManager->sendTwoPointShape(start, end, ToolState::RECTANGLE, color,
 			i);
 		mFrameManager.drawRectangle(vec3(0, 0, 0), vec3(s.x, s.y, 0), color,
 			i);
@@ -554,6 +556,7 @@ void FramedApp::draw()
 {
 
 	gl::clear(Color(0.2, 0.2, 0.25));
+    
 	if (GS()->projectorMode.value()) {
 		mFrameManager.drawLoop(true);
 	}
@@ -574,52 +577,56 @@ void FramedApp::draw()
 
 void FramedApp::drawInterface() {
 	ci::gl::color(1, 1, 1);
-	ivec2 size = mFrameManager.getSize();
+	ivec2 frameSize = mFrameManager.getSize();
 
-	// Drawing "the paper" at zoomlevel with offset.
-	ci::gl::pushMatrices();
-	gl::ScopedViewport fbVP(getWindowSize());
-	gl::setMatricesWindow(getWindowSize());
-	ci::gl::translate(zoomCenterPoint.x, zoomCenterPoint.y, 0);
+    {
+        // Drawing "the paper" at zoomlevel with offset.
+        ci::gl::pushMatrices();
+        //gl::ScopedViewport fbVP(getWindowSize());
+        //gl::setMatricesWindow(getWindowSize());
+        ci::gl::translate(zoomCenterPoint.x, zoomCenterPoint.y, 0);
 
-	float zoomLevel = 0.5 + mTouchUI->getScale();
+       // float zoomLevel =1;// 0.5 + mTouchUI->getScale();
 
-	// make less hardcoded later.
-	float adjustForAvailableSpace = (float)(getWindowWidth() - 420) / (float)(size.x);
+        // make less hardcoded later.
+        float adjustForAvailableSpace = (float)(getWindowWidth() - 420) / (float)(frameSize.x);
 
-	ci::gl::scale(adjustForAvailableSpace, adjustForAvailableSpace);
-	ci::gl::translate(-size.x * zoomAnchor.x, -size.y * zoomAnchor.y, 0);
-	mFrameManager.draw();
+        ci::gl::scale(adjustForAvailableSpace, adjustForAvailableSpace);
+        ci::gl::translate(-frameSize.x * zoomAnchor.x, -frameSize.y * zoomAnchor.y, 0);
+        mFrameManager.draw();
 
-	gl::color(1, 1, 1, 0.2);
-	mFrameManager.drawAtIndex(-1);
+        gl::color(1, 1, 1, 0.2);
+        mFrameManager.drawAtIndex(-1);
 
-	// overlay
-	if (useOverLay) {
-		gl::color(1, 1, 1, 0.4);
-		mOverlayManager.drawAtIndex(mFrameManager.getActiveFrame());
-	}
+        // overlay
+        if (useOverLay) {
+            gl::color(1, 1, 1, 0.4);
+            mOverlayManager.drawAtIndex(mFrameManager.getActiveFrame());
+        }
 
-	// draw shapes
-	drawShapes();
+        // draw shapes
+        drawShapes();
+        // get the screen matrix when all the transformations on the "paper" (fbo) or done.
+        screenMatrix = ci::gl::getModelViewProjection();
 
-	// get the screen matrix when all the transformations on the "paper" (fbo) or done.
-	screenMatrix = ci::gl::getModelViewProjection();
-	ci::gl::popMatrices();
+    }
+    {
+        ci::gl::popMatrices();
 
-	gl::setMatricesWindow(ci::app::getWindowSize());
-	ci::gl::color(1, 1, 1);
-	mFrameManager.drawLoop();
+        gl::setMatricesWindow(ci::app::getWindowSize());
+        ci::gl::color(1, 1, 1);
+        mFrameManager.drawLoop();
 
-	if (useOverLay && mOverlayManager.isLive) {
-		ci::gl::color(1, 0, 0, 0.5);
-		float const radius = 10 + (sin(getElapsedSeconds() * 3) * 1);
-		gl::drawSolidCircle(vec2(zoomCenterPoint.x + 14, 10 + 14), radius);
-	}
+        if (useOverLay && mOverlayManager.isLive) {
+            ci::gl::color(1, 0, 0, 0.5);
+            float const radius = 10 + (sin(getElapsedSeconds() * 3) * 1);
+            gl::drawSolidCircle(vec2(zoomCenterPoint.x + 14, 10 + 14), radius);
+        }
 
-	ci::gl::color(1, 1, 1);
-	mScene->draw();
-	drawCursor(getPressure(), lastPenPosition);
+        ci::gl::color(1, 1, 1);
+        mScene->draw();
+        drawCursor(getPressure(), lastPenPosition);
+    }
 }
 
 

@@ -27,6 +27,7 @@ public:
 	Setting<bool>   hideClearButton;
 	Setting<bool>   hideSaveButton;
 	Setting<bool>	isSpoutActive;
+    Setting<bool>   isSyphonActive;
 
 	Setting<int>    groupId;
 	Setting<int>    nrOfFrames;

@@ -20,6 +20,9 @@ void FrameManager::setup(int nrOfFrames, ci::vec2 size) {
 	changeNrOfFrames(nrOfFrames);
 
 	mActiveFrameIndex = 0;
+    
+    mTextureSyphon.setName("Framed Texture Output");
+
 }
 
 
@@ -40,9 +43,6 @@ void FrameManager::changeNrOfFrames(int nrOfFrames) {
 			mFrames.push_back(newFrame);
 		}
 	}
-
-
-
 }
 
 
@@ -176,6 +176,11 @@ void FrameManager::drawLoop(bool isFullscreen) {
 	auto text = getLoopTexture();
 	auto rect = ci::Rectf(10, 10, 400, mSize.y * 400 / mSize.x);
 	if (isFullscreen) rect.set(0, 0, app::getWindowWidth(), app::getWindowHeight());
+    
+    if(GS()->isSyphonActive.value()){
+        mTextureSyphon.publishTexture(text);
+    }
+
 	ci::gl::draw(text, rect);
 }
 
