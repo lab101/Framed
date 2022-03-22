@@ -122,7 +122,9 @@ void FramedApp::setup()
 	mTouchUI->setActiveFrame(0);
 
 	setupImGui();
-
+    
+    
+    
 	mFrameManager.setup(GS()->nrOfFrames.value(), frameSize);
 	mOverlayManager.setup(GS()->nrOfFrames.value(), frameSize);
 	mTemplateManager.setup();
@@ -247,10 +249,10 @@ void FramedApp::setupNetwork() {
 void FramedApp::setupImGui() {
 	ImGui::Initialize();
 	ImGui::StyleColorsClassic();
-//	float SCALE = 1.0f;
-//	ImFontConfig cfg;
-//	cfg.SizePixels = 20 * SCALE;
-//	ImGui::GetIO().Fonts->AddFontDefault(&cfg)->DisplayOffset.y = SCALE;
+    float SCALE = ci::app::getWindow()->getContentScale();
+	ImFontConfig cfg;
+	cfg.SizePixels = 14 * SCALE;
+	ImGui::GetIO().Fonts->AddFontDefault(&cfg)->DisplayOffset.y = SCALE;
 }
 
 
@@ -530,6 +532,9 @@ float FramedApp::getPressure() {
 
 void FramedApp::update()
 {
+    if (GS()->debugMode.value()) {
+        drawDebug();
+    }
 
 	mNetworkManager->update();
 	if (useOverLay) mOverlayManager.update();
@@ -548,15 +553,18 @@ void FramedApp::update()
 	//		mFrameManager.drawPoints(package.points, package.color, package.frameId);
 	//	}
 	//	pLock.unlock();
+    
+
 }
 
 
 
 void FramedApp::draw()
 {
+    gl::clear(Color(0.2, 0.2, 0.25));
 
-	gl::clear(Color(0.2, 0.2, 0.25));
     
+	gl::clear(Color(0.2, 0.2, 0.25));
 	if (GS()->projectorMode.value()) {
 		mFrameManager.drawLoop(true);
 	}
@@ -564,9 +572,7 @@ void FramedApp::draw()
 		drawInterface();
 	}
 
-	if (GS()->debugMode.value()) {
-		drawDebug();
-	}
+	
 
 #if defined( CINDER_MSW_DESKTOP )
 	if (GS()->isSpoutActive.value()) mSpoutOut->sendTexture(mFrameManager.getLoopTexture());
@@ -582,8 +588,8 @@ void FramedApp::drawInterface() {
     {
         // Drawing "the paper" at zoomlevel with offset.
         ci::gl::pushMatrices();
-        //gl::ScopedViewport fbVP(getWindowSize());
-        //gl::setMatricesWindow(getWindowSize());
+       // gl::ScopedViewport fbVP(getWindowSize());
+       // gl::setMatricesWindow(getWindowSize());
         ci::gl::translate(zoomCenterPoint.x, zoomCenterPoint.y, 0);
 
        // float zoomLevel =1;// 0.5 + mTouchUI->getScale();
@@ -613,7 +619,7 @@ void FramedApp::drawInterface() {
     {
         ci::gl::popMatrices();
 
-        gl::setMatricesWindow(ci::app::getWindowSize());
+    //    gl::setMatricesWindow(ci::app::getWindowSize());
         ci::gl::color(1, 1, 1);
         mFrameManager.drawLoop();
 
@@ -672,10 +678,12 @@ void FramedApp::drawCursor(float scale, vec2 position) const {
 void FramedApp::drawDebug()
 {
 
-	mFps = getAverageFps();
 
+	mFps = getAverageFps();
+    
 	ImGui::Begin("Settings");
 	ImGui::Text("framerate: %f", mFps);
+    
 	string pressureString = toString(mPenPressure);
 	ImGui::LabelText("pen pressure", pressureString.c_str());
 	ImGui::LabelText("ip", mNetworkManager->getIPadress().c_str());
@@ -766,5 +774,8 @@ void FramedApp::drawDebug()
 
 CINDER_APP(FramedApp, RendererGl(RendererGl::Options().msaa(0)), [](App::Settings* settings) {
 	settings->setWindowSize(1600, 1200);
+    settings->setHighDensityDisplayEnabled();
+
+   // settings->setHighDensityDisplayEnabled(false);
 	//settings->setConsoleWindowEnabled(true);
 	})

@@ -1,0 +1,19 @@
+{
+   "debug" : true,
+   "disablePenPressure" : false,
+   "frameSpeed" : 4,
+   "frameWidth" : 1920,
+   "groupId" : 1,
+   "hideClearButton" : false,
+   "hideSaveButton" : false,
+   "isFullscreen" : false,
+   "isMouseOn" : true,
+   "isSpoutActive" : false,
+   "isSyphonActive" : true,
+   "mirrorWebcam" : true,
+   "nrOfFrames" : 6,
+   "projectorMode" : false,
+   "screenHeight" : 1080,
+   "screenScale" : 1,
+   "zoomLevel" : 0.80000000000000004
+}
