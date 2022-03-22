@@ -21,7 +21,9 @@ void FrameManager::setup(int nrOfFrames, ci::vec2 size) {
 
 	mActiveFrameIndex = 0;
     
-    mTextureSyphon.setName("Framed Texture Output");
+#ifdef CINDER_MAC
+	mTextureSyphon.setName("Framed Texture Output");
+#endif
 
 }
 
@@ -178,7 +180,9 @@ void FrameManager::drawLoop(bool isFullscreen) {
 	if (isFullscreen) rect.set(0, 0, app::getWindowWidth(), app::getWindowHeight());
     
     if(GS()->isSyphonActive.value()){
-        mTextureSyphon.publishTexture(text);
+#ifdef CINDER_MAC
+		mTextureSyphon.publishTexture(text);
+#endif
     }
 
 	ci::gl::draw(text, rect);
