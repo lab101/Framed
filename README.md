@@ -16,8 +16,8 @@ If you work on OSX there will be a lot of security issues.
 Check the **[this video](https://vimeo.com/508517646/c90b0e026f )** on how to do the above.
 
 
-# Templates
-If you want load files as background sequence put them in assets/templates.
+# Template
+If you want load files as background sequence put them in assets/template.
 The software will scale them to scene size so make sure they have the same ratio. 
 
 # Hotkeys
