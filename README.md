@@ -17,7 +17,7 @@ Check the **[this video](https://vimeo.com/508517646/c90b0e026f )** on how to do
 
 
 # Template
-If you want load files as background sequence put them in assets/template.
+If you want load files as background sequence put them in *assets/template*
 The software will scale them to scene size so make sure they have the same ratio. 
 
 # Hotkeys
@@ -36,7 +36,7 @@ When working use **spacebar** to put a image on a layer and freeze it.
 
 # Overlay
 To use it drag a image in the app. 
-Go to the debug menu and active checkbox overlay active.
+Go to the debug menu and check the checkbox *overlay active*.
 
 # Spout
 Windows version has spout support.
