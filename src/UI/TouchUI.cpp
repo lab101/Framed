@@ -31,10 +31,21 @@ ci::Color TouchUI::getColor() {
 	return colorPicker->getSelectedColor();
 }
 
+void TouchUI::setHeight(float yOffset){
+    colorPicker->setPosition(10, yOffset + 10);
+    strokeSlider->setPosition(10, colorPicker->getFrame().y2 + 80);
 
+    scrollBox->setPosition(10, yOffset + 295);
+    mEraseButton->setPosition(360, yOffset + 10);
+    mSaveButton->setPosition(280, yOffset + 10);
+    
+    mLineButton->setPosition(240, yOffset + 100);
+    mRectButton->setPosition(240, yOffset + 200);
+    mCircleButton->setPosition(240, yOffset + 300);
+
+}
 
 void TouchUI::setup(float yOffset) {
-
 	colorPicker = ColorPicker::create();
 	colorPicker->setup();
 	getView()->addSubview(colorPicker);

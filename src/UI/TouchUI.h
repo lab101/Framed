@@ -40,6 +40,8 @@ public:
 	ci::signals::Signal<void(ToolState)> onNewToolElection;
 
 	void setup(float yOffset);
+    void setHeight(float yOffset);
+
 	void update();
 
 	static TouchUIRef create();

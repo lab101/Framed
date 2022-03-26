@@ -95,7 +95,9 @@ private:
 	vec2 zoomCenterPoint;
 
 	float mFps;
-	void drawDebug();
+    void setNewFrameSize();
+    
+    void drawDebug();
 	void drawInterface();
 	void drawCursor(float scale, vec2 position) const;
 
@@ -237,6 +239,17 @@ void FramedApp::setupNetwork() {
 		mNetworkManager->onFrameSpeedChanged.connect([=](int framespeedChanged) {
 			GS()->frameSpeed.setValue(framespeedChanged);
 			});
+        
+        mNetworkManager->onFrameSizeChanged.connect([=](ci::vec2 newFrameSize) {
+           // GS()->frameSpeed.setValue(framespeedChanged);
+            std::cout << newFrameSize;
+            frameSize = newFrameSize;
+            mFrameManager.setup(GS()->nrOfFrames.value(), newFrameSize);
+            
+            setNewFrameSize();
+            
+        });
+
 
 		// set group on startup
 		mNetworkManager->setGroupId(GS()->groupId.value());
@@ -675,6 +688,12 @@ void FramedApp::drawCursor(float scale, vec2 position) const {
 	ci::gl::drawLine(pVec2 + ci::vec2(0, -size), pVec2 + ci::vec2(0, +size));
 }
 
+void FramedApp::setNewFrameSize() {
+    int nrFrames = GS()->nrOfFrames.value();
+    mFrameManager.setup(nrFrames,frameSize);
+    mTouchUI->setHeight(400 * frameSize.y / frameSize.x);
+}
+
 void FramedApp::drawDebug()
 {
 
@@ -731,13 +750,14 @@ void FramedApp::drawDebug()
 			ImGui::Dummy(ImVec2(0.0f, 20.0f));
 
 			ImGui::TreePop();
-
 		}
 
 	}
 
 	ImGui::Dummy(ImVec2(0.0f, 20.0f));
-	if (ImGui::TreeNode("frames")) {
+	if (ImGui::TreeNode("Frame settings")) {
+        ImGui::Dummy(ImVec2(0.0f, 20.0f));
+
 		ImGui::SliderFloat("speed: ", &GS()->frameSpeed.value(), 2.f, 20.0f);
 		if (ImGui::SliderInt("nr of frames", &GS()->nrOfFrames.value(), 1, 60)) {
 			mFrameManager.changeNrOfFrames(GS()->nrOfFrames.value());
@@ -746,7 +766,25 @@ void FramedApp::drawDebug()
 			mNetworkManager->setNrOfFrames(GS()->nrOfFrames.value());
 			mNetworkManager->setFrameSpeed(GS()->frameSpeed.value());
 		}
-		ImGui::TreePop();
+        ImGui::Dummy(ImVec2(0.0f, 20.0f));
+        ImGui::Separator();
+        ImGui::Dummy(ImVec2(0.0f, 20.0f));
+
+        ImGui::SliderInt("frame width: ", &GS()->frameWidth.value(), 400, 6000);
+        ImGui::SliderInt("frame height: ", &GS()->frameHeight.value(), 400, 6000);
+        if (ImGui::Button("sync size to all (clears all)")) {
+            frameSize.x = GS()->frameWidth.value();
+            frameSize.y = GS()->frameHeight.value();
+            mNetworkManager->setFrameSize(frameSize.x,frameSize.y);
+            setNewFrameSize();
+            
+        }
+        
+        ImGui::TreePop();
+
+
+
+        
 	}
 
 	ImGui::Dummy(ImVec2(0.0f, 20.0f));

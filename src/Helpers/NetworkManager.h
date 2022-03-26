@@ -35,6 +35,8 @@ class NetworkManager {
 	bool queueClear = false;
 	int nrOfFramesChanged = -1;
 	int frameSpeedChanged = -1;
+    bool isFrameSizeChanged = false;
+    ci::vec2 newFrameSize;
 
 
 	void setupOSCSender();
@@ -73,6 +75,7 @@ public:
 	ci::signals::Signal<void()>   onErase;
 	ci::signals::Signal<void(int nrOfFrames)>   onNumberOfFramesChanged;
 	ci::signals::Signal<void(int framespeed)>   onFrameSpeedChanged;
+    ci::signals::Signal<void(ci::vec2 frameSize)>   onFrameSizeChanged;
 
 	std::map<std::string, float> mAliveIps;
 
@@ -93,6 +96,8 @@ public:
 
 	void setNrOfFrames(int nrOfFrames);
 	void setFrameSpeed(int frameSpeed);
+    void setFrameSize(int width, int height);
+
 };
 
 

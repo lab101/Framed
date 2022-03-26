@@ -58,6 +58,14 @@ bool NetworkManager::setup() {
 			frameSpeedChanged = msg.getArgInt32(1);
 		}
 		});
+    
+    mReceiver.setListener("/frameSize", [&](const osc::Message& msg) {
+        if (isMessageAllowed(msg)) {
+            isFrameSizeChanged = true;
+            newFrameSize.x = msg.getArgInt32(1);
+            newFrameSize.y = msg.getArgInt32(2);
+        }
+    });
 
 	mReceiver.setListener("/points",
 		[&](const osc::Message& msg) {
@@ -206,6 +214,17 @@ void NetworkManager::setNrOfFrames(int nrOfFrames) {
 	mSender.send(message);
 }
 
+void NetworkManager::setFrameSize(int width,int height)
+{
+    osc::Message message;
+    message.setAddress("/frameSize");
+    message.append(groupId);
+    message.append(width);
+    message.append(height);
+    mSender.send(message);
+
+}
+
 void NetworkManager::setFrameSpeed(int frameSpeed) {
 	osc::Message message;
 	message.setAddress("/frameSpeed");
@@ -241,6 +260,10 @@ void NetworkManager::update() {
 		frameSpeedChanged = -1;
 	}
 
+    if(isFrameSizeChanged){
+        isFrameSizeChanged = false;
+        onFrameSizeChanged.emit(newFrameSize);
+    }
 
 	mPointsQueueLock.lock();
 
