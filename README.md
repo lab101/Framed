@@ -16,8 +16,8 @@ If you work on OSX there will be a lot of security issues.
 Check the **[this video](https://vimeo.com/508517646/c90b0e026f )** on how to do the above.
 
 
-# Templates
-If you want load files as background sequence put them in assets/templates.
+# Template
+If you want load files as background sequence put them in *assets/template*
 The software will scale them to scene size so make sure they have the same ratio. 
 
 # Hotkeys
@@ -35,12 +35,8 @@ Enable the camera in settings panel.
 When working use **spacebar** to put a image on a layer and freeze it.
 
 # Overlay
-Early support for overlays is added.  
-To use it create folders in /assets/overlays/  
-Example:
-- /assets/overlays/space  
-- /assets/overlays/people  
-And drop your images in these folders. They will be available when the app starts.
+To use it drag a image in the app. 
+Go to the debug menu and check the checkbox *overlay active*.
 
 # Spout
 Windows version has spout support.

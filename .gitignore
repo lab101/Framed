@@ -5,6 +5,7 @@
 assets/images
 assets/overlays
 assets/template
+assets/imgui.ini
 
 proj/cmake/cmake-build-debug
 proj/cmake/.idea/

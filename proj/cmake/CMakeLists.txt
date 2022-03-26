@@ -36,15 +36,30 @@ if(APPLE)
   list(APPEND SRC_FILES ${APP_PATH}/src/Pen/OSX/tabletCocoa.mm)
 endif()
 
-
-set( BLOCKSLIST
-	CinderSpout
-    Cinder-Syphon
+set( BLOCKSLIST	
 	OSC
 	TUIO
     Base
 	poScene
 )
+
+
+if(APPLE)
+  list(APPEND BLOCKSLIST  Cinder-Syphon)
+
+  add_custom_command( TARGET ${APP_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${APP_PATH}../../../../Cinder/blocks/Cinder-Syphon/lib/Syphon.framework
+    ${CMAKE_BUILD_TYPE}/${APP_NAME}/${APP_NAME}.app/Contents/Frameworks/Syphon.framework
+)
+endif()
+
+if(WIN32)
+  list(APPEND BLOCKSLIST  CinderSpout)
+endif()
+
+
+
 
 ci_make_app(
 	SOURCES     ${SRC_FILES}
@@ -55,8 +70,4 @@ if(WIN32)
 	target_link_libraries(Framed Spout.dll)
 endif()
 
-add_custom_command( TARGET ${APP_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${APP_PATH}../../../../Cinder/blocks/Cinder-Syphon/lib/Syphon.framework
-    ${CMAKE_BUILD_TYPE}/${APP_NAME}/${APP_NAME}.app/Contents/Frameworks/Syphon.framework
-)
+

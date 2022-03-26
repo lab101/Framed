@@ -17,7 +17,10 @@ class FrameManager {
 	int mActiveFrameIndex;
 	ci::ivec2 mSize;
     
+#ifdef CINDER_MAC
     syphonServer mTextureSyphon;
+#endif
+
     //each item to publish requires a different server
 
 

@@ -809,11 +809,13 @@ void FramedApp::drawDebug()
 	ImGui::End();
 }
 
-
-CINDER_APP(FramedApp, RendererGl(RendererGl::Options().msaa(0)), [](App::Settings* settings) {
+void prepareSettings(FramedApp::Settings* settings) {
 	settings->setWindowSize(1600, 1200);
-    settings->setHighDensityDisplayEnabled();
 
-   // settings->setHighDensityDisplayEnabled(false);
-	//settings->setConsoleWindowEnabled(true);
-	})
+#ifdef CINDER_MAC
+	settings->setHighDensityDisplayEnabled();
+#endif
+}
+
+
+CINDER_APP(FramedApp, RendererGl(RendererGl::Options().msaa(0)), prepareSettings);
