@@ -144,6 +144,15 @@ ci::gl::TextureRef FrameManager::getActiveTexture() {
 	return mFrames[mActiveFrameIndex]->getTexture();
 }
 
+void::FrameManager::update(){
+    const float frameSpeed = GS()->frameSpeed.value();
+    const float div = ci::app::getElapsedSeconds() - lastFrameUpdate;
+    mCurrentFrame += (0.4 * frameSpeed * div);
+    
+    if(mCurrentFrame >= std::numeric_limits<double>::max()-1) mCurrentFrame = 0;
+    
+    lastFrameUpdate = ci::app::getElapsedSeconds();
+}
 
 void FrameManager::draw(bool isFullscreen) {
 
@@ -168,7 +177,10 @@ void FrameManager::drawAtIndex(int index) {
 
 ci::gl::TextureRef FrameManager::getLoopTexture() {
 	const float frameSpeed = GS()->frameSpeed.value();
-	int index = (int)(ci::app::getElapsedSeconds() * frameSpeed) % (int)mFrames.size();
+//	int index = (int)(ci::app::getElapsedSeconds() * frameSpeed) % (int)mFrames.size();
+    
+    int index = (int)(mCurrentFrame) % (int)mFrames.size();
+
 	return  mFrames[index]->getTexture();
 }
 

@@ -336,10 +336,20 @@ void FramedApp::keyDown(KeyEvent event)
 		mFrameManager.nextFrame();
 		mTouchUI->setActiveFrame(mFrameManager.getActiveFrame());
 	}
-	else if (event.getCode() == event.KEY_SPACE) {
-		mOverlayManager.setActiveFrame(mFrameManager.getActiveFrame());
-		mOverlayManager.snap();
-	}
+    else if (event.getCode() == event.KEY_SPACE) {
+        mOverlayManager.setActiveFrame(mFrameManager.getActiveFrame());
+        mOverlayManager.snap();
+    }
+    else if (event.getChar() == '[') {
+        GS()->frameSpeed.increaseStep(1);
+        mNetworkManager->setFrameSpeed(GS()->frameSpeed.value());
+    }
+    else if (event.getChar() == ']') {
+        if(GS()->frameSpeed.value() > 0){
+            GS()->frameSpeed.decreaseStep(1);
+            mNetworkManager->setFrameSpeed(GS()->frameSpeed.value());
+        }
+    }
 
 	// director keys
 	else if (event.getCode() == event.KEY_1) {
@@ -549,6 +559,7 @@ void FramedApp::update()
         drawDebug();
     }
 
+    mFrameManager.update();
 	mNetworkManager->update();
 	if (useOverLay) mOverlayManager.update();
 	mScene->update();
@@ -758,7 +769,7 @@ void FramedApp::drawDebug()
 	if (ImGui::TreeNode("Frame settings")) {
         ImGui::Dummy(ImVec2(0.0f, 20.0f));
 
-		ImGui::SliderFloat("speed: ", &GS()->frameSpeed.value(), 2.f, 20.0f);
+		ImGui::SliderFloat("speed: ", &GS()->frameSpeed.value(), 2.f, 80.0f);
 		if (ImGui::SliderInt("nr of frames", &GS()->nrOfFrames.value(), 1, 60)) {
 			mFrameManager.changeNrOfFrames(GS()->nrOfFrames.value());
 		}

@@ -26,8 +26,12 @@ class FrameManager {
 
 public:
 
-	int totalFrameCount();
+    double mCurrentFrame = 0;
+    int totalFrameCount();
+    float lastFrameUpdate=0;
+    
 	void setup(int nrOfFrames, ci::vec2 size);
+    void update();
 	void draw(bool isFullscreen = false);
 	void drawAtIndex(int index);
 
