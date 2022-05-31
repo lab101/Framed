@@ -40,7 +40,7 @@ set( BLOCKSLIST
 	OSC
 	TUIO
     Base
-	poScene
+    poScene
 )
 
 

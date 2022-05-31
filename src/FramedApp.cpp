@@ -116,7 +116,9 @@ void FramedApp::setup()
 {
 
 	GS()->setup(appName);
-
+    auto f = ci::app::getWindow()->getContentScale();
+    //::getWindowContentScale();
+    
 	frameSize = vec2(GS()->frameWidth.value(), GS()->frameHeight.value());
 
 	mTouchUI = TouchUI::create();
@@ -596,7 +598,6 @@ void FramedApp::draw()
 		drawInterface();
 	}
 
-	
 
 #if defined( CINDER_MSW_DESKTOP )
 	if (GS()->isSpoutActive.value()) mSpoutOut->sendTexture(mFrameManager.getLoopTexture());
@@ -825,6 +826,7 @@ void prepareSettings(FramedApp::Settings* settings) {
 
 #ifdef CINDER_MAC
 	settings->setHighDensityDisplayEnabled();
+    //settings->setHighDensityDisplayEnabled(false);
 #endif
 }
 
