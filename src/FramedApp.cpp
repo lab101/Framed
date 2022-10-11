@@ -35,6 +35,7 @@ public:
 	void setup() override;
 	void setupLogging();
 	void keyDown(KeyEvent event) override;
+    void keyUp(KeyEvent event) override;
 	void mouseDown(MouseEvent event) override;
 	void mouseDrag(MouseEvent event) override;
 	void mouseUp(MouseEvent event) override;
@@ -65,6 +66,11 @@ private:
 	bool mTouchDown = false;
 	bool useOverLay = false;
 	bool isSetupComplete = false;
+    
+
+    float lastUpdateTime = 0;
+    // used for the paper function;
+    vec2 penMoveStart;
 
 
 	ToolState mCurrentToolState;
@@ -93,6 +99,7 @@ private:
 	vec3 getLocalPoint(vec3& screenPoint);
 	int zoomDirection = 0;
 	vec2 zoomCenterPoint;
+    bool isMovingPaper = false;
 
 	float mFps;
     void setNewFrameSize();
@@ -162,8 +169,12 @@ void FramedApp::setup()
 		}
 		});
 
-	zoomCenterPoint.x = 410;
-	zoomCenterPoint.y = 10;
+//	zoomCenterPoint.x = 410;
+//	zoomCenterPoint.y = 10;
+    
+    zoomCenterPoint = ci::app::getWindowCenter();
+    zoomAnchor = vec2(0.5,0.5);
+
 
 
 	if (GS()->projectorMode.value()) {
@@ -172,6 +183,10 @@ void FramedApp::setup()
 
 #if defined( CINDER_COCOA )
 	CI_LOG_I("START ofxTablet");
+    // we only use the pressure.
+    // x,y we take from the mouse events which makes it easier
+    // to maintain between platforms
+    
 	ofxTablet::start();
 	ofxTablet::onData.connect([=](TabletData& data) {
 		mPenPressure = data.pressure;
@@ -297,6 +312,9 @@ vec3 FramedApp::getLocalPoint(vec3& screenPoint) {
 
 void FramedApp::keyDown(KeyEvent event)
 {
+    
+    bool calculateAnchor =false;
+
 	if (event.getChar() == 'd') {
 		GS()->debugMode.setValue(!GS()->debugMode.value());
 		if (GS()->debugMode.value()) {
@@ -316,6 +334,16 @@ void FramedApp::keyDown(KeyEvent event)
 		eraseAndSave();
 		mNetworkManager->sendErase();
 	}
+    
+    else if(event.getCode() == event.KEY_v){
+           
+           zoomDirection = 1;
+           calculateAnchor = true;
+       }
+       else if(event.getCode() == event.KEY_n){
+           zoomDirection = -1;
+           calculateAnchor = true;
+       }
 	else if (event.getCode() == event.KEY_s) {
 		GS()->mSettingManager.writeSettings();
 	}
@@ -338,10 +366,14 @@ void FramedApp::keyDown(KeyEvent event)
 		mFrameManager.nextFrame();
 		mTouchUI->setActiveFrame(mFrameManager.getActiveFrame());
 	}
-    else if (event.getCode() == event.KEY_SPACE) {
-        mOverlayManager.setActiveFrame(mFrameManager.getActiveFrame());
-        mOverlayManager.snap();
+    else if(!isMovingPaper&&  event.getCode() == event.KEY_SPACE ){
+           isMovingPaper = true;
+           penMoveStart = vec2(lastPenPosition.x,lastPenPosition.y);
     }
+//    else if (event.getCode() == event.KEY_SPACE) {
+//        mOverlayManager.setActiveFrame(mFrameManager.getActiveFrame());
+//        mOverlayManager.snap();
+//    }
     else if (event.getChar() == '[') {
         GS()->frameSpeed.increaseStep(1);
         mNetworkManager->setFrameSpeed(GS()->frameSpeed.value());
@@ -392,9 +424,28 @@ void FramedApp::keyDown(KeyEvent event)
 
 	}
 
+    
+    
+    if(calculateAnchor){
+        ivec2 size = mFrameManager.getActiveTexture()->getSize();
+        
+        zoomCenterPoint = vec2(lastPenPosition);
+        vec3 localPointCapped = localCoordinate;
+        localPointCapped.x = fmax(0,fmin(localPointCapped.x,size.x));
+        localPointCapped.y = fmax(0,fmin(localPointCapped.y,size.y));
+        
+        zoomAnchor = vec2(localPointCapped.x / size.x , localPointCapped.y / size.y);
+    }
+}
 
 
-
+void FramedApp::keyUp(KeyEvent event ){
+    
+    zoomDirection = 0;
+    
+    if(event.getCode() == event.KEY_SPACE){
+        isMovingPaper = false;
+    }
 }
 
 
@@ -432,22 +483,30 @@ void FramedApp::fileDrop(FileDropEvent event)
 
 void FramedApp::mouseDown(MouseEvent event)
 {
-	lastPenPosition = vec3(event.getPos(), getPressure());
-	localCoordinate = getLocalPoint(lastPenPosition);
-	if (localCoordinate.x < 0) return;
+    if(isMovingPaper)
+    {
+        vec2 p2 = vec2(lastPenPosition.x,lastPenPosition.y);
+        penMoveStart = p2;
+        
+    }else{
 
-	mTouchDown = true;
+        lastPenPosition = vec3(event.getPos(), getPressure());
+        localCoordinate = getLocalPoint(lastPenPosition);
+        if (localCoordinate.x < 0) return;
 
-	switch (mCurrentToolState) {
-	case ToolState::BRUSH:
-		mLineManger.newLine(localCoordinate);
-		break;
-	case ToolState::RECTANGLE:
-	case ToolState::CIRCLE:
-		mShapeStartPoint = vec2(localCoordinate.x, localCoordinate.y);
-		mShapeEndPoint = mShapeStartPoint;
-		break;
-	}
+        mTouchDown = true;
+
+        switch (mCurrentToolState) {
+        case ToolState::BRUSH:
+            mLineManger.newLine(localCoordinate);
+            break;
+        case ToolState::RECTANGLE:
+        case ToolState::CIRCLE:
+            mShapeStartPoint = vec2(localCoordinate.x, localCoordinate.y);
+            mShapeEndPoint = mShapeStartPoint;
+            break;
+        }
+    }
 }
 
 void FramedApp::mouseMove(MouseEvent event)
@@ -464,27 +523,39 @@ void FramedApp::processMove(MouseEvent event) {
 
 	// sometimes the events are triggered when the app is not fully loaded
 	if (!isSetupComplete) return;
+    
+    lastPenPosition = vec3(event.getPos().x, event.getPos().y, getPressure());
+    localCoordinate = getLocalPoint(lastPenPosition);
 
-	lastPenPosition = vec3(event.getPos().x, event.getPos().y, getPressure());
+    if(isMovingPaper){
+          vec2 p2 = vec2(lastPenPosition.x,lastPenPosition.y);
+          vec2 div =(penMoveStart - p2) ;
+          zoomCenterPoint -=div;
+          penMoveStart = p2;
+          
+    }else{
 
-	if (mTouchDown) {
 
-		localCoordinate = getLocalPoint(lastPenPosition);
+        if (mTouchDown) {
+                localCoordinate = getLocalPoint(lastPenPosition);
 
-		switch (mCurrentToolState) {
-		case ToolState::BRUSH:
-			mLineManger.lineTo(localCoordinate, mTouchUI->getColor());
-			break;
-		case ToolState::RECTANGLE:
-		case ToolState::CIRCLE:
-			mShapeEndPoint = vec2(localCoordinate.x, localCoordinate.y);
-			break;
-		}
-	}
+                switch (mCurrentToolState) {
+                case ToolState::BRUSH:
+                    mLineManger.lineTo(localCoordinate, mTouchUI->getColor());
+                    break;
+                case ToolState::RECTANGLE:
+                case ToolState::CIRCLE:
+                    mShapeEndPoint = vec2(localCoordinate.x, localCoordinate.y);
+                    break;
+                }
+            }
+        }
 }
 
 void FramedApp::mouseUp(MouseEvent event)
 {
+
+    if(isMovingPaper) return;
 
 	lastPenPosition = vec3(event.getPos(), getPressure());
 
@@ -580,6 +651,21 @@ void FramedApp::update()
 	//	}
 	//	pLock.unlock();
     
+    // provides smooth in & out zoom
+    
+    const float div = ci::app::getElapsedSeconds() - lastUpdateTime;
+    lastUpdateTime = ci::app::getElapsedSeconds();
+
+    if(zoomDirection != 0){
+        
+        if(fabs(zoomDirection) < 2){
+            zoomDirection *= 2.0;
+        }
+        
+        GS()->zoomLevel.value() += zoomDirection * div * 0.7;
+        if(GS()->zoomLevel.value() < 0.1) GS()->zoomLevel.value() = 0.1;
+    }
+    
 
 }
 
@@ -616,14 +702,16 @@ void FramedApp::drawInterface() {
        // gl::ScopedViewport fbVP(getWindowSize());
        // gl::setMatricesWindow(getWindowSize());
         ci::gl::translate(zoomCenterPoint.x, zoomCenterPoint.y, 0);
-
+       //   std::cout << zoomCenterPoint.x <<std::endl;
        // float zoomLevel =1;// 0.5 + mTouchUI->getScale();
 
         // make less hardcoded later.
         float adjustForAvailableSpace = (float)(getWindowWidth() - 420) / (float)(frameSize.x);
 
-        ci::gl::scale(adjustForAvailableSpace, adjustForAvailableSpace);
+        ci::gl::scale(adjustForAvailableSpace*GS()->zoomLevel.value(), adjustForAvailableSpace*GS()->zoomLevel.value());
         ci::gl::translate(-frameSize.x * zoomAnchor.x, -frameSize.y * zoomAnchor.y, 0);
+        //std::cout << frameSize.x << std::endl;
+        
         mFrameManager.draw();
 
         gl::color(1, 1, 1, 0.2);

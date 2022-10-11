@@ -7,6 +7,7 @@
 #include "BrushManager.h"
 
 using namespace  ci;
+using namespace ci::gl;
 
 void Frame::setup(ci::vec2 size) {
 	setFbo(mActiveFbo, size, 1);
@@ -57,7 +58,32 @@ void Frame::writeBuffer(std::string path){
 }
 
 void Frame::draw() {
-	if (mActiveFbo)  gl::draw(mActiveFbo->getColorTexture());
+    if (mActiveFbo){
+            auto ctx = ci::gl::context();
+        
+            auto texture = mActiveFbo->getColorTexture();
+        auto srcArea = texture->getBounds();
+        auto dstRect = Rectf( texture->getBounds());
+
+            Rectf texRect = texture->getAreaTexCoords( srcArea );
+
+            ScopedVao vaoScp( ctx->getDrawTextureVao() );
+            ScopedBuffer vboScp( ctx->getDrawTextureVbo() );
+            ScopedTextureBind texBindScope( texture );
+
+            auto glsl = getStockShader( ShaderDef().uniformBasedPosAndTexCoord().color().texture( texture ) );
+            ScopedGlslProg glslScp( glsl );
+            glsl->uniform( "uTex0", 0 );
+            glsl->uniform( "uPositionOffset", dstRect.getUpperLeft() );
+            glsl->uniform( "uPositionScale", dstRect.getSize() );
+            glsl->uniform( "uTexCoordOffset", texRect.getUpperLeft() );
+            glsl->uniform( "uTexCoordScale", texRect.getSize() );
+
+            ctx->setDefaultShaderVars();
+            ctx->drawArrays( GL_TRIANGLE_STRIP, 0, 4 );
+    }
+    
+    //gl::draw(mActiveFbo->getColorTexture());
 }
 
 ci::gl::Texture2dRef Frame::getTexture() {

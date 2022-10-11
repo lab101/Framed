@@ -1,5 +1,5 @@
 {
-   "debug" : true,
+   "debug" : false,
    "disablePenPressure" : false,
    "frameSpeed" : 4,
    "frameWidth" : 1920,
