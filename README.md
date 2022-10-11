@@ -26,6 +26,8 @@ The software will scale them to scene size so make sure they have the same ratio
 - press **s** to save application settings.
 - press **p** projector mode (view the animation fullscreen).
 - press **x** to send a clear all participants. 
+- v and n to zoom in and out.
+- space to move the canvas with your mouse
 
 Arrow buttons to go through different frames.
 
