@@ -30,7 +30,7 @@ void GlobalSettings::setup(std::string appName) {
 	frameWidth = Setting<int>("frameWidth", 1920);
 	mSettingManager.addSetting(&frameWidth);
 
-	frameHeight = Setting<int>("screenHeight", 1080);
+	frameHeight = Setting<int>("frameHeight", 1080);
 	mSettingManager.addSetting(&frameHeight);
 
 	frameSpeed = Setting<float>("frameSpeed", 4);

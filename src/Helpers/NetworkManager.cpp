@@ -11,6 +11,7 @@
 #include "GlobalSettings.h"
 
 using namespace ci;
+
 using namespace ci::app;
 using namespace std;
 using namespace asio;
