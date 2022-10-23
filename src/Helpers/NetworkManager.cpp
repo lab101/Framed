@@ -71,29 +71,34 @@ bool NetworkManager::setup() {
 		[&](const osc::Message& msg) {
 			if (isMessageAllowed(msg)) {
 
-				int totals = msg.getNumArgs();
+                try{
+                    int totals = msg.getNumArgs();
 
-				int frameId = msg.getArgInt32(1);
-				bool isEraserOn = msg.getArgBool(2);
+                    int frameId = msg.getArgInt32(1);
+                    bool isEraserOn = msg.getArgBool(2);
 
-				ci::Color color;
-				color.r = msg.getArgFloat(3);
-				color.g = msg.getArgFloat(4);
-				color.b = msg.getArgFloat(5);
+                    ci::Color color;
+                    color.r = msg.getArgFloat(3);
+                    color.g = msg.getArgFloat(4);
+                    color.b = msg.getArgFloat(5);
 
 
-				std::vector<ci::vec3> points;
-				for (int i = 6; i < totals; i += 3) {
-					points.push_back(ci::vec3(msg[i].flt(), msg[i + 1].flt(), msg[i + 2].flt()));
-				}
-				PointsPackage newPackage;
-				newPackage.setup(points, color);
-				newPackage.setEraser(isEraserOn);
-				newPackage.frameId = frameId;
+                    std::vector<ci::vec3> points;
+                    for (int i = 6; i < totals; i += 3) {
+                        points.push_back(ci::vec3(msg[i].flt(), msg[i + 1].flt(), msg[i + 2].flt()));
+                    }
+                    PointsPackage newPackage;
+                    newPackage.setup(points, color);
+                    newPackage.setEraser(isEraserOn);
+                    newPackage.frameId = frameId;
 
-				mPointsQueueLock.lock();
-				pointsQueue.push(newPackage);
-				mPointsQueueLock.unlock();
+                    mPointsQueueLock.lock();
+                    pointsQueue.push(newPackage);
+                    mPointsQueueLock.unlock();
+                }catch(...){
+                    CI_LOG_E("error decoding points package");
+                }
+
 			}
 
 		});
