@@ -61,7 +61,7 @@ private:
 
 	ci::vec3 lastPenPosition;
 	ci::vec3 localCoordinate;
-
+	ci::Color backgroundColor;
 	float mPenPressure = 0.25;
 	bool mTouchDown = false;
 	bool useOverLay = false;
@@ -134,7 +134,8 @@ void FramedApp::setup()
 
 	setupImGui();
     
-    
+	backgroundColor = Color(0.2, 0.2, 0.25);
+
     
 	mFrameManager.setup(GS()->nrOfFrames.value(), frameSize);
 	mOverlayManager.setup(GS()->nrOfFrames.value(), frameSize);
@@ -673,7 +674,7 @@ void FramedApp::update()
 
 void FramedApp::draw()
 {
-    gl::clear(Color(0.2, 0.2, 0.25));
+    gl::clear(backgroundColor);
 
     
 	gl::clear(Color(0.2, 0.2, 0.25));
@@ -732,6 +733,10 @@ void FramedApp::drawInterface() {
     {
         ci::gl::popMatrices();
 
+		// draw background
+		ci::gl::color(backgroundColor.r, backgroundColor.g, backgroundColor.b, 0.7);
+		ci::gl::drawSolidRect(ci::Rectf(0, 0, 400, ci::app::getWindowHeight()));
+
     //    gl::setMatricesWindow(ci::app::getWindowSize());
         ci::gl::color(1, 1, 1);
         mFrameManager.drawLoop();
@@ -742,6 +747,9 @@ void FramedApp::drawInterface() {
             gl::drawSolidCircle(vec2(zoomCenterPoint.x + 14, 10 + 14), radius);
         }
 
+		
+
+		// draw poScene interface
         ci::gl::color(1, 1, 1);
         mScene->draw();
         drawCursor(getPressure(), lastPenPosition);
